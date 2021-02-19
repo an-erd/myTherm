@@ -2,7 +2,7 @@
 //  Beacon+CoreDataProperties.swift
 //  myTherm
 //
-//  Created by Andreas Erdmann on 17.02.21.
+//  Created by Andreas Erdmann on 19.02.21.
 //
 //
 
@@ -18,11 +18,12 @@ extension Beacon {
 
     @NSManaged public var beacon_version: Int16
     @NSManaged public var company_id: Int16
+    @NSManaged public var descr: String?
     @NSManaged public var id_maj: String?
     @NSManaged public var id_min: String?
-    @NSManaged public var uuid: UUID?
     @NSManaged public var name: String?
-    @NSManaged public var descr: String?
+    @NSManaged public var uuid: UUID?
+    @NSManaged public var device_name: String?
     @NSManaged public var adv: BeaconAdv?
     @NSManaged public var history: NSSet?
     @NSManaged public var location: BeaconLoation?

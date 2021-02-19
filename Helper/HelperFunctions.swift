@@ -117,3 +117,29 @@ private let itemFormatter: DateFormatter = {
     formatter.timeStyle = .medium
     return formatter
 }()
+
+/*
+ 0-15 secs:             now
+ 15-180:                recently
+ 180/3m -3600/60min:    x minutes ago
+ 60min - 10h            x hours ago
+ >10h:                  last seen (short date)
+ */
+func getDateInterpretationString(date: Date, nowDate: Date ) -> String {
+    let formatter2 = DateFormatter()
+    let _ = nowDate
+    formatter2.dateFormat = "yy/MM/dd"
+
+    let secs = date.timeIntervalSinceNow
+    if secs > -15 {
+        return "Now"
+    } else if secs > -180 {
+        return "Recently"
+    } else if secs > -3600 {
+        return "\(-round(secs/60.0)) min. ago"
+    } else if secs > -(10*3600) {
+        return "\(-round(secs/3600)) hour ago"
+    } else {
+        return "Seen " + formatter2.string(from: date)
+    }
+}

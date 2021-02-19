@@ -29,14 +29,12 @@ struct BeaconList: View {
         
         ScrollView {
             VStack(spacing: 8) {
-                
                 ForEach(beacons) { beacon in
-
                     GroupBox(label: Label(beacon.name!, systemImage: "thermometer")) {
-                        BeaconValueView(beacon: beacon, nowDate: self.nowDate)
+                        BeaconValueView(beacon: beacon, beaconAdv: beacon.adv!, nowDate: nowDate)
                     }
-                    .groupBoxStyle(BeaconGroupBoxStyle(color: .blue, destination: BeaconDetail(beacon: beacon), dateString: "recently"))
-                    
+                    .groupBoxStyle(BeaconGroupBoxStyle(color: .blue, destination: BeaconDetail(beacon: beacon, beaconadv: beacon.adv!),
+                                                       dateString: getDateInterpretationString(date: beacon.adv!.timestamp!, nowDate: nowDate)))
                 }
                 .padding()
             }

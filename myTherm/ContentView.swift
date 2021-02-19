@@ -16,8 +16,6 @@ struct ContentView: View {
                 }
                 .listStyle(GroupedListStyle())
                 .navigationBarItems(trailing: EditButton() )
-//                .environment(\.editMode, self.$editMode)
-
         }
         .onAppear {
             MyBluetoothManager.shared.setMoc(moc: viewContext)
@@ -34,13 +32,8 @@ struct ContentView: View {
                 print("PHASECHANGE: View entered unknown phase.")
             }
         }
-
     }
-
-
 }
-
-
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {

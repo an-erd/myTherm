@@ -4,6 +4,7 @@
         <attribute name="beacon_version" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="company_id" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="descr" optional="YES" attributeType="String"/>
+        <attribute name="device_name" optional="YES" attributeType="String"/>
         <attribute name="id_maj" optional="YES" attributeType="String"/>
         <attribute name="id_min" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
@@ -37,7 +38,7 @@
         <relationship name="beacon" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Beacon" inverseName="location" inverseEntity="Beacon"/>
     </entity>
     <elements>
-        <element name="Beacon" positionX="-223.1812133789062" positionY="-285.9000091552734" width="128" height="193"/>
+        <element name="Beacon" positionX="-223.1812133789062" positionY="-285.9000091552734" width="128" height="194"/>
         <element name="BeaconAdv" positionX="68.5216064453125" positionY="-408.4564971923828" width="128" height="193"/>
         <element name="BeaconHistoryDataPoint" positionX="79.50518798828125" positionY="-213.89697265625" width="128" height="103"/>
         <element name="BeaconLoation" positionX="84.72802734375" positionY="-71.25010681152344" width="128" height="103"/>

@@ -1,54 +1,38 @@
-//
-//  BeaconDetail.swift
-//  BleAdvApp
-//
-//  Created by Andreas Erdmann on 09.07.19.
-//  Copyright © 2019 Andreas Erdmann. All rights reserved.
-//
-
 import SwiftUI
 import MapKit
 import Combine
 
 struct BeaconDetail: View {
     @ObservedObject var beacon: Beacon
-    @State var showAlertLastSeen = false
-    @State private var isExpandedBeaconInfo: Bool = true
-    @State private var isExpandedPayload: Bool = true
-    @State private var isExpandedLastSeen: Bool = true
-
-    struct ToggleStates {
-        var Sec1: Bool = true
-        var Sec2: Bool = true
-        var Sec3: Bool = true
-        var Sec4: Bool = true
-    }
-    @State private var toggleStates = ToggleStates()
-
-//    @State private var centerCoordinate = CLLocationCoordinate2D()
+    @ObservedObject var beaconadv: BeaconAdv
     
+    @State private var isExpandedBeaconInfo: Bool = false
+    @State private var isExpandedPayload: Bool = false
+    @State private var isExpandedLastSeen: Bool = true
+    @State private var isExpandedLocation: Bool = true
+
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
     var body: some View {
         VStack {
             List {
-//                DisclosureGroup("BEACON INFORMATION", isExpanded: $isExpandedBeaconInfo) {
-//                    NavigationLink(destination: TextEdit(fieldName: "Name", name:
-//                                                            $beacon.name, allowEmpty: false)
-//                    ) {
-//                        BeaconDetailListEntry(title: "Name", text: beacon.name )
-//                    }
-//
-//                    NavigationLink(destination: TextEdit(fieldName: "Description", name:
-//                                                            $beacon.descrNonOptional, allowEmpty: true)
-//                    ) {
-//                        BeaconDetailListEntry(title: "Description", text:
-//                                                beacon.descr ?? "")
-//                    }
+                DisclosureGroup("BEACON INFORMATION", isExpanded: $isExpandedBeaconInfo) {
+                    NavigationLink(destination: TextEdit(fieldName: "Name", name:
+                                                            Binding($beacon.name)!, allowEmpty: false)
+                    ) {
+                        BeaconDetailListEntry(title: "Name", text: beacon.name ?? "default value" )
+                    }
+
+                    NavigationLink(destination: TextEdit(fieldName: "Description", name:
+                                                            $beacon.descrNonOptional, allowEmpty: true)
+                    ) {
+                        BeaconDetailListEntry(title: "Description", text:
+                                                beacon.descr ?? "")
+                    }
                 }
                 
                 DisclosureGroup("PAYLOAD", isExpanded: $isExpandedPayload) {
-                    buildViewAdv(beaconadv: beacon.adv)
+                    buildViewAdv(beaconadv: beaconadv)
                     if (self.beacon.adv != nil){
                         Button(action: { self.beacon.adv = nil }) {
                             Text("Reset payload data")
@@ -104,7 +88,7 @@ struct BeaconDetail: View {
 //                    }
 //                }
                 
-//            }
+            }
 //            .navigationBarTitle("\(self.beacon.name)", displayMode: .inline)
 
         }
@@ -132,36 +116,37 @@ func getRssiString(rssi: Int16 ) -> String {
 }
 
 
-func buildViewAdv(beaconadv: BeaconAdv?) -> AnyView {
-    if let adv = beaconadv {
+func buildViewAdv(beaconadv: BeaconAdv) -> AnyView {
+//    if let adv = beaconadv {
         return AnyView (
             Group {
                 BeaconDetailListEntry(title: "Temperature",
-                                      text: String(format:"%.2f °C", adv.temperature))
+                                      text: String(format:"%.2f °C", beaconadv.temperature))
                 BeaconDetailListEntry(title: "Humidity",
-                                      text: String(format:"%.2f %%", adv.humidity))
+                                      text: String(format:"%.2f %%", beaconadv.humidity))
                 BeaconDetailListEntry(title: "Battery",
-                                      text: String(format:"%d mV", adv.battery))
-//                BeaconDetailListEntry(title: "Accel",
-//                                      text: String(format:"(%.2f g, %.2f g, %.2f g)",
-//                                                   adv.x, adv.y, adv.z))
-//                BeaconDetailListEntry(title: "RSSI",
-//                                      text: getRssiString(rssi: adv.rssi))
+                                      text: String(format:"%d mV", beaconadv.battery))
+                BeaconDetailListEntry(title: "Accel",
+                                      text: String(format:"(%.2f g, %.2f g, %.2f g)",
+                                                   beaconadv.accel_x, beaconadv.accel_y, beaconadv.accel_z))
+                BeaconDetailListEntry(title: "RSSI",
+                                      text: getRssiString(rssi: Int16(beaconadv.rssi)))
                 
-//                NavigationLink(destination: TextShow(fieldName: "Raw", text: adv.rawData!)
-//                ) {
-//                    BeaconDetailListEntry(title: "Raw", text: adv.rawData!)
-//                }
+                NavigationLink(destination: TextShow(fieldName: "Raw", text: beaconadv.rawdata ?? "no value" )
+                ) {
+                    BeaconDetailListEntry(title: "Raw", text: beaconadv.rawdata ?? "no value" )
+                }
             }
-        ) } else {
-        return AnyView (
-            VStack {
-                Text("No data available")
-                    .foregroundColor(.gray)
-            }
-        )
-    }
-}
+        ) }
+//else {
+//        return AnyView (
+//            VStack {
+//                Text("No data available")
+//                    .foregroundColor(.gray)
+//            }
+//        )
+////    }
+//}
     
 //    @State var showAlertLastSeen = false
 //    @State var showAlertIgnore = false

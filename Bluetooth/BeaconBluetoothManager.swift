@@ -232,25 +232,17 @@ extension MyCentralManagerDelegate {
         beaconadv.accel_z = extractBeaconAdv.accel_z
         beaconadv.rawdata = extractBeaconAdv.rawdata
         
-//        if let location = lm.location {
-//            print(location)
-//            if let _ = beacon.location { } else {
-//                beacon.location = BeaconLoation(context: MyCentralManagerDelegate.shared.moc)
-//            }
-//            guard let beaconloc = beacon.location else { return }
-//            beaconloc.latitude = location.latitude
-//            beaconloc.longitude = location.longitude
-//            beaconloc.timestamp = Date()
-//        }
+        if let location = lm.location {
+            print(location)
+            if let _ = beacon.location { } else {
+                beacon.location = BeaconLoation(context: MyCentralManagerDelegate.shared.moc)
+            }
+            guard let beaconloc = beacon.location else { return }
+            beaconloc.latitude = location.latitude
+            beaconloc.longitude = location.longitude
+            beaconloc.timestamp = Date()
+        }
         
         PersistenceController.shared.saveBackgroundContext(backgroundContext: MyCentralManagerDelegate.shared.moc)
-//        do {
-//            try MyCentralManagerDelegate.shared.moc.save()
-//        } catch {
-//            // Replace this implementation with code to handle the error appropriately.
-//            // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-//            let nsError = error as NSError
-//            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-//        }
     }
 }
