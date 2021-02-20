@@ -18,6 +18,7 @@ struct PersistenceController {
         
         let newBeacon1 = Beacon(context: viewContext)
         newBeacon1.uuid = UUID()
+        newBeacon1.device_name = "Bx0701"
         newBeacon1.name = "Beac1"
         newBeacon1.descr = "Description Beac1"
         newBeacon1.beacon_version = 3
@@ -33,6 +34,7 @@ struct PersistenceController {
                 
         let newBeacon2 = Beacon(context: viewContext)
         newBeacon2.uuid = UUID()
+        newBeacon1.device_name = "Bx0701"
         newBeacon2.name = "Beac2"
         newBeacon2.descr = "Description Beac2"
         newBeacon2.beacon_version = 3
@@ -106,18 +108,18 @@ struct PersistenceController {
         } catch {
             fatalError("###\(#function): Failed to pin viewContext to the current generation:\(error)")
         }
-            }
-    
-    
+    }
 
     func saveBackgroundContext(backgroundContext: NSManagedObjectContext) {
-        persistentContainerQueue.addOperation(){
-            backgroundContext.performAndWait{
-                do {
-                    //update core data
-                try backgroundContext.save()
-                } catch let error as NSError  {
-                    print("Could not save \(error), \(error.userInfo)")
+        if backgroundContext.hasChanges {
+            persistentContainerQueue.addOperation(){
+                backgroundContext.performAndWait{
+                    do {
+                        //update core data
+                        try backgroundContext.save()
+                    } catch let error as NSError  {
+                        print("Could not save \(error), \(error.userInfo)")
+                    }
                 }
             }
         }

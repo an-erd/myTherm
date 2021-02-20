@@ -209,6 +209,7 @@ extension MyCentralManagerDelegate {
                 beacon.id_min = extractBeacon.id_min
                 beacon.beacon_version = extractBeacon.beacon_version
                 beacon.name = peripheral.name ?? "(no name)"
+                beacon.device_name = peripheral.name ?? "(no device name)"
                 
                 beacon.adv = BeaconAdv(context: MyCentralManagerDelegate.shared.moc)
                 guard let newadv = beacon.adv else { return }
@@ -235,7 +236,7 @@ extension MyCentralManagerDelegate {
         if let location = lm.location {
             print(location)
             if let _ = beacon.location { } else {
-                beacon.location = BeaconLoation(context: MyCentralManagerDelegate.shared.moc)
+                beacon.location = BeaconLocation(context: MyCentralManagerDelegate.shared.moc)
             }
             guard let beaconloc = beacon.location else { return }
             beaconloc.latitude = location.latitude

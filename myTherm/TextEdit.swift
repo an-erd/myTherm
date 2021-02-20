@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TextEdit : View {
+    @Environment(\.managedObjectContext) private var viewContext
+
     var fieldName: String
     @Binding var name: String
     @State var editName: String = ""
@@ -44,6 +46,7 @@ struct TextEdit : View {
             } else {
                 self.name = self.editName
             }
+            PersistenceController.shared.saveBackgroundContext(backgroundContext: viewContext)
         }
     }
 }

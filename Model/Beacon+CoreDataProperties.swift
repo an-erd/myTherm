@@ -26,7 +26,7 @@ extension Beacon {
     @NSManaged public var device_name: String?
     @NSManaged public var adv: BeaconAdv?
     @NSManaged public var history: NSSet?
-    @NSManaged public var location: BeaconLoation?
+    @NSManaged public var location: BeaconLocation?
 
 }
 
