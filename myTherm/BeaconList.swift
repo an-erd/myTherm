@@ -33,8 +33,10 @@ struct BeaconList: View {
                     GroupBox(label: Label(beacon.name!, systemImage: "thermometer")) {
                         BeaconValueView(beacon: beacon, beaconAdv: beacon.adv!, nowDate: nowDate)
                     }
-                    .groupBoxStyle(BeaconGroupBoxStyle(color: .blue, destination: BeaconDetail(beacon: beacon, beaconadv: beacon.adv!),
-                                                       dateString: getDateInterpretationString(date: beacon.adv!.timestamp!, nowDate: nowDate)))
+                    .groupBoxStyle(
+                        BeaconGroupBoxStyle(color: .blue,
+                                            destination: BeaconDetail(beacon: beacon, beaconadv: beacon.adv!),
+                                            dateString: getDateInterpretationString(date: beacon.adv!.timestamp!, nowDate: nowDate)))
                 }
                 .padding()
             }

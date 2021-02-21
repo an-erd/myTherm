@@ -2,6 +2,13 @@ import Foundation
 import CoreBluetooth
 import CoreLocation
 import CoreData
+import os
+
+class BeaconPeripheral: NSObject {
+    public static let beaconRemoteServiceUUID               = CBUUID.init(string: "612F1400-37F5-4C4F-9FF2-320C4BA2B73C")
+    public static let beaconRACPMeasurementValuesCharUUID   = CBUUID.init(string: "1401")
+    public static let beaconRACPControlPointCharUUID        = CBUUID.init(string: "2A52")
+}
 
 /// This manages a bluetooth peripheral. This is intended as a starting point
 /// for you to customise from.
@@ -19,9 +26,19 @@ class MyBluetoothManager {
     func setMoc(moc: NSManagedObjectContext){
         MyCentralManagerDelegate.shared.setMoc(moc: moc)
     }
+
+    var discoveredPeripheral: CBPeripheral?
+    var racpControlPointChar: CBCharacteristic?
+    var racpMeasurementValueChar: CBCharacteristic?
+    var racpControlPointNotifying: Bool = false
+    var racpMeasurementValueNotifying: Bool = false
+    var counterControlPointNotification = 0
+    var counterMeasurementValueNotification = 0
+    
+    var beaconHistory: [BeaconHistoryDataPointLocal] = []
 }
 
-class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate {
+class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     static let shared = MyCentralManagerDelegate()
     private var moc: NSManagedObjectContext!
     private var lm = LocationManager()
@@ -41,6 +58,7 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate {
         case .poweredOn:
             print("central.state is .poweredOn")
             central.scanForPeripherals(withServices: nil, options: nil)
+//            central.scanForPeripherals(withServices: [BeaconPeripheral.beaconRemoteServiceUUID], options: nil)
         @unknown default:
             print("central.state is @unknown default")
         }
@@ -51,10 +69,10 @@ extension MyCentralManagerDelegate {
     
     func setMoc(moc: NSManagedObjectContext){
         if (self.moc == nil) {
-            print("MyCentralManagerDelegate setModel not set yet")
+            print("MyCentralManagerDelegate moc not set yet")
         }
         self.moc = moc
-        print(" MyCentralManagerDelegatesetModel set")
+        print("MyCentralManagerDelegate moc set")
     }
 
     func fetchBeacon(with identifier: UUID) -> Beacon? {
@@ -87,7 +105,8 @@ extension MyCentralManagerDelegate {
             return ( extractBeacon, extractBeaconAdv )
         }
 
-        let companyId = Int16(UInt16(manufacturerData[1]) << 8 + UInt16(manufacturerData[0]))
+        let companyId = Int16(UInt16_decode(msb: manufacturerData[1], lsb: manufacturerData[0]))
+            
         if companyId == 0x0059 {
             extractBeacon.company_id = companyId
         } else {
@@ -119,7 +138,7 @@ extension MyCentralManagerDelegate {
             extractBeacon.id_min = String(format: "0x%02X%02X",
                                           UInt8(UInt8(manufacturerData[4])),
                                           UInt8(UInt8(manufacturerData[5])))
-            print("maj \(0<<8 | UInt8(manufacturerData[3])) min \(UInt8(manufacturerData[4]) | UInt8(manufacturerData[5]))")
+            print("beacon found maj \(0<<8 | UInt8(manufacturerData[3])) min \(UInt8(manufacturerData[4]) | UInt8(manufacturerData[5]))")
         default:
             print("beac wrong deviceType: \(deviceType)")
             return ( extractBeacon, extractBeaconAdv )
@@ -157,9 +176,7 @@ extension MyCentralManagerDelegate {
         extractBeaconAdv.accel_y = accelY
         extractBeaconAdv.accel_z = accelZ
         extractBeaconAdv.rawdata = (manufacturerData.hexEncodedString(options: .upperCase) as String).group(by: 4, separator: " ")
-
-
-        print("temperature \(temperature), humidity \(humidity)")
+//        print("temperature \(temperature), humidity \(humidity)")
 
         return ( extractBeacon, extractBeaconAdv )
     }
@@ -245,5 +262,179 @@ extension MyCentralManagerDelegate {
         }
         
         PersistenceController.shared.saveBackgroundContext(backgroundContext: MyCentralManagerDelegate.shared.moc)
+    }
+
+    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        print("centralManager didConnect peripheral")
+        peripheral.delegate = self
+        MyBluetoothManager.shared.discoveredPeripheral = peripheral
+        central.stopScan()
+        peripheral.discoverServices([BeaconPeripheral.beaconRemoteServiceUUID])
+    }
+
+    public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        print("peripheral didDiscoverServices")
+        if let services = peripheral.services {
+            print("found \(services.count) services:")
+            for service in services {
+                print(service)
+                peripheral.discoverCharacteristics(
+                    [BeaconPeripheral.beaconRACPControlPointCharUUID,
+                    BeaconPeripheral.beaconRACPMeasurementValuesCharUUID], for: service)
+                }
+            }
+            return
+        }
+
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+        print("peripheral didDiscoverCharacteristicsFor service")
+        if let characteristics = service.characteristics {
+            if let myperipheral = MyBluetoothManager.shared.discoveredPeripheral {
+                print("found \(characteristics.count) characteristics")
+                for characteristic in characteristics {
+                    print(characteristic)
+                    if characteristic.uuid == BeaconPeripheral.beaconRACPControlPointCharUUID {
+                        print("characteristic found: beaconRACPControlPointCharUUID")
+                        MyBluetoothManager.shared.racpControlPointChar = characteristic
+                        peripheral.setNotifyValue(true, for: characteristic)
+                    } else if characteristic.uuid == BeaconPeripheral.beaconRACPMeasurementValuesCharUUID {
+                        print("characteristic found: beaconRACPMeasurementValuesCharUUID")
+                        MyBluetoothManager.shared.racpMeasurementValueChar = characteristic
+                        myperipheral.setNotifyValue(true, for: characteristic)
+                    }
+                }
+            }
+        }
+    }
+    
+    /*
+     * We will first check if we are already connected to our counterpart
+     * Otherwise, scan for peripherals - specifically for our service's 128bit CBUUID
+     */
+    private func retrievePeripheral() {
+        
+        let connectedPeripherals: [CBPeripheral] = (MyBluetoothManager.shared.central.retrieveConnectedPeripherals(withServices: [BeaconPeripheral.beaconRemoteServiceUUID]))
+        
+        os_log("Found connected Peripherals with transfer service: %@", connectedPeripherals)
+        
+        if let connectedPeripheral = connectedPeripherals.last {
+            os_log("Connecting to peripheral %@", connectedPeripheral)
+            MyBluetoothManager.shared.discoveredPeripheral = connectedPeripheral
+            MyBluetoothManager.shared.central.connect(connectedPeripheral, options: nil)
+        } else {
+            // We were not connected to our counterpart, so start scanning
+            MyBluetoothManager.shared.central.scanForPeripherals(withServices: [BeaconPeripheral.beaconRemoteServiceUUID],
+                                               options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
+        }
+    }
+
+    /*
+     *  Call this when things either go wrong, or you're done with the connection.
+     *  This cancels any subscriptions if there are any, or straight disconnects if not.
+     *  (didUpdateNotificationStateForCharacteristic will cancel the connection if a subscription is involved)
+     */
+    private func cleanup() {
+        // Don't do anything if we're not connected
+        guard let discoveredPeripheral = MyBluetoothManager.shared.discoveredPeripheral,
+            case .connected = discoveredPeripheral.state else { return }
+
+        for service in (discoveredPeripheral.services ?? [] as [CBService]) {
+            for characteristic in (service.characteristics ?? [] as [CBCharacteristic]) {
+                if characteristic.uuid == BeaconPeripheral.beaconRACPControlPointCharUUID && characteristic.isNotifying {
+                    discoveredPeripheral.setNotifyValue(false, for: characteristic)
+                } else if characteristic.uuid == BeaconPeripheral.beaconRACPMeasurementValuesCharUUID && characteristic.isNotifying {
+                    discoveredPeripheral.setNotifyValue(false, for: characteristic)
+                }
+            }
+        }
+
+        // If we've gotten this far, we're connected, but we're not subscribed, so we just disconnect
+        MyBluetoothManager.shared.central.cancelPeripheralConnection(discoveredPeripheral)
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+        // Deal with errors (if any)
+        if let error = error {
+            print("Error changing notification state: %s", error.localizedDescription)
+            return
+        }
+        
+        print("peripheral didUpdateNotificationStateFor characteristic")
+
+        if(characteristic.uuid == BeaconPeripheral.beaconRACPMeasurementValuesCharUUID){
+            MyBluetoothManager.shared.racpMeasurementValueNotifying = characteristic.isNotifying
+        } else if(characteristic.uuid == BeaconPeripheral.beaconRACPControlPointCharUUID){
+            MyBluetoothManager.shared.racpControlPointNotifying = characteristic.isNotifying
+        }
+            
+        guard let discoveredPeripheral = MyBluetoothManager.shared.discoveredPeripheral,
+                let transferCharacteristic = MyBluetoothManager.shared.racpControlPointChar
+            else { return }
+
+        if characteristic.isNotifying {
+            print("Notification began on %@", characteristic)
+        } else {
+            print("Notification stopped on %@. Disconnecting", characteristic)
+            if !MyBluetoothManager.shared.racpMeasurementValueNotifying &&
+                   !MyBluetoothManager.shared.racpControlPointNotifying {
+                cleanup()
+            }
+        }
+        
+        if ( MyBluetoothManager.shared.racpMeasurementValueNotifying == true) {
+            if ( MyBluetoothManager.shared.racpControlPointNotifying == true) {
+                // Todo: Start Downloading and doing all the stuff
+                let rawPacket: [UInt8] = [01, 01]
+                let data = Data(rawPacket)
+                MyBluetoothManager.shared.beaconHistory.removeAll()
+                discoveredPeripheral.writeValue(data, for: transferCharacteristic, type: .withResponse)
+            }
+        }
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        // Deal with errors (if any)
+        if let error = error {
+            print("Error discovering characteristics: %s", error.localizedDescription)
+            cleanup()
+            return
+        }
+        
+        guard let characteristicData = characteristic.value else { return }
+//        let encodedData = (characteristicData.hexEncodedString(options: .upperCase) as String).group(by: 2, separator: " ")
+
+        if characteristic.uuid == BeaconPeripheral.beaconRACPMeasurementValuesCharUUID {
+            MyBluetoothManager.shared.counterMeasurementValueNotification += 1
+            // TODO do stuff with the data retrieved
+            let seqNumber = UInt16_decode(msb: characteristicData[1], lsb: characteristicData[0])
+            let epochTime = UInt32_decode(msb1: characteristicData[5],msb0: characteristicData[4], lsb1: characteristicData[3], lsb0: characteristicData[2])
+            let temperature = getSHT3temperatureValue(msb: characteristicData[6], lsb: characteristicData[7])
+            let humidity = getSHT3humidityValue(msb: characteristicData[8], lsb: characteristicData[9])
+            let dataPoint = BeaconHistoryDataPointLocal(sequenceNumber: seqNumber, humidity: humidity, temperature: temperature,
+                                                        timestamp: NSDate(timeIntervalSince1970: TimeInterval(epochTime)) as Date)
+            MyBluetoothManager.shared.beaconHistory.append(dataPoint)
+        }
+        if characteristic.uuid == BeaconPeripheral.beaconRACPControlPointCharUUID {
+            MyBluetoothManager.shared.counterControlPointNotification += 1
+
+            print("Done received value \(MyBluetoothManager.shared.counterMeasurementValueNotification), control \(MyBluetoothManager.shared.counterControlPointNotification)")
+            print("beaconHistory.count \(MyBluetoothManager.shared.beaconHistory.count)")
+        }
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor descriptor: CBDescriptor, error: Error?) {
+        if let error = error {
+            print("Failed didWriteValueFor to %@. %s", peripheral, String(describing: error))
+        }
+        
+        print ("didWriteValueFor called")
+    }
+    
+    func peripheral(peripheral: CBPeripheral, didWriteValueForCharacteristic characteristic: CBCharacteristic!, error: NSError!){
+        if let error = error {
+            print("Failed didWriteValueForCharacteristic to %@. %s", peripheral, String(describing: error))
+        } else {
+            print ("didWriteValueForCharacteristic ok")
+        }
     }
 }

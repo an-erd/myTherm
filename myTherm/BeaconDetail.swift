@@ -46,34 +46,21 @@ struct BeaconDetail: View {
                         Text("No data available")
                             .foregroundColor(.gray)
                     }
-//                            NavigationLink(destination: BeaconDetail(beacon: beacon)) {
-//                            }
-//                        }
-//                        //                        BeaconDetailListEntryWrapper(
-//                        //                            title: "Location", location: self.userData.beacons[self.beaconIndex].beaconloc, beaconIndex: beaconIndex)
-                    }
-                    }
-
-                
-                
-//                            NavigationLink(destination: BeaconDetail(beacon: beacon)) {
-//                                ZStack {
-//                                    MapView(centerCoordinate: beacon.loc!.location)
-//                                        .frame(width: 200, height: 200)
-//                                    Circle()
-//                                        .fill(Color.blue)
-//                                        .opacity(0.3)
-//                                        .frame(width: 32, height: 32)
-//                                }
-//                       }
-//                        }
-//                        //                        BeaconDetailListEntryWrapper(
-//                        //                            title: "Location", location: self.userData.beacons[self.beaconIndex].beaconloc, beaconIndex: beaconIndex)
+                }
             }
-//            .navigationBarTitle("\(self.beacon.name)", displayMode: .inline)
         }
+        .navigationTitle(beacon.name!)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            Button(action: {
+                printPeripherals(uuid: beacon.uuid!)
+            }) {
+                Image(systemName: "pencil")
+            }
+        }
+        // https://stackoverflow.com/questions/61823392/displaying-progress-from-sessiondownloaddelegate-with-swiftui
     }
-
+}
 
 func getRssiString(rssi: Int16 ) -> String {
     if rssi == 127 {

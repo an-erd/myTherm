@@ -111,7 +111,7 @@ struct PersistenceController {
     }
 
     func saveBackgroundContext(backgroundContext: NSManagedObjectContext) {
-        if backgroundContext.hasChanges {
+//        if backgroundContext.hasChanges {
             persistentContainerQueue.addOperation(){
                 backgroundContext.performAndWait{
                     do {
@@ -123,6 +123,6 @@ struct PersistenceController {
                 }
             }
         }
-    }
+//    }
 
 }

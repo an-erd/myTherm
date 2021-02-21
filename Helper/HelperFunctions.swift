@@ -154,3 +154,19 @@ func getDateString(date: Date? ) -> String {
         return "never"
     }
 }
+
+func UInt16_decode(msb: UInt8, lsb: UInt8) -> UInt16 {
+    return UInt16(msb) << 8 | UInt16(lsb)
+}
+
+func UInt32_decode(msb1: UInt8, msb0: UInt8, lsb1: UInt8, lsb0: UInt8) -> UInt32 {
+    return UInt32(msb1) << 24 | UInt32(msb0) << 16 | UInt32(lsb1) << 8 | UInt32(lsb0)
+}
+
+func getSHT3temperatureValue(msb: UInt8, lsb: UInt8) -> Double {
+    return Double(-45.0 + (Double(UInt16_decode(msb: msb, lsb: lsb)) * 175.0 ) / Double(0xFFFF))
+}
+
+func getSHT3humidityValue(msb: UInt8, lsb: UInt8) -> Double {
+    return Double((Double(UInt16_decode(msb: msb, lsb: lsb)) * 100.0 ) / Double(0xFFFF))
+}

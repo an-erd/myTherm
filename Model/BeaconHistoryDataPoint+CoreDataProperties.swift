@@ -2,7 +2,7 @@
 //  BeaconHistoryDataPoint+CoreDataProperties.swift
 //  myTherm
 //
-//  Created by Andreas Erdmann on 17.02.21.
+//  Created by Andreas Erdmann on 20.02.21.
 //
 //
 

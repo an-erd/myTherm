@@ -26,3 +26,10 @@ struct ExtractBeacon {
     var name: String
     var descr: String
 }
+
+struct BeaconHistoryDataPointLocal {
+    var sequenceNumber: UInt16
+    var humidity: Double
+    var temperature: Double
+    var timestamp: Date
+}
