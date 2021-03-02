@@ -4,12 +4,6 @@ import CoreLocation
 import CoreData
 import os
 
-class BeaconPeripheral: NSObject {
-    public static let beaconRemoteServiceUUID               = CBUUID.init(string: "612F1400-37F5-4C4F-9FF2-320C4BA2B73C")
-    public static let beaconRACPMeasurementValuesCharUUID   = CBUUID.init(string: "1401")
-    public static let beaconRACPControlPointCharUUID        = CBUUID.init(string: "2A52")
-}
-
 /// This manages a bluetooth peripheral. This is intended as a starting point
 /// for you to customise from.
 /// Read http://www.splinter.com.au/2019/05/18/ios-swift-bluetooth-le for a
@@ -384,7 +378,7 @@ extension MyCentralManagerDelegate {
         if ( MyBluetoothManager.shared.racpMeasurementValueNotifying == true) {
             if ( MyBluetoothManager.shared.racpControlPointNotifying == true) {
                 // Todo: Start Downloading and doing all the stuff
-                let rawPacket: [UInt8] = [01, 01]
+                let rawPacket: [UInt8] = [04, 01]
                 let data = Data(rawPacket)
                 MyBluetoothManager.shared.beaconHistory.removeAll()
                 discoveredPeripheral.writeValue(data, for: transferCharacteristic, type: .withResponse)
@@ -401,8 +395,8 @@ extension MyCentralManagerDelegate {
         }
         
         guard let characteristicData = characteristic.value else { return }
-//        let encodedData = (characteristicData.hexEncodedString(options: .upperCase) as String).group(by: 2, separator: " ")
-
+        let encodedData = (characteristicData.hexEncodedString(options: .upperCase) as String).group(by: 2, separator: " ")
+print("encoded data i\(encodedData)")
         if characteristic.uuid == BeaconPeripheral.beaconRACPMeasurementValuesCharUUID {
             MyBluetoothManager.shared.counterMeasurementValueNotification += 1
             // TODO do stuff with the data retrieved

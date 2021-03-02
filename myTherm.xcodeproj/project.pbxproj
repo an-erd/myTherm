@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		806E50A725E6A2FB001218D5 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806E50A625E6A2FB001218D5 /* DownloadManager.swift */; };
+		806E50A925E6A961001218D5 /* BeaconPeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806E50A825E6A961001218D5 /* BeaconPeripheral.swift */; };
+		806E50AB25E6AC57001218D5 /* Download.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806E50AA25E6AC57001218D5 /* Download.swift */; };
 		807838EB25DCEB0E009FF0E9 /* myThermApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807838EA25DCEB0E009FF0E9 /* myThermApp.swift */; };
 		807838ED25DCEB0E009FF0E9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807838EC25DCEB0E009FF0E9 /* ContentView.swift */; };
 		807838EF25DCEB10009FF0E9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 807838EE25DCEB10009FF0E9 /* Assets.xcassets */; };
@@ -38,10 +41,15 @@
 		808E67F525E0ED2100D37C51 /* BeaconLocation+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808E67F325E0ED2100D37C51 /* BeaconLocation+CoreDataClass.swift */; };
 		808E67F625E0ED2100D37C51 /* BeaconLocation+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808E67F425E0ED2100D37C51 /* BeaconLocation+CoreDataProperties.swift */; };
 		808E67FA25E126DD00D37C51 /* ProgressCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808E67F925E126DD00D37C51 /* ProgressCircle.swift */; };
-		808E67FC25E14CEC00D37C51 /* BeaconBufferDownload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808E67FB25E14CEC00D37C51 /* BeaconBufferDownload.swift */; };
+		80C6FD0925ED12E6006985D5 /* LineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C6FD0825ED12E6006985D5 /* LineView.swift */; };
+		80C6FD0B25ED16A5006985D5 /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C6FD0A25ED16A5006985D5 /* Line.swift */; };
+		80C6FD0D25ED182B006985D5 /* Path.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C6FD0C25ED182B006985D5 /* Path.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		806E50A625E6A2FB001218D5 /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
+		806E50A825E6A961001218D5 /* BeaconPeripheral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconPeripheral.swift; sourceTree = "<group>"; };
+		806E50AA25E6AC57001218D5 /* Download.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Download.swift; sourceTree = "<group>"; };
 		807838E725DCEB0E009FF0E9 /* myTherm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTherm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		807838EA25DCEB0E009FF0E9 /* myThermApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = myThermApp.swift; sourceTree = "<group>"; };
 		807838EC25DCEB0E009FF0E9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -76,7 +84,9 @@
 		808E67F325E0ED2100D37C51 /* BeaconLocation+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "BeaconLocation+CoreDataClass.swift"; path = "Model/BeaconLocation+CoreDataClass.swift"; sourceTree = "<group>"; };
 		808E67F425E0ED2100D37C51 /* BeaconLocation+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "BeaconLocation+CoreDataProperties.swift"; path = "Model/BeaconLocation+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		808E67F925E126DD00D37C51 /* ProgressCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressCircle.swift; sourceTree = "<group>"; };
-		808E67FB25E14CEC00D37C51 /* BeaconBufferDownload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconBufferDownload.swift; sourceTree = "<group>"; };
+		80C6FD0825ED12E6006985D5 /* LineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineView.swift; sourceTree = "<group>"; };
+		80C6FD0A25ED16A5006985D5 /* Line.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
+		80C6FD0C25ED182B006985D5 /* Path.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Path.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +104,7 @@
 		807838DE25DCEB0E009FF0E9 = {
 			isa = PBXGroup;
 			children = (
+				80C6FD0625ED1275006985D5 /* LineView */,
 				808E67F825E126AE00D37C51 /* ProgressCircle */,
 				808E67F725E1266200D37C51 /* TextFields */,
 				8080269725DD1E77000C377D /* Model */,
@@ -182,7 +193,9 @@
 			isa = PBXGroup;
 			children = (
 				8080271425DD9962000C377D /* BeaconBluetoothManager.swift */,
-				808E67FB25E14CEC00D37C51 /* BeaconBufferDownload.swift */,
+				806E50A825E6A961001218D5 /* BeaconPeripheral.swift */,
+				806E50AA25E6AC57001218D5 /* Download.swift */,
+				806E50A625E6A2FB001218D5 /* DownloadManager.swift */,
 			);
 			path = Bluetooth;
 			sourceTree = "<group>";
@@ -218,6 +231,16 @@
 				808E67F925E126DD00D37C51 /* ProgressCircle.swift */,
 			);
 			path = ProgressCircle;
+			sourceTree = "<group>";
+		};
+		80C6FD0625ED1275006985D5 /* LineView */ = {
+			isa = PBXGroup;
+			children = (
+				80C6FD0825ED12E6006985D5 /* LineView.swift */,
+				80C6FD0A25ED16A5006985D5 /* Line.swift */,
+				80C6FD0C25ED182B006985D5 /* Path.swift */,
+			);
+			path = LineView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -289,6 +312,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				80C6FD0D25ED182B006985D5 /* Path.swift in Sources */,
 				807838F425DCEB10009FF0E9 /* Persistence.swift in Sources */,
 				8080271325DD960B000C377D /* BeaconDetailListEntry.swift in Sources */,
 				808E67F525E0ED2100D37C51 /* BeaconLocation+CoreDataClass.swift in Sources */,
@@ -298,16 +322,18 @@
 				808E67EE25E04F2F00D37C51 /* BeaconExtension.swift in Sources */,
 				808E67EC25E030B800D37C51 /* Beacon+CoreDataProperties.swift in Sources */,
 				8080270725DD9501000C377D /* BeaconGroupBoxStyle.swift in Sources */,
+				80C6FD0B25ED16A5006985D5 /* Line.swift in Sources */,
 				808E67F625E0ED2100D37C51 /* BeaconLocation+CoreDataProperties.swift in Sources */,
 				8080270925DD952B000C377D /* BeaconValueView.swift in Sources */,
 				8080271525DD9962000C377D /* BeaconBluetoothManager.swift in Sources */,
+				80C6FD0925ED12E6006985D5 /* LineView.swift in Sources */,
 				8080270225DD6E86000C377D /* Beacon+CoreDataClass.swift in Sources */,
+				806E50A925E6A961001218D5 /* BeaconPeripheral.swift in Sources */,
 				808E67F225E0ECAF00D37C51 /* BeaconLocationExtension.swift in Sources */,
 				8080270425DD6E86000C377D /* BeaconHistoryDataPoint+CoreDataClass.swift in Sources */,
 				807838ED25DCEB0E009FF0E9 /* ContentView.swift in Sources */,
 				8078390025DD0A7A009FF0E9 /* myTherm.xcdatamodeld in Sources */,
 				808026E525DD60EE000C377D /* BeaconList.swift in Sources */,
-				808E67FC25E14CEC00D37C51 /* BeaconBufferDownload.swift in Sources */,
 				808E67FA25E126DD00D37C51 /* ProgressCircle.swift in Sources */,
 				808E67F025E0E88900D37C51 /* MapView.swift in Sources */,
 				8080270525DD6E86000C377D /* BeaconHistoryDataPoint+CoreDataProperties.swift in Sources */,
@@ -317,6 +343,8 @@
 				808026E325DD5431000C377D /* HelperFunctions.swift in Sources */,
 				8080270B25DD954E000C377D /* BeaconDetail.swift in Sources */,
 				8080270025DD6E86000C377D /* BeaconAdv+CoreDataClass.swift in Sources */,
+				806E50A725E6A2FB001218D5 /* DownloadManager.swift in Sources */,
+				806E50AB25E6AC57001218D5 /* Download.swift in Sources */,
 				8080271025DD959C000C377D /* TextShow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -17,6 +17,7 @@ struct BeaconList: View {
     private var beacons: FetchedResults<Beacon>
 
     @State private var editMode: EditMode = .inactive
+    @State private var tempDisplay: Bool = true
     
     @State var nowDate: Date = Date()
     var timer: Timer {
@@ -27,11 +28,20 @@ struct BeaconList: View {
 
     var body: some View {
         
+        GeometryReader { geometry in
         ScrollView {
             VStack(spacing: 8) {
                 ForEach(beacons) { beacon in
                     GroupBox(label: Label(beacon.name!, systemImage: "thermometer")) {
-                        BeaconValueView(beacon: beacon, beaconAdv: beacon.adv!, nowDate: nowDate)
+                            HStack {
+                                BeaconValueView(beacon: beacon, beaconAdv: beacon.adv!, nowDate: nowDate)
+                                    .frame(width: geometry.size.width * 0.55)
+                                ZStack {
+                                    LineView(data: [0,1,2,3,4,5,6,7,8,9,10,0,20,0,10,0,5,0,4,0,3,0,2,0,1,0],title: "°C")
+    //orange
+                                    
+                                }
+                            }
                     }
                     .groupBoxStyle(
                         BeaconGroupBoxStyle(color: .blue,
@@ -47,7 +57,8 @@ struct BeaconList: View {
             self.onAppear()
             _ = self.timer
         })
-    }
+    }}
+
         
     
     public func onAppear() {

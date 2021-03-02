@@ -4,6 +4,7 @@ import CoreData
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.scenePhase) private var scenePhase
+        
     
     let locationManager = CLLocationManager()
 
@@ -11,13 +12,11 @@ struct ContentView: View {
         NavigationView {
             BeaconList()
                 .navigationBarTitle("Beacons")
-                .toolbar {
-                    EditButton()
-                }
                 .listStyle(GroupedListStyle())
-                .navigationBarItems(trailing: EditButton() )
-        }
-        .onAppear {
+//                .navigationBarItems(trailing:
+//                    ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
+//                    )
+        }.onAppear {
             MyBluetoothManager.shared.setMoc(moc: viewContext)
         }
         .onChange(of: scenePhase) { phase in
