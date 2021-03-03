@@ -12,7 +12,7 @@ protocol DownloadDelegate: AnyObject {
 }
 
 enum DownloadStatus {
-    case waiting, downloading, finished, cancelled
+    case waiting, downloading_num, downloading_data, finished, cancelled
 }
 
 class Download {

@@ -55,8 +55,9 @@ struct BeaconDetail: View {
             Button(action: {
                 printPeripherals(uuid: beacon.uuid!)
             }) {
+                Image(systemName: "icloud.and.arrow.down")
 //                Image(systemName: "arrow.triangle.2.circlepath")
-                ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
+//                ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
             }
         }
         // https://stackoverflow.com/questions/61823392/displaying-progress-from-sessiondownloaddelegate-with-swiftui

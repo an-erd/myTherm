@@ -21,6 +21,14 @@ struct LineView: View {
     public var body: some View {
         GeometryReader{ geometry in
             ZStack{
+                GeometryReader{ reader in
+                    Line(data: self.data,
+                         frame: .constant(CGRect(x: 0, y: 0,
+                                                 width: reader.frame(in: .local).width,
+                                                 height: reader.frame(in: .local).height))
+                    ).offset(x: 0, y: 0)
+                }
+                
                 VStack(alignment: .leading, spacing: 8) {
                     Group{
                         if (self.title != nil){
@@ -31,15 +39,6 @@ struct LineView: View {
                         }
                     }.offset(x: 0, y: 0)
                 }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-
-                
-                GeometryReader{ reader in
-                    Line(data: self.data,
-                         frame: .constant(CGRect(x: 0, y: 0,
-                                                 width: reader.frame(in: .local).width,
-                                                 height: reader.frame(in: .local).height))
-                    ).offset(x: 0, y: 0)
-                }
             }
         }
     }

@@ -266,6 +266,14 @@ extension MyCentralManagerDelegate {
         peripheral.discoverServices([BeaconPeripheral.beaconRemoteServiceUUID])
     }
 
+    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral,
+                        error: Error?) {
+        print("centralManager didDisconnect peripheral")
+        peripheral.delegate = nil
+        MyBluetoothManager.shared.discoveredPeripheral = nil
+        central.scanForPeripherals(withServices: nil, options: nil)
+    }
+
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         print("peripheral didDiscoverServices")
         if let services = peripheral.services {
@@ -378,7 +386,7 @@ extension MyCentralManagerDelegate {
         if ( MyBluetoothManager.shared.racpMeasurementValueNotifying == true) {
             if ( MyBluetoothManager.shared.racpControlPointNotifying == true) {
                 // Todo: Start Downloading and doing all the stuff
-                let rawPacket: [UInt8] = [04, 01]
+                let rawPacket: [UInt8] = [04, 01]   // get num
                 let data = Data(rawPacket)
                 MyBluetoothManager.shared.beaconHistory.removeAll()
                 discoveredPeripheral.writeValue(data, for: transferCharacteristic, type: .withResponse)
@@ -394,12 +402,26 @@ extension MyCentralManagerDelegate {
             return
         }
         
+        // receivd data with [01,01]
+        // encoded data 00 00 A8 3B 3F 60 60 D0 5D 10
+        // ...
+        // encoded data 08 00 07 45 3F 60 61 2A 5E 65
+        // encoded data 06 00 01 01
+        // Done received value 9, control 1
+        // beaconHistory.count 9
+        
+        // receivd data with [04,01]
+        // encoded data 05 00 02 00
+        // Done received value 0, control 1
+        // beaconHistory.count 0
+
+
         guard let characteristicData = characteristic.value else { return }
         let encodedData = (characteristicData.hexEncodedString(options: .upperCase) as String).group(by: 2, separator: " ")
-print("encoded data i\(encodedData)")
+print("encoded data \(encodedData)")
+        
         if characteristic.uuid == BeaconPeripheral.beaconRACPMeasurementValuesCharUUID {
             MyBluetoothManager.shared.counterMeasurementValueNotification += 1
-            // TODO do stuff with the data retrieved
             let seqNumber = UInt16_decode(msb: characteristicData[1], lsb: characteristicData[0])
             let epochTime = UInt32_decode(msb1: characteristicData[5],msb0: characteristicData[4], lsb1: characteristicData[3], lsb0: characteristicData[2])
             let temperature = getSHT3temperatureValue(msb: characteristicData[6], lsb: characteristicData[7])
@@ -408,27 +430,34 @@ print("encoded data i\(encodedData)")
                                                         timestamp: NSDate(timeIntervalSince1970: TimeInterval(epochTime)) as Date)
             MyBluetoothManager.shared.beaconHistory.append(dataPoint)
         }
+        
         if characteristic.uuid == BeaconPeripheral.beaconRACPControlPointCharUUID {
             MyBluetoothManager.shared.counterControlPointNotification += 1
 
-            print("Done received value \(MyBluetoothManager.shared.counterMeasurementValueNotification), control \(MyBluetoothManager.shared.counterControlPointNotification)")
-            print("beaconHistory.count \(MyBluetoothManager.shared.beaconHistory.count)")
+            if (characteristicData[0] == 5) && (characteristicData[1] == 0) {
+                let historyCount = UInt16_decode(msb: characteristicData[3] , lsb: characteristicData[2] )
+                print("number of history points \(historyCount)")
+                
+                guard let discoveredPeripheral = MyBluetoothManager.shared.discoveredPeripheral,
+                        let transferCharacteristic = MyBluetoothManager.shared.racpControlPointChar
+                    else { return }
+                let rawPacket: [UInt8] = [01, 01]   // get all
+                let data = Data(rawPacket)
+                discoveredPeripheral.writeValue(data, for: transferCharacteristic, type: .withResponse)
+            } else {
+                print("Done received value \(MyBluetoothManager.shared.counterMeasurementValueNotification), control \(MyBluetoothManager.shared.counterControlPointNotification)")
+                print("beaconHistory.count \(MyBluetoothManager.shared.beaconHistory.count)")
+                print("cleanup called")
+                cleanup()
+            }
         }
     }
 
-    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor descriptor: CBDescriptor, error: Error?) {
+    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         if let error = error {
             print("Failed didWriteValueFor to %@. %s", peripheral, String(describing: error))
         }
-        
         print ("didWriteValueFor called")
     }
     
-    func peripheral(peripheral: CBPeripheral, didWriteValueForCharacteristic characteristic: CBCharacteristic!, error: NSError!){
-        if let error = error {
-            print("Failed didWriteValueForCharacteristic to %@. %s", peripheral, String(describing: error))
-        } else {
-            print ("didWriteValueForCharacteristic ok")
-        }
-    }
 }
