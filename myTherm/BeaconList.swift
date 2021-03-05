@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import SwiftUICharts
 
 struct BeaconList: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -26,6 +27,10 @@ struct BeaconList: View {
         }
     }
 
+//    @State var data1: [Double] = (0..<100).map { _ in .random(in: 9.0...100.0) }
+//    let blueStyle = ChartStyle(backgroundColor: .white,
+//                               foregroundColor: [ColorGradient(.purple, .blue)])
+
     var body: some View {
         
         GeometryReader { geometry in
@@ -36,8 +41,12 @@ struct BeaconList: View {
                             HStack {
                                 BeaconValueView(beacon: beacon, beaconAdv: beacon.adv!, nowDate: nowDate)
                                     .frame(width: geometry.size.width * 0.55)
-                                ZStack {
-                                    LineView(data: [0,1,2,3,4,5,6,7,8,9,10,0,20,0,10,0,5,0,4,0,3,0,2,0,1,0],title: "°C")
+                                
+                                Button(action: { tempDisplay.toggle()}) {
+                                    ZStack {
+                                        tempDisplay ? LineView(data: beacon.temperatureArray, title: "°C"):
+                                            LineView(data: beacon.humidityArray, title: "%")
+                                    }
                                 }
                             }
                         }

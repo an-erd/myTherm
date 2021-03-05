@@ -2,7 +2,7 @@
 //  Beacon+CoreDataProperties.swift
 //  myTherm
 //
-//  Created by Andreas Erdmann on 20.02.21.
+//  Created by Andreas Erdmann on 03.03.21.
 //
 //
 
@@ -28,10 +28,79 @@ extension Beacon {
     @NSManaged public var history: NSSet?
     @NSManaged public var location: BeaconLocation?
 
+    public var wrappedDescr: String {
+        descr ?? "no description"
+    }
+    
+    public var wrappedDeviceName: String {
+        device_name ?? "no device name"
+    }
+    
+    public var wrappedIdMaj: String {
+        id_maj ?? "00"
+    }
+    
+    public var wrappedIdMin: String {
+        id_min ?? "00"
+    }
+    
+    public var wrappedName: String {
+        name ?? "no name"
+    }
+    
+    public var historyArray: [BeaconHistoryDataPoint] {
+        let set = history as? Set<BeaconHistoryDataPoint> ?? []
+        
+        return set.sorted {
+            $0.wrappedTimeStamp < $1.wrappedTimeStamp
+        }
+    }
+
+    public var temperatureArray: [Double] {
+        let new = historyArray.suffix(576).map { Double($0.temperature) * 100 }
+        if new.count ==  0 {
+            return []
+        }
+        
+        let min = new.min()
+        let new1 = new.map { $0 - min! }
+        return new1
+    }
+    
+    public var humidityArray: [Double] {
+        let new = historyArray.suffix(100).map { Double($0.humidity) * 100 }
+        
+        if new.count ==  0 {
+            return []
+        }
+        
+        let min = new.min()
+        let new1 = new.map { $0 - min! }
+        return new1
+    }
+
 }
 
 // MARK: Generated accessors for history
 extension Beacon {
+
+    @objc(insertObject:inHistoryAtIndex:)
+    @NSManaged public func insertIntoHistory(_ value: BeaconHistoryDataPoint, at idx: Int)
+
+    @objc(removeObjectFromHistoryAtIndex:)
+    @NSManaged public func removeFromHistory(at idx: Int)
+
+    @objc(insertHistory:atIndexes:)
+    @NSManaged public func insertIntoHistory(_ values: [BeaconHistoryDataPoint], at indexes: NSIndexSet)
+
+    @objc(removeHistoryAtIndexes:)
+    @NSManaged public func removeFromHistory(at indexes: NSIndexSet)
+
+    @objc(replaceObjectInHistoryAtIndex:withObject:)
+    @NSManaged public func replaceHistory(at idx: Int, with value: BeaconHistoryDataPoint)
+
+    @objc(replaceHistoryAtIndexes:withHistory:)
+    @NSManaged public func replaceHistory(at indexes: NSIndexSet, with values: [BeaconHistoryDataPoint])
 
     @objc(addHistoryObject:)
     @NSManaged public func addToHistory(_ value: BeaconHistoryDataPoint)
@@ -40,10 +109,10 @@ extension Beacon {
     @NSManaged public func removeFromHistory(_ value: BeaconHistoryDataPoint)
 
     @objc(addHistory:)
-    @NSManaged public func addToHistory(_ values: NSSet)
+    @NSManaged public func addToHistory(_ values: NSOrderedSet)
 
     @objc(removeHistory:)
-    @NSManaged public func removeFromHistory(_ values: NSSet)
+    @NSManaged public func removeFromHistory(_ values: NSOrderedSet)
 
 }
 

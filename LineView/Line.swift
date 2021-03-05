@@ -33,6 +33,7 @@ struct Line: View {
             return 0
         }
         if let min = min, let max = max, min != max {
+//            print("stepHeight min \(min), max \(max), diff \(max - min), height \((frame.size.height - padding) / CGFloat(max + min)) step \((frame.size.height - padding) / CGFloat(max + min))")
             if min <= 0 {
                 return (frame.size.height - padding) / CGFloat(max - min)
             } else {
@@ -56,6 +57,6 @@ struct Line: View {
                 .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                 .drawingGroup()
         }
-        .border(Color.white)
+//        .border(Color.white)
     }
 }

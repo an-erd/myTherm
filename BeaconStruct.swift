@@ -27,7 +27,7 @@ struct ExtractBeacon {
     var descr: String
 }
 
-struct BeaconHistoryDataPointLocal {
+struct BeaconHistoryDataPointLocal : Hashable{
     var sequenceNumber: UInt16
     var humidity: Double
     var temperature: Double

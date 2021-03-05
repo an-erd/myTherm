@@ -12,7 +12,7 @@ protocol DownloadDelegate: AnyObject {
 }
 
 enum DownloadStatus {
-    case waiting, downloading_num, downloading_data, finished, cancelled
+    case waiting, connecting, downloading_num, downloading_data, downloading_finished, alldone, cancelled
 }
 
 class Download {
@@ -38,6 +38,13 @@ class Download {
     init(uuid: UUID){
         self.uuid = uuid
     }
+    
+    public var historySorted: [BeaconHistoryDataPointLocal] {
+        return history.sorted {
+            $0.timestamp < $1.timestamp
+        }
+    }
+
 }
 
 extension Download {

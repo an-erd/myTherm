@@ -53,7 +53,7 @@ struct BeaconDetail: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             Button(action: {
-                printPeripherals(uuid: beacon.uuid!)
+                MyBluetoothManager.shared.downloadManager.downloadHistoryFromBeacon(uuid: beacon.uuid!)
             }) {
                 Image(systemName: "icloud.and.arrow.down")
 //                Image(systemName: "arrow.triangle.2.circlepath")

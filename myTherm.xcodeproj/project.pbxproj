@@ -259,6 +259,8 @@
 			dependencies = (
 			);
 			name = myTherm;
+			packageProductDependencies = (
+			);
 			productName = myTherm;
 			productReference = 807838E725DCEB0E009FF0E9 /* myTherm.app */;
 			productType = "com.apple.product-type.application";
@@ -286,6 +288,8 @@
 				Base,
 			);
 			mainGroup = 807838DE25DCEB0E009FF0E9;
+			packageReferences = (
+			);
 			productRefGroup = 807838E825DCEB0E009FF0E9 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
