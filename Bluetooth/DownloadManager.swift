@@ -74,7 +74,8 @@ class DownloadManager: NSObject, ObservableObject {
             beacon.addToHistory(newPoint)
         }
         PersistenceController.shared.saveBackgroundContext(backgroundContext: self.moc)
-
+        beacon.copyHistoryArrayToLocalArray()
+        
         print("history count after \(String(describing: beacon.historyArray.count))")
         
         print("Temp min \(beacon.temperatureArray.min()) max \(beacon.temperatureArray.max())")

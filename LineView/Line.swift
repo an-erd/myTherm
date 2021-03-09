@@ -10,6 +10,7 @@ import os
 
 struct Line: View {
     var data: [(Double)]
+//    var frame: CGRect
     @Binding var frame: CGRect
 
     let padding:CGFloat = 0

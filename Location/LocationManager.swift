@@ -19,7 +19,6 @@ class LocationManager: NSObject, ObservableObject {
             self.placemark = nil
           }
         })
-
     }
 
     func startMySignificantLocationChanges() {
@@ -30,15 +29,24 @@ class LocationManager: NSObject, ObservableObject {
         self.locationManager.startMonitoringSignificantLocationChanges()
     }
     
-    override init() {
-      super.init()
+    func stopMySignificantLocationChanges() {
+        if !CLLocationManager.significantLocationChangeMonitoringAvailable() {
+            // The device does not support this service.
+            return
+        }
+        self.locationManager.stopMonitoringSignificantLocationChanges()
+    }
+    
 
-      self.locationManager.delegate = self
-      self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
+    override init() {
+        super.init()
+
+        self.locationManager.delegate = self
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
         self.locationManager.pausesLocationUpdatesAutomatically = true
+        self.locationManager.requestWhenInUseAuthorization()
+//      self.locationManager.startUpdatingLocation()
         startMySignificantLocationChanges()
-      self.locationManager.requestWhenInUseAuthorization()
-      self.locationManager.startUpdatingLocation()
     }
 
 }
@@ -52,6 +60,8 @@ extension LocationManager: CLLocationManagerDelegate {
         guard let location = locations.last else { return }
         self.location = location
         self.geocode()
+        
+        print("locationManager didUpdateLocations")
     }
 }
 

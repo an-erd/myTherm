@@ -33,6 +33,9 @@ struct LineView: View {
                          frame: .constant(CGRect(x: 0, y: 0,
                                                  width: reader.frame(in: .local).width,
                                                  height: reader.frame(in: .local).height))
+//                         frame: CGRect(x: 0, y: 0,
+//                                                 width: reader.frame(in: .local).width,
+//                                                 height: reader.frame(in: .local).height)
                     ).offset(x: 0, y: 0)
                 }
                 
@@ -41,6 +44,7 @@ struct LineView: View {
                         if (self.title != nil){
                             Text(self.title!)
                                 .font(.body)
+                                .foregroundColor(Color.white)
                                 .offset(x: -5, y: 0)
                             Spacer()
                         }

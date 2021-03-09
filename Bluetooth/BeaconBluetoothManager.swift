@@ -56,12 +56,25 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
             print("central.state is .poweredOff")
         case .poweredOn:
             print("central.state is .poweredOn")
-            central.scanForPeripherals(withServices: nil, options: nil)
+            central.scanForPeripherals(withServices: nil, options: nil) // PROFILE
 //            central.scanForPeripherals(withServices: [BeaconPeripheral.beaconRemoteServiceUUID], options: nil)
         @unknown default:
             print("central.state is @unknown default")
         }
     }
+    
+    func startScanAndLocationService() {
+        lm.startMySignificantLocationChanges()
+        MyBluetoothManager.shared.central.scanForPeripherals(withServices: nil, options: nil)
+        print("startScanAndLocationService")
+    }
+        
+    func stopScanAndLocationService() {
+        lm.stopMySignificantLocationChanges()
+        MyBluetoothManager.shared.central.stopScan()
+        print("stopScanAndLocationService")
+    }
+
 }
 
 extension MyCentralManagerDelegate {
@@ -250,7 +263,7 @@ extension MyCentralManagerDelegate {
         beaconadv.rawdata = extractBeaconAdv.rawdata
         
         if let location = lm.location {
-            print(location)
+//            print(location)
             if let _ = beacon.location { } else {
                 beacon.location = BeaconLocation(context: MyCentralManagerDelegate.shared.moc)
             }
@@ -260,7 +273,8 @@ extension MyCentralManagerDelegate {
             beaconloc.timestamp = Date()
         }
         
-        PersistenceController.shared.saveBackgroundContext(backgroundContext: MyCentralManagerDelegate.shared.moc)
+//        PersistenceController.shared.saveBackgroundContext(backgroundContext: MyCentralManagerDelegate.shared.moc)
+        // PROFIL
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
@@ -293,8 +307,8 @@ extension MyCentralManagerDelegate {
                     BeaconPeripheral.beaconRACPMeasurementValuesCharUUID], for: service)
                 }
             }
-            return
-        }
+        return
+    }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         print("peripheral didDiscoverCharacteristicsFor service")
@@ -482,6 +496,8 @@ extension MyCentralManagerDelegate {
         }
         print ("didWriteValueFor called")
     }
-    }
+    
+        
+}
     
 }

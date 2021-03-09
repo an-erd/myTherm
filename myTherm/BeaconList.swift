@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import SwiftUICharts
 
 struct BeaconList: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -18,11 +17,12 @@ struct BeaconList: View {
     private var beacons: FetchedResults<Beacon>
 
     @State private var editMode: EditMode = .inactive
-    @State private var tempDisplay: Bool = true
+    @State private var displaySteps: Int = 0    // 0 temp, 1 hum, 2 map
+    @State private var doScan: Bool = true
     
     @State var nowDate: Date = Date()
     var timer: Timer {
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {_ in
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {_ in     // PROFILE
             self.nowDate = Date()
         }
     }
@@ -36,16 +36,36 @@ struct BeaconList: View {
         GeometryReader { geometry in
             ScrollView {
                 VStack(spacing: 8) {
+                    Toggle("Scan", isOn: $doScan)
+                        .onChange(of: doScan, perform: { value in
+                            if value == true {
+                                MyCentralManagerDelegate.shared.startScanAndLocationService()
+                            } else {
+                                MyCentralManagerDelegate.shared.stopScanAndLocationService()
+                            }
+                            print("toggle scan \(value)")
+                        })
                     ForEach(beacons) { beacon in
                         GroupBox(label: Label(beacon.name!, systemImage: "thermometer")) {
                             HStack {
                                 BeaconValueView(beacon: beacon, beaconAdv: beacon.adv!, nowDate: nowDate)
-                                    .frame(width: geometry.size.width * 0.55)
+                                    .frame(width: geometry.size.width * 0.5)
                                 
-                                Button(action: { tempDisplay.toggle()}) {
-                                    ZStack {
-                                        tempDisplay ? LineView(data: beacon.temperatureArray, title: "°C"):
-                                            LineView(data: beacon.humidityArray, title: "%")
+                                Button(action: {
+                                    displaySteps = (displaySteps + 1) % 2
+                                }) {
+                                    ZStack {// PROFILE
+                                        if displaySteps == 0 {
+                                            LineView(data: beacon.localHistoryTemperature ?? [], title: "°C") // PROFIL
+                                        } else if displaySteps == 1 {
+                                            LineView(data: beacon.localHistoryHumidity ?? [], title: "%")
+//                                        } else if displaySteps == 2 {
+//                                            if let location = beacon.location {
+//                                                buildViewLocation(beaconlocation: location)
+                                        } else {
+                                            Text("No data available")
+                                                .foregroundColor(.gray)
+                                        }
                                     }
                                 }
                             }
@@ -62,7 +82,8 @@ struct BeaconList: View {
             }
             .onAppear(perform: {
                 self.onAppear()
-                _ = self.timer
+                _ = self.timer    // PROFIL
+                copyBeaconHistoryOnce()
             })
         }
         
@@ -71,7 +92,15 @@ struct BeaconList: View {
     public func onAppear() {
         print("onAppear")
     }
+    
+    public func copyBeaconHistoryOnce() {
+        for beacon in beacons {
+            print("copyBeaconHistoryOnce \(beacon.wrappedName)")
+            beacon.copyHistoryArrayToLocalArray()
+        }
+    }
 }
+
 
 struct BeaconList_Previews: PreviewProvider {
     static var previews: some View {

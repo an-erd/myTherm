@@ -1,8 +1,8 @@
 //
 //  BeaconLocation+CoreDataProperties.swift
-//  myTherm
+//  Thermometer
 //
-//  Created by Andreas Erdmann on 20.02.21.
+//  Created by Andreas Erdmann on 08.03.21.
 //
 //
 

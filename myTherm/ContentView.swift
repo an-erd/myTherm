@@ -23,10 +23,12 @@ struct ContentView: View {
             switch phase {
             case .background:
                 print("PHASECHANGE: View entered background")
+                PersistenceController.shared.saveBackgroundContext(backgroundContext: viewContext)
             case .active:
                 print("PHASECHANGE: View entered active")
             case .inactive:
                 print("PHASECHANGE: View entered inactive")
+                PersistenceController.shared.saveBackgroundContext(backgroundContext: viewContext)
             @unknown default:
                 print("PHASECHANGE: View entered unknown phase.")
             }

@@ -47,10 +47,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		803900A725F6309700B3F947 /* BeaconLocation+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "BeaconLocation+CoreDataProperties.swift"; path = "Model/BeaconLocation+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		806E50A625E6A2FB001218D5 /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
 		806E50A825E6A961001218D5 /* BeaconPeripheral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconPeripheral.swift; sourceTree = "<group>"; };
 		806E50AA25E6AC57001218D5 /* Download.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Download.swift; sourceTree = "<group>"; };
-		807838E725DCEB0E009FF0E9 /* myTherm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTherm.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		807838E725DCEB0E009FF0E9 /* Thermometer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Thermometer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		807838EA25DCEB0E009FF0E9 /* myThermApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = myThermApp.swift; sourceTree = "<group>"; };
 		807838EC25DCEB0E009FF0E9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		807838EE25DCEB10009FF0E9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -104,6 +105,7 @@
 		807838DE25DCEB0E009FF0E9 = {
 			isa = PBXGroup;
 			children = (
+				803900A725F6309700B3F947 /* BeaconLocation+CoreDataProperties.swift */,
 				80C6FD0625ED1275006985D5 /* LineView */,
 				808E67F825E126AE00D37C51 /* ProgressCircle */,
 				808E67F725E1266200D37C51 /* TextFields */,
@@ -121,7 +123,7 @@
 		807838E825DCEB0E009FF0E9 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				807838E725DCEB0E009FF0E9 /* myTherm.app */,
+				807838E725DCEB0E009FF0E9 /* Thermometer.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -246,9 +248,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		807838E625DCEB0E009FF0E9 /* myTherm */ = {
+		807838E625DCEB0E009FF0E9 /* Thermometer */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 807838FB25DCEB10009FF0E9 /* Build configuration list for PBXNativeTarget "myTherm" */;
+			buildConfigurationList = 807838FB25DCEB10009FF0E9 /* Build configuration list for PBXNativeTarget "Thermometer" */;
 			buildPhases = (
 				807838E325DCEB0E009FF0E9 /* Sources */,
 				807838E425DCEB0E009FF0E9 /* Frameworks */,
@@ -258,11 +260,11 @@
 			);
 			dependencies = (
 			);
-			name = myTherm;
+			name = Thermometer;
 			packageProductDependencies = (
 			);
 			productName = myTherm;
-			productReference = 807838E725DCEB0E009FF0E9 /* myTherm.app */;
+			productReference = 807838E725DCEB0E009FF0E9 /* Thermometer.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -279,7 +281,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 807838E225DCEB0E009FF0E9 /* Build configuration list for PBXProject "myTherm" */;
+			buildConfigurationList = 807838E225DCEB0E009FF0E9 /* Build configuration list for PBXProject "Thermometer" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -294,7 +296,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				807838E625DCEB0E009FF0E9 /* myTherm */,
+				807838E625DCEB0E009FF0E9 /* Thermometer */,
 			);
 		};
 /* End PBXProject section */
@@ -521,7 +523,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		807838E225DCEB0E009FF0E9 /* Build configuration list for PBXProject "myTherm" */ = {
+		807838E225DCEB0E009FF0E9 /* Build configuration list for PBXProject "Thermometer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				807838F925DCEB10009FF0E9 /* Debug */,
@@ -530,7 +532,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		807838FB25DCEB10009FF0E9 /* Build configuration list for PBXNativeTarget "myTherm" */ = {
+		807838FB25DCEB10009FF0E9 /* Build configuration list for PBXNativeTarget "Thermometer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				807838FC25DCEB10009FF0E9 /* Debug */,

@@ -22,7 +22,8 @@ struct BeaconGroupBoxStyle<V: View>: GroupBoxStyle {
                 if dateString != nil {
                     Text(dateString!).font(.footnote).foregroundColor(.secondary).padding(.trailing, 4)
                 }
-                Image(systemName: "chevron.right").foregroundColor(Color(.systemGray4)).imageScale(.small)
+                Image(systemName: "chevron.right").foregroundColor(.secondary).imageScale(.small)
+
             }) {
                 configuration.content.padding(.top)
             }
