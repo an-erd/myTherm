@@ -15,7 +15,7 @@ struct BeaconList: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \Beacon.name, ascending: true)],
         animation: .default)
     private var beacons: FetchedResults<Beacon>
-
+    
     @State private var editMode: EditMode = .inactive
     @State private var displaySteps: Int = 0    // 0 temp, 1 hum, 2 map
     @State private var doScan: Bool = true
@@ -26,11 +26,11 @@ struct BeaconList: View {
             self.nowDate = Date()
         }
     }
-
-//    @State var data1: [Double] = (0..<100).map { _ in .random(in: 9.0...100.0) }
-//    let blueStyle = ChartStyle(backgroundColor: .white,
-//                               foregroundColor: [ColorGradient(.purple, .blue)])
-
+    
+    //    @State var data1: [Double] = (0..<100).map { _ in .random(in: 9.0...100.0) }
+    //    let blueStyle = ChartStyle(backgroundColor: .white,
+    //                               foregroundColor: [ColorGradient(.purple, .blue)])
+    
     var body: some View {
         
         GeometryReader { geometry in
@@ -56,12 +56,11 @@ struct BeaconList: View {
                                 }) {
                                     ZStack {// PROFILE
                                         if displaySteps == 0 {
-                                            LineView(data: beacon.localHistoryTemperature ?? [], title: "°C") // PROFIL
+                                            LineView(timestamp: beacon.localHistoryTimestamp ?? [] ,
+                                                data: beacon.localHistoryTemperature ?? [], title: "°C") // PROFIL
                                         } else if displaySteps == 1 {
-                                            LineView(data: beacon.localHistoryHumidity ?? [], title: "%")
-//                                        } else if displaySteps == 2 {
-//                                            if let location = beacon.location {
-//                                                buildViewLocation(beaconlocation: location)
+                                            LineView(timestamp: beacon.localHistoryTimestamp ?? [],
+                                                     data: beacon.localHistoryHumidity ?? [], title: "%")
                                         } else {
                                             Text("No data available")
                                                 .foregroundColor(.gray)

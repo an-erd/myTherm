@@ -9,15 +9,20 @@ import SwiftUI
 import os
 
 struct LineView: View {
-    var data: [(Double)]
+    var timestamp: [Date]
+    var data: [Double]
     var title: String?
     private var min: Double?
     private var max: Double?
     private var width: Double?
     private var heigth: Double?
 
-    public init(data: [Double],
-                title: String? = nil) {
+    @State private var dragMode = false
+    @State private var dragStart: CGFloat = 0.0
+    @State private var dragOffset = CGSize.zero
+
+    public init(timestamp: [Date], data: [Double], title: String? = nil) {
+        self.timestamp = timestamp
         self.data = data
         self.title = title
         min = data.min()
@@ -29,14 +34,24 @@ struct LineView: View {
         GeometryReader{ geometry in
             ZStack{
                 GeometryReader{ reader in
-                    Line(data: self.data,
+                    Line(timestamp: self.timestamp, data: self.data,
                          frame: .constant(CGRect(x: 0, y: 0,
                                                  width: reader.frame(in: .local).width,
-                                                 height: reader.frame(in: .local).height))
-//                         frame: CGRect(x: 0, y: 0,
-//                                                 width: reader.frame(in: .local).width,
-//                                                 height: reader.frame(in: .local).height)
-                    ).offset(x: 0, y: 0)
+                                                 height: reader.frame(in: .local).height)),
+                         dragMode: $dragMode, dragStart: $dragStart, dragOffset: $dragOffset
+                    )
+                    .offset(x: 0, y: 0)
+                    .gesture(
+                        DragGesture()
+                            .onChanged { gesture in
+                                dragMode = true
+                                dragOffset = gesture.translation
+                                dragStart = gesture.startLocation.x
+                            }
+                            .onEnded { gesture in
+                                dragMode = false
+                            }
+                    )
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {

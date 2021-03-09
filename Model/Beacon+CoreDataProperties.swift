@@ -29,6 +29,7 @@ extension Beacon {
     @NSManaged public var location: BeaconLocation?
     @NSManaged public var localHistoryTemperature: [Double]?
     @NSManaged public var localHistoryHumidity: [Double]?
+    @NSManaged public var localHistoryTimestamp: [Date]?
 
     public var wrappedDescr: String {
         descr ?? "no description"
@@ -72,7 +73,7 @@ extension Beacon {
     }
     
     public var humidityArray: [Double] {
-        let new = historyArray.suffix(100).map { Double($0.humidity) * 100 }
+        let new = historyArray.suffix(576).map { Double($0.humidity) * 100 }
         
         if new.count ==  0 {
             return []
@@ -81,6 +82,15 @@ extension Beacon {
         let min = new.min()
         let new1 = new.map { $0 - min! }
         return new1
+    }
+    
+    public var dateArray: [Date] {
+        let dates = historyArray.suffix(576).map { $0.timestamp! }
+        
+        if dates.count == 0 {
+            return []
+        }
+        return dates
     }
 
 }
@@ -124,5 +134,6 @@ extension Beacon : Identifiable {
     public func copyHistoryArrayToLocalArray() {
         self.localHistoryTemperature = self.temperatureArray
         self.localHistoryHumidity = self.humidityArray
+        self.localHistoryTimestamp = self.dateArray
     }
 }

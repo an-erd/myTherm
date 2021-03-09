@@ -42,7 +42,7 @@ struct BeaconDetail: View {
                 DisclosureGroup("LAST LOCATION", isExpanded: $isExpandedLocation) {
                     if let location = beacon.location {
                         buildViewLocation(beaconlocation: location)
-                            .frame(width: 200, height: 200)
+//                            .frame(width: 200, height: 200)
                     } else {
                         Text("No data available")
                             .foregroundColor(.gray)
@@ -123,7 +123,7 @@ func buildViewLocation(beaconlocation: BeaconLocation) -> AnyView {
                                       text: getDateString(date: beaconlocation.timestamp))
                 ZStack {
                     MapView(centerCoordinate: beaconlocation.location)
-//                        .frame(width: 200, height: 200)
+                        .frame(width: 200, height: 200)
                     Circle()
                         .fill(Color.blue)
                         .opacity(0.3)
