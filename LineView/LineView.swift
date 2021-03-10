@@ -73,7 +73,17 @@ struct LineView: View {
 struct LineView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-//            LineView(data: [ 1, 0.623,0.696,0.798,0.798,0.623,0.501,0.571,0.713,0.851], title: "title")
+            LineView(timestamp: [ Date(),
+                                  Date().addingTimeInterval(1),
+                                  Date().addingTimeInterval(2),
+                                  Date().addingTimeInterval(3),
+                                  Date().addingTimeInterval(4),
+                                  Date().addingTimeInterval(5),
+                                  Date().addingTimeInterval(6),
+                                  Date().addingTimeInterval(7),
+                                  Date().addingTimeInterval(8),
+                                  Date().addingTimeInterval(9)],
+                data: [ 1, 0.623,0.696,0.798,0.798,0.623,0.501,0.571,0.713,0.851], title: "title")
 //            LineView(data: [0.6239593970127428,0.6965895913740223,0.7989321379739961,0.7989321379739961,0.6239593970127428,0.5018086155869746,0.5711374374772689,0.7130964537288593,0.8517540975094645], title: "title")
 //            LineView(data: [0,9,8,8,11,7,12],title: "Title")
         }

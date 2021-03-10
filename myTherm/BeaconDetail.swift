@@ -117,23 +117,21 @@ func buildViewAdv(beaconadv: BeaconAdv) -> AnyView {
 }
     
 func buildViewLocation(beaconlocation: BeaconLocation) -> AnyView {
-        return AnyView (
-            Group {
-                BeaconDetailListEntry(title: "Last location",
-                                      text: getDateString(date: beaconlocation.timestamp))
-                ZStack {
-                    MapView(centerCoordinate: beaconlocation.location)
-                        .frame(width: 200, height: 200)
-                    Circle()
-                        .fill(Color.blue)
-                        .opacity(0.3)
-                        .frame(width: 32, height: 32)
-                }
-
+    return AnyView (
+        Group {
+            BeaconDetailListEntry(title: "Last location",
+                                  text: getDateString(date: beaconlocation.timestamp))
+            ZStack {
+                MapView(centerCoordinate: beaconlocation.location)
+                    .frame(width: .infinity, height: 200)
+                Circle()
+                    .fill(Color.blue)
+                    .opacity(0.3)
+                    .frame(width: 32, height: 32)
             }
-        )
+        }
+    )
 }
-    
 
 /*
  func BeaconDetailListEntryWrapper(title: String, location: BeaconLoc?, beacon: Beacon) -> AnyView {

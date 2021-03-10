@@ -26,9 +26,6 @@ extension BeaconAdv {
     @NSManaged public var temperature: Double
     @NSManaged public var timestamp: Date?
     @NSManaged public var beacon: Beacon?
-    @NSManaged public var localHistoryTemperature: [Double]?
-    @NSManaged public var localHistoryHumidity: [Double]?
-
 
 }
 

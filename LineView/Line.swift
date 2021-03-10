@@ -29,6 +29,8 @@ struct Line: View {
         var min: Double?
         var max: Double?
         let points = self.data
+//        var stepH: CGFloat = 0
+//        var delta: CGFloat = 0
         
         if let minPoint = points.min(), let maxPoint = points.max(), minPoint != maxPoint {
             min = minPoint
@@ -36,21 +38,26 @@ struct Line: View {
         } else {
             return 0
         }
-//        print("frame.size w \(frame.size.width) h \(frame.size.height)")
         if let min = min, let max = max, min != max {
-            if min <= 0 {
-                return (frame.size.height - padding) / CGFloat(max - min)
-            } else {
-                return (frame.size.height - padding) / CGFloat(max + min)
-            }
+//            if min <= 0 {
+            return (frame.size.height - padding) / CGFloat(max - min)
+//            } else {
+//                return (frame.size.height - padding) / CGFloat(max + min)
+//            }
         }
+//        print("frame.size w \(frame.size.width) h \(frame.size.height) min \(min!) max \(max!) stepHeigth \(stepH)")
 
         return 0
     }
     
+    var offset: CGFloat {
+        guard let offset = self.data.min() else { return 0 }
+        return CGFloat(offset)
+    }
+    
     var path: Path {
         let points = self.data
-        return Path.lineChart(points: points, step: CGPoint(x: stepWidth, y: stepHeight))
+        return Path.lineChart(points: points, step: CGPoint(x: stepWidth, y: stepHeight), offset: offset)
     }
     
     var boundX: CGFloat {
@@ -67,7 +74,7 @@ struct Line: View {
     
     var circleY: CGFloat {
 //        print("dataIndex \(dataIndex) numentries \(data.count)")
-        return CGFloat(data[dataIndex]) * stepHeight - frame.size.height / 2
+        return CGFloat(data[dataIndex] - Double(offset)) * stepHeight - frame.size.height / 2
     }
     
     var verticalLine: Path {
@@ -77,15 +84,17 @@ struct Line: View {
         }
     }
     
-    func buildDataBox() -> AnyView {
-        return AnyView (
-                Text("Hi")
-                    .font(.subheadline)
-                    .frame(width: 40, height: 40, alignment: .center)
-                    .background(Color.black).clipShape(Rectangle())
-        )
+    func getDataBoxDate(dataIndex: Int) -> String {
+        return getDateString(date: timestamp[dataIndex])
     }
-
+    
+    func getDataBoxValue(dataIndex: Int) -> String {
+        var value: Double = data[dataIndex]
+        let formatter = NumberFormatter()
+        formatter.maximumFractionDigits = 1
+        return formatter.string(from: NSNumber(value: value)) ?? ""
+    }
+    
     public var body: some View {
         ZStack {
             self.path
@@ -101,11 +110,13 @@ struct Line: View {
                     .fill(Color.white)
                     .frame(width: 10, height: 10)
                     .offset(x: boundX, y: -circleY)
-                Text("\(data[dataIndex]/100)")
-                    .frame(width: 50, height: 30, alignment: .center)
+                Text(getDataBoxDate(dataIndex: dataIndex) + " " + getDataBoxValue(dataIndex: dataIndex))
+//                    Rectangle()
+                    .frame(width: 120, height: 50)
                     .background(Color.white)
-                    .clipShape(Rectangle())
-                    .offset(x: boundX, y: -60)
+//                    .clipShape(Rectangle())
+                    .offset(x: boundX - 59, y: -70)
+//                        .offset(x: 0, y: -60)
             }
         }
 //        .border(Color.white)

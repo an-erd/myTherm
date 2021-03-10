@@ -33,9 +33,9 @@ struct BeaconListEntry : View {
             } else if secs > -180 {
                 return "Recently"
             } else if secs > -3600 {
-                return "\(-round(secs/60.0)) min. ago"
+                return "\(Int(-round(secs/60.0))) min. ago"
             } else if secs > -(10*3600) {
-                return "\(-round(secs/3600)) hour ago"
+                return "\(Int(-round(secs/3600))) hour ago"
             } else {
                 return "Seen " + formatter2.string(from: date)
             }

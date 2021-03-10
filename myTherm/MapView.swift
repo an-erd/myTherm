@@ -15,6 +15,7 @@ struct MapView: UIViewRepresentable {
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
         mapView.delegate = context.coordinator
+        mapView.isUserInteractionEnabled = false
         return mapView
     }
     

@@ -60,28 +60,28 @@ extension Beacon {
     }
 
     public var temperatureArray: [Double] {
-        let new = historyArray.suffix(576).map { Double($0.temperature) * 100 }
+        let new = historyArray.suffix(576).map { Double($0.temperature) }
         if new.count ==  0 {
             return []
         }
         
-        let min = new.min()
-        let new1 = new.map { $0 - min! }
+//        let min = new.min()
+//        let new1 = new.map { $0 - min! }
         
         print("Beacon get temperatureArray \(Date())")
-        return new1
+        return new
     }
     
     public var humidityArray: [Double] {
-        let new = historyArray.suffix(576).map { Double($0.humidity) * 100 }
+        let new = historyArray.suffix(576).map { Double($0.humidity) }
         
         if new.count ==  0 {
             return []
         }
         
-        let min = new.min()
-        let new1 = new.map { $0 - min! }
-        return new1
+//        let min = new.min()
+//        let new1 = new.map { $0 - min! }
+        return new
     }
     
     public var dateArray: [Date] {
