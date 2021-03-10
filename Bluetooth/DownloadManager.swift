@@ -29,9 +29,14 @@ class DownloadManager: NSObject, ObservableObject {
         print("printPeripherals:")
         print(foundPeripherals)
 
+        guard let beacon = MyCentralManagerDelegate.shared.fetchBeacon(with: uuid) else {
+            print("downloadHistoryFromBeacon fetchBeacon error")
+            return
+        }
+
         MyBluetoothManager.shared.connectedPeripheral = foundPeripherals.first
         if let connectto = MyBluetoothManager.shared.connectedPeripheral {
-            downloadHistory = Download(uuid: uuid)
+            downloadHistory = Download(uuid: uuid, delegate: beacon)
             if let downloadHistory = downloadHistory {
                 downloadHistory.status = .connecting
                 MyBluetoothManager.shared.central.connect(connectto, options: nil)

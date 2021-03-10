@@ -454,6 +454,8 @@ extension MyCentralManagerDelegate {
             
             if let downloadHistory = MyBluetoothManager.shared.downloadManager.downloadHistory {
                 downloadHistory.history.append(dataPoint)
+                downloadHistory.progress = Float(Float(MyBluetoothManager.shared.counterMeasurementValueNotification) /
+                                                    Float(downloadHistory.numEntriesAll))
             }
         }
         
@@ -466,6 +468,7 @@ extension MyCentralManagerDelegate {
                 
                 if let downloadHistory = MyBluetoothManager.shared.downloadManager.downloadHistory {
                     downloadHistory.status = .downloading_data
+                    downloadHistory.numEntriesAll = Int(historyCount)
                 }
                 
                 guard let discoveredPeripheral = MyBluetoothManager.shared.discoveredPeripheral,

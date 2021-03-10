@@ -47,25 +47,31 @@ struct BeaconList: View {
                         })
                     ForEach(beacons) { beacon in
                         GroupBox(label: Label(beacon.name!, systemImage: "thermometer")) {
-                            HStack {
-                                BeaconValueView(beacon: beacon, beaconAdv: beacon.adv!, nowDate: nowDate)
-                                    .frame(width: geometry.size.width * 0.5)
-                                
-                                Button(action: {
-                                    displaySteps = (displaySteps + 1) % 2
-                                }) {
-                                    ZStack {// PROFILE
-                                        if displaySteps == 0 {
-                                            LineView(timestamp: beacon.localHistoryTimestamp ?? [] ,
-                                                data: beacon.localHistoryTemperature ?? [], title: "°C") // PROFIL
-                                        } else if displaySteps == 1 {
-                                            LineView(timestamp: beacon.localHistoryTimestamp ?? [],
-                                                     data: beacon.localHistoryHumidity ?? [], title: "%")
-                                        } else {
-                                            Text("No data available")
-                                                .foregroundColor(.gray)
+                            VStack {
+                                HStack {
+                                    BeaconValueView(beacon: beacon, beaconAdv: beacon.adv!, nowDate: nowDate)
+                                        .frame(width: geometry.size.width * 0.5)
+                                    
+                                    Button(action: {
+                                        displaySteps = (displaySteps + 1) % 2
+                                    }) {
+                                        ZStack {// PROFILE
+                                            if displaySteps == 0 {
+                                                LineView(timestamp: beacon.localHistoryTimestamp ?? [] ,
+                                                         data: beacon.localHistoryTemperature ?? [], title: "°C") // PROFIL
+                                            } else if displaySteps == 1 {
+                                                LineView(timestamp: beacon.localHistoryTimestamp ?? [],
+                                                         data: beacon.localHistoryHumidity ?? [], title: "%")
+                                            } else {
+                                                Text("No data available")
+                                                    .foregroundColor(.gray)
+                                            }
                                         }
                                     }
+                                }
+                                if (beacon.localDownloadProgress > 0) &&
+                                    (beacon.localDownloadProgress < 1) {
+                                    ProgressView(value: beacon.localDownloadProgress, total: 1.0)
                                 }
                             }
                         }
