@@ -12,7 +12,7 @@ protocol DownloadDelegate: AnyObject {
 }
 
 enum DownloadStatus {
-    case waiting, connecting, downloading_num, downloading_data, downloading_finished, alldone, cancelled
+    case waiting, connecting, downloading_num, downloading_data, downloading_finished, alldone, cancelled, error
 }
 
 class Download {
@@ -20,6 +20,7 @@ class Download {
     weak var delegate: DownloadDelegate?
     
     var uuid: UUID
+    var beacon: Beacon?
     var status: DownloadStatus = .waiting
     var numEntriesAll: Int = 0
     var numEntriesReceived: Int = 0
@@ -27,13 +28,11 @@ class Download {
         
     var progress: Float = 0.0 {
         didSet {
-//            print("update uuid \(uuid) progress \(progress)")
             updateProgress()
         }
      }
     
     private func updateProgress() {
-//        print("updateProgress() update uuid \(uuid) progress \(progress)")
         if delegate != nil {
         delegate?.downloadProgressUpdated(for: progress, for: uuid)
         } else {
@@ -41,8 +40,9 @@ class Download {
         }
     }
 
-    init(uuid: UUID, delegate: DownloadDelegate ){
+    init(uuid: UUID, beacon: Beacon, delegate: DownloadDelegate ){
         self.uuid = uuid
+        self.beacon = beacon
         self.delegate = delegate
     }
     

@@ -54,7 +54,7 @@ struct BeaconDetail: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             Button(action: {
-                MyBluetoothManager.shared.downloadManager.downloadHistoryFromBeacon(uuid: beacon.uuid!)
+                MyBluetoothManager.shared.downloadManager.addBeaconToDownloadQueue(beacon: beacon)
             }) {
                 Image(systemName: "icloud.and.arrow.down")
 //                Image(systemName: "arrow.triangle.2.circlepath")
@@ -123,7 +123,7 @@ func buildViewLocation(beaconlocation: BeaconLocation) -> AnyView {
                                   text: getDateString(date: beaconlocation.timestamp))
             ZStack {
                 MapView(centerCoordinate: beaconlocation.location)
-                    .frame(width: .infinity, height: 200)
+                    .frame(width: 300, height: 200)   // TODO
                 Circle()
                     .fill(Color.blue)
                     .opacity(0.3)

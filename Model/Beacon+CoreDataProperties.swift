@@ -69,7 +69,7 @@ extension Beacon {
 //        let min = new.min()
 //        let new1 = new.map { $0 - min! }
         
-        print("Beacon get temperatureArray \(Date())")
+//        print("Beacon get temperatureArray \(Date())")
         return new
     }
     
@@ -144,6 +144,7 @@ extension Beacon : DownloadDelegate {
     func downloadProgressUpdated(for progress: Float, for uuid: UUID) {
 //        if self.uuid == uuid {
             self.localDownloadProgress = progress
+//        print("progress \(progress)")
 //        }
     }
     

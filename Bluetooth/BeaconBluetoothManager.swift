@@ -23,7 +23,6 @@ class MyBluetoothManager {
     }
     
     var downloadManager = DownloadManager()
-    //    var downloadHistory: Download?
     
     // current device
     var connectedPeripheral: CBPeripheral?
@@ -32,9 +31,8 @@ class MyBluetoothManager {
     var racpMeasurementValueChar: CBCharacteristic?
     var racpControlPointNotifying: Bool = false
     var racpMeasurementValueNotifying: Bool = false
-    var counterControlPointNotification = 0
-    var counterMeasurementValueNotification = 0
-    // var beaconHistory: [BeaconHistoryDataPointLocal] = []
+//    var counterControlPointNotification = 0
+//    var counterMeasurementValueNotification = 0
 }
 
 class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
@@ -282,7 +280,7 @@ extension MyCentralManagerDelegate {
         peripheral.delegate = self
         MyBluetoothManager.shared.discoveredPeripheral = peripheral
         central.stopScan()
-        if let downloadHistory =  MyBluetoothManager.shared.downloadManager.downloadHistory {
+        if let downloadHistory =  MyBluetoothManager.shared.downloadManager.activeDownload {
             downloadHistory.status = .downloading_num
         }
         peripheral.discoverServices([BeaconPeripheral.beaconRemoteServiceUUID])
@@ -293,7 +291,7 @@ extension MyCentralManagerDelegate {
         print("centralManager didDisconnect peripheral")
         peripheral.delegate = nil
         MyBluetoothManager.shared.discoveredPeripheral = nil
-        central.scanForPeripherals(withServices: nil, options: nil)
+//        central.scanForPeripherals(withServices: nil, options: nil)
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -409,7 +407,7 @@ extension MyCentralManagerDelegate {
             if ( MyBluetoothManager.shared.racpControlPointNotifying == true) {
                 let rawPacket: [UInt8] = [04, 01]   // get num
                 let data = Data(rawPacket)
-                if let downloadHistory = MyBluetoothManager.shared.downloadManager.downloadHistory {
+                if let downloadHistory = MyBluetoothManager.shared.downloadManager.activeDownload {
                     downloadHistory.history.removeAll()
                 }
                 discoveredPeripheral.writeValue(data, for: transferCharacteristic, type: .withResponse)
@@ -438,37 +436,40 @@ extension MyCentralManagerDelegate {
         // Done received value 0, control 1
         // beaconHistory.count 0
         
-        
         guard let characteristicData = characteristic.value else { return }
-        let encodedData = (characteristicData.hexEncodedString(options: .upperCase) as String).group(by: 2, separator: " ")
+//        let encodedData =
+//            (characteristicData.hexEncodedString(options: .upperCase) as String).group(by: 2, separator: " ")
         //        print("encoded data \(encodedData)")
-        
+    
+        let downloadManager = MyBluetoothManager.shared.downloadManager
         if characteristic.uuid == BeaconPeripheral.beaconRACPMeasurementValuesCharUUID {
-            MyBluetoothManager.shared.counterMeasurementValueNotification += 1
+//            downloadManager.counterMeasurementValueNotification += 1
             let seqNumber = UInt16_decode(msb: characteristicData[1], lsb: characteristicData[0])
             let epochTime = UInt32_decode(msb1: characteristicData[5],msb0: characteristicData[4], lsb1: characteristicData[3], lsb0: characteristicData[2])
             let temperature = getSHT3temperatureValue(msb: characteristicData[6], lsb: characteristicData[7])
             let humidity = getSHT3humidityValue(msb: characteristicData[8], lsb: characteristicData[9])
+            
             let dataPoint = BeaconHistoryDataPointLocal(sequenceNumber: seqNumber, humidity: humidity, temperature: temperature,
                                                         timestamp: NSDate(timeIntervalSince1970: TimeInterval(epochTime)) as Date)
             
-            if let downloadHistory = MyBluetoothManager.shared.downloadManager.downloadHistory {
-                downloadHistory.history.append(dataPoint)
-                downloadHistory.progress = Float(Float(MyBluetoothManager.shared.counterMeasurementValueNotification) /
-                                                    Float(downloadHistory.numEntriesAll))
+            if let download = downloadManager.activeDownload {
+                download.history.append(dataPoint)
+                download.numEntriesReceived += 1
+                download.progress = Float(download.numEntriesReceived) / Float(download.numEntriesAll)
             }
         }
         
         if characteristic.uuid == BeaconPeripheral.beaconRACPControlPointCharUUID {
-            MyBluetoothManager.shared.counterControlPointNotification += 1
+//            MyBluetoothManager.shared.counterControlPointNotification += 1
             
             if (characteristicData[0] == 5) && (characteristicData[1] == 0) {
                 let historyCount = UInt16_decode(msb: characteristicData[3] , lsb: characteristicData[2] )
                 print("number of history points \(historyCount)")
                 
-                if let downloadHistory = MyBluetoothManager.shared.downloadManager.downloadHistory {
+                if let downloadHistory = MyBluetoothManager.shared.downloadManager.activeDownload {
                     downloadHistory.status = .downloading_data
                     downloadHistory.numEntriesAll = Int(historyCount)
+//                    downloadHistory.numEntriesReceived = 0
                 }
                 
                 guard let discoveredPeripheral = MyBluetoothManager.shared.discoveredPeripheral,
@@ -478,8 +479,8 @@ extension MyCentralManagerDelegate {
                 let data = Data(rawPacket)
                 discoveredPeripheral.writeValue(data, for: transferCharacteristic, type: .withResponse)
             } else {
-                if let downloadHistory = MyBluetoothManager.shared.downloadManager.downloadHistory {
-                    print("Done received value \(MyBluetoothManager.shared.counterMeasurementValueNotification), control \(MyBluetoothManager.shared.counterControlPointNotification)")
+                if let downloadHistory = MyBluetoothManager.shared.downloadManager.activeDownload {
+//                    print("Done received value \(MyBluetoothManager.shared.counterMeasurementValueNotification), control \(MyBluetoothManager.shared.counterControlPointNotification)")
                     print("beaconHistory.count \(downloadHistory.history.count)")
                     print("cleanup called")
                     downloadHistory.status = .downloading_finished
@@ -489,6 +490,8 @@ extension MyCentralManagerDelegate {
                     }
                     
                     cleanup()
+                    downloadManager.status = .idle
+                    downloadManager.resume()
                 }
             }
         }

@@ -89,7 +89,7 @@ struct Line: View {
     }
     
     func getDataBoxValue(dataIndex: Int) -> String {
-        var value: Double = data[dataIndex]
+        let value: Double = data[dataIndex]
         let formatter = NumberFormatter()
         formatter.maximumFractionDigits = 1
         return formatter.string(from: NSNumber(value: value)) ?? ""
