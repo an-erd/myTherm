@@ -42,6 +42,13 @@ class DownloadManager: NSObject, ObservableObject {
         resume()
     }
     
+    func addAllBeaconToDownloadQueue() {
+        let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons()
+        for beacon in beacons {
+            addBeaconToDownloadQueue(beacon: beacon)
+        }
+    }
+    
     func resume() {
         print("DownloadManager resume() status \(status)")
         switch status {

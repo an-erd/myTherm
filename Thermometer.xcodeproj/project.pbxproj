@@ -41,6 +41,7 @@
 		808E67F525E0ED2100D37C51 /* BeaconLocation+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808E67F325E0ED2100D37C51 /* BeaconLocation+CoreDataClass.swift */; };
 		808E67F625E0ED2100D37C51 /* BeaconLocation+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808E67F425E0ED2100D37C51 /* BeaconLocation+CoreDataProperties.swift */; };
 		808E67FA25E126DD00D37C51 /* ProgressCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808E67F925E126DD00D37C51 /* ProgressCircle.swift */; };
+		80ACFC9025FA869500CAA3DD /* BeaconDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80ACFC8F25FA849E00CAA3DD /* BeaconDownloadView.swift */; };
 		80C6FD0925ED12E6006985D5 /* LineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C6FD0825ED12E6006985D5 /* LineView.swift */; };
 		80C6FD0B25ED16A5006985D5 /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C6FD0A25ED16A5006985D5 /* Line.swift */; };
 		80C6FD0D25ED182B006985D5 /* Path.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C6FD0C25ED182B006985D5 /* Path.swift */; };
@@ -84,6 +85,7 @@
 		808E67F325E0ED2100D37C51 /* BeaconLocation+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "BeaconLocation+CoreDataClass.swift"; path = "Model/BeaconLocation+CoreDataClass.swift"; sourceTree = "<group>"; };
 		808E67F425E0ED2100D37C51 /* BeaconLocation+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "BeaconLocation+CoreDataProperties.swift"; path = "Model/BeaconLocation+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		808E67F925E126DD00D37C51 /* ProgressCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressCircle.swift; sourceTree = "<group>"; };
+		80ACFC8F25FA849E00CAA3DD /* BeaconDownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDownloadView.swift; sourceTree = "<group>"; };
 		80C6FD0825ED12E6006985D5 /* LineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineView.swift; sourceTree = "<group>"; };
 		80C6FD0A25ED16A5006985D5 /* Line.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
 		80C6FD0C25ED182B006985D5 /* Path.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Path.swift; sourceTree = "<group>"; };
@@ -143,6 +145,7 @@
 				8080271625DEA78C000C377D /* myTherm.entitlements */,
 				807838F825DCEB10009FF0E9 /* Info.plist */,
 				807838F025DCEB10009FF0E9 /* Preview Content */,
+				80ACFC8F25FA849E00CAA3DD /* BeaconDownloadView.swift */,
 			);
 			path = myTherm;
 			sourceTree = "<group>";
@@ -324,6 +327,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				80ACFC9025FA869500CAA3DD /* BeaconDownloadView.swift in Sources */,
 				806A52BB25FA813300298441 /* BeaconExtension.swift in Sources */,
 				80C6FD0D25ED182B006985D5 /* Path.swift in Sources */,
 				807838F425DCEB10009FF0E9 /* Persistence.swift in Sources */,

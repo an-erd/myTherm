@@ -101,6 +101,18 @@ extension MyCentralManagerDelegate {
         return nil
     }
     
+    func fetchAllBeacons() -> [Beacon] {
+        let fetchRequest: NSFetchRequest<Beacon> = Beacon.fetchRequest()
+        do {
+            let beacons: [Beacon] = try MyCentralManagerDelegate.shared.moc.fetch(fetchRequest)
+            return beacons
+        } catch {
+            let fetchError = error as NSError
+            debugPrint(fetchError)
+        }
+        return []
+    }
+    
     func extractBeaconFromAdvertisment(advertisementData: [String : Any]) -> ( ExtractBeacon, ExtractBeaconAdv ) {
         var extractBeacon = ExtractBeacon(beacon_version: 0, company_id: 0, id_maj: "", id_min: "", name: "", descr: "")
         var extractBeaconAdv = ExtractBeaconAdv(temperature: -40.0, humidity: 0, battery: 0, accel_x: 0, accel_y: 0, accel_z: 0, rawdata: "")

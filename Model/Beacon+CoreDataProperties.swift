@@ -142,10 +142,7 @@ extension Beacon : Identifiable {
 extension Beacon : DownloadDelegate {
     
     func downloadProgressUpdated(for progress: Float, for uuid: UUID) {
-//        if self.uuid == uuid {
             self.localDownloadProgress = progress
-//        print("progress \(progress)")
-//        }
     }
     
 }

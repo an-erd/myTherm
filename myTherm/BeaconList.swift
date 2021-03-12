@@ -36,6 +36,7 @@ struct BeaconList: View {
         GeometryReader { geometry in
             ScrollView {
                 VStack(spacing: 8) {
+                    HStack {
                     Toggle("Scan", isOn: $doScan)
                         .onChange(of: doScan, perform: { value in
                             if value == true {
@@ -45,6 +46,14 @@ struct BeaconList: View {
                             }
                             print("toggle scan \(value)")
                         })
+                        Button(action: {
+                            MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
+                        }) {
+                            Image(systemName: "icloud.and.arrow.down")
+            //                Image(systemName: "arrow.triangle.2.circlepath")
+            //                ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
+                        }
+                    }
                     ForEach(beacons) { beacon in
                         GroupBox(label: Label(beacon.name!, systemImage: "thermometer")) {
                             VStack {
@@ -69,10 +78,7 @@ struct BeaconList: View {
                                         }
                                     }
                                 }
-                                if (beacon.localDownloadProgress > 0) &&
-                                    (beacon.localDownloadProgress < 1) {
-                                    ProgressView(value: beacon.localDownloadProgress, total: 1.0)
-                                }
+                                BeaconDownloadView(beacon: beacon) //, progress: beacon.localDownloadProgress)
                             }
                         }
                         .groupBoxStyle(
