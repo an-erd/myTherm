@@ -16,7 +16,20 @@ struct ContentView: View {
 //                .navigationBarItems(trailing:
 //                    ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
 //                    )
-        }.onAppear {
+        }
+        
+        .navigationBarItems(
+            trailing: Button(action: {
+                MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
+            }) {
+                Image(systemName: "icloud.and.arrow.down")
+                //                Image(systemName: "arrow.triangle.2.circlepath")
+                //                ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
+            }
+            
+            //                    ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
+        )
+        .onAppear {
             MyBluetoothManager.shared.setMoc(moc: viewContext)
         }
         .onChange(of: scenePhase) { phase in
@@ -31,6 +44,21 @@ struct ContentView: View {
                 PersistenceController.shared.saveBackgroundContext(backgroundContext: viewContext)
             @unknown default:
                 print("PHASECHANGE: View entered unknown phase.")
+            }
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .bottomBar) {
+                Button(action: {
+                    print("Filter pressed")
+                }) {
+                    Image(systemName: "line.horizontal.3.decrease.circle")
+                }
+                Spacer()
+                Text("status text")
+                Spacer()
+                Button("Second") {
+                    print("Pressed")
+                }
             }
         }
     }

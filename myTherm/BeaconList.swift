@@ -18,7 +18,8 @@ struct BeaconList: View {
     
     @State private var editMode: EditMode = .inactive
     @State private var displaySteps: Int = 0    // 0 temp, 1 hum, 2 map
-    @State private var doScan: Bool = true
+    @State private var doScan: Bool = false
+    @State private var doUpdateAdv: Bool = false
     
     @State var nowDate: Date = Date()
     var timer: Timer {
@@ -37,56 +38,58 @@ struct BeaconList: View {
             ScrollView {
                 VStack(spacing: 8) {
                     HStack {
-                    Toggle("Scan", isOn: $doScan)
-                        .onChange(of: doScan, perform: { value in
-                            if value == true {
-                                MyCentralManagerDelegate.shared.startScanAndLocationService()
-                            } else {
-                                MyCentralManagerDelegate.shared.stopScanAndLocationService()
-                            }
-                            print("toggle scan \(value)")
-                        })
+                        Toggle("Scan", isOn: $doScan)
+                            .onChange(of: doScan, perform: { value in
+                                if value == true {
+                                    MyCentralManagerDelegate.shared.startScanAndLocationService()
+                                } else {
+                                    MyCentralManagerDelegate.shared.stopScanAndLocationService()
+                                }
+                                print("toggle scan \(value)")
+                            })
+                        Toggle("Adv", isOn: $doUpdateAdv)
+                            .onChange(of: doUpdateAdv, perform: { value in
+                                if value == true {
+                                    MyCentralManagerDelegate.shared.startUpdateAdv()
+                                } else {
+                                    MyCentralManagerDelegate.shared.stopUpdateAdv()
+                                }
+                                print("toggle update adv \(value)")
+                            })
                         Button(action: {
                             MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
                         }) {
                             Image(systemName: "icloud.and.arrow.down")
-            //                Image(systemName: "arrow.triangle.2.circlepath")
-            //                ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
+                            //                Image(systemName: "arrow.triangle.2.circlepath")
+                            //                ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
                         }
                     }
                     ForEach(beacons) { beacon in
-                        GroupBox(label: Label(beacon.name!, systemImage: "thermometer")) {
-                            VStack {
-                                HStack {
-                                    BeaconValueView(beacon: beacon, beaconAdv: beacon.adv!, nowDate: nowDate)
-                                        .frame(width: geometry.size.width * 0.5)
-                                    
-                                    Button(action: {
-                                        displaySteps = (displaySteps + 1) % 2
-                                    }) {
-                                        ZStack {// PROFILE
-                                            if displaySteps == 0 {
-                                                LineView(timestamp: beacon.localHistoryTimestamp ?? [] ,
-                                                         data: beacon.localHistoryTemperature ?? [], title: "°C") // PROFIL
-                                            } else if displaySteps == 1 {
-                                                LineView(timestamp: beacon.localHistoryTimestamp ?? [],
-                                                         data: beacon.localHistoryHumidity ?? [], title: "%")
-                                            } else {
-                                                Text("No data available")
-                                                    .foregroundColor(.gray)
-                                            }
+                        GroupBox(label: Label(beacon.wrappedName, systemImage: "thermometer")) {
+                            if beacon.adv != nil {
+                                VStack {
+                                    HStack {
+                                        BeaconValueView(beacon: beacon, nowDate: nowDate)
+                                            .frame(width: geometry.size.width * 0.5)
+                                        Spacer()
+                                        Button(action: {
+                                            displaySteps = (displaySteps + 1) % 2
+                                        }) {
+                                            BeaconLineView(beacon: beacon, displaySteps: displaySteps)
                                         }
                                     }
+//                                    BeaconDownloadView(beacon: beacon) //, progress: beacon.localDownloadProgress)
                                 }
-                                BeaconDownloadView(beacon: beacon) //, progress: beacon.localDownloadProgress)
                             }
                         }
                         .groupBoxStyle(
                             BeaconGroupBoxStyle(color: .blue,
-                                                destination: BeaconDetail(beacon: beacon, beaconadv: beacon.adv!),
-                                                dateString: getDateInterpretationString(date: beacon.adv!.timestamp!, nowDate: nowDate)))
+                                                destination: BeaconDetail(beacon: beacon), beacon: beacon
+                            ))
                     }
                     .padding()
+                    Spacer()
+                        .frame(height: 50)
                 }
                 .background(Color(.systemGroupedBackground))
                 .edgesIgnoringSafeArea(.bottom)
