@@ -4,7 +4,6 @@ import Combine
 
 struct BeaconDetail: View {
     @ObservedObject var beacon: Beacon
-    @ObservedObject var beaconadv: BeaconAdv
     
     @State private var isExpandedBeaconInfo: Bool = false
     @State private var isExpandedPayload: Bool = false
@@ -31,12 +30,12 @@ struct BeaconDetail: View {
 
                 DisclosureGroup("BEACON INFORMATION", isExpanded: $isExpandedBeaconInfo) {
                     BeaconDetailListEntry(title: "Device Name",
-                                          text: beacon.device_name ?? "no device name")
+                                          text: beacon.wrappedDeviceName)
                     buildViewBeacon(beacon: beacon)
                 }
                 
                 DisclosureGroup("PAYLOAD", isExpanded: $isExpandedPayload) {
-                    buildViewAdv(beaconadv: beaconadv)
+                    buildViewAdv(beaconadv: beacon.adv)
                 }
 
                 DisclosureGroup("LAST LOCATION", isExpanded: $isExpandedLocation) {
@@ -91,29 +90,32 @@ func buildViewBeacon(beacon: Beacon) -> AnyView {
     )
 }
 
-func buildViewAdv(beaconadv: BeaconAdv) -> AnyView {
-        return AnyView (
-            Group {
-                BeaconDetailListEntry(title: "Last data",
-                                      text: getDateString(date: beaconadv.timestamp))
-                BeaconDetailListEntry(title: "Temperature",
-                                      text: String(format:"%.2f °C", beaconadv.temperature))
-                BeaconDetailListEntry(title: "Humidity",
-                                      text: String(format:"%.2f %%", beaconadv.humidity))
-                BeaconDetailListEntry(title: "Battery",
-                                      text: String(format:"%d mV", beaconadv.battery))
-                BeaconDetailListEntry(title: "Accel",
-                                      text: String(format:"(%.2f g, %.2f g, %.2f g)",
-                                                   beaconadv.accel_x, beaconadv.accel_y, beaconadv.accel_z))
-                BeaconDetailListEntry(title: "RSSI",
-                                      text: getRssiString(rssi: Int16(beaconadv.rssi)))
-                
-                NavigationLink(destination: TextShow(fieldName: "Raw", text: beaconadv.rawdata ?? "no value" )
-                ) {
-                    BeaconDetailListEntry(title: "Raw", text: beaconadv.rawdata ?? "no value" )
-                }
+func buildViewAdv(beaconadv: BeaconAdv?) -> AnyView {
+    guard let beaconadv = beaconadv else {
+        return AnyView(EmptyView())
+    }
+    return AnyView (
+        Group {
+            BeaconDetailListEntry(title: "Last data",
+                                  text: getDateString(date: beaconadv.timestamp))
+            BeaconDetailListEntry(title: "Temperature",
+                                  text: String(format:"%.2f °C", beaconadv.temperature))
+            BeaconDetailListEntry(title: "Humidity",
+                                  text: String(format:"%.2f %%", beaconadv.humidity))
+            BeaconDetailListEntry(title: "Battery",
+                                  text: String(format:"%d mV", beaconadv.battery))
+            BeaconDetailListEntry(title: "Accel",
+                                  text: String(format:"(%.2f g, %.2f g, %.2f g)",
+                                               beaconadv.accel_x, beaconadv.accel_y, beaconadv.accel_z))
+            BeaconDetailListEntry(title: "RSSI",
+                                  text: getRssiString(rssi: Int16(beaconadv.rssi)))
+            
+            NavigationLink(destination: TextShow(fieldName: "Raw", text: beaconadv.rawdata ?? "no value" )
+            ) {
+                BeaconDetailListEntry(title: "Raw", text: beaconadv.rawdata ?? "no value" )
             }
-        )
+        }
+    )
 }
     
 func buildViewLocation(beaconlocation: BeaconLocation) -> AnyView {

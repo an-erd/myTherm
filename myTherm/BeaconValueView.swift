@@ -10,7 +10,6 @@ import SwiftUI
 struct BeaconValueView: View {
     
     @ObservedObject var beacon: Beacon
-    @ObservedObject var beaconAdv: BeaconAdv
     var nowDate: Date
 
     func getTempValue(beaconadv: BeaconAdv) -> String {
@@ -23,20 +22,20 @@ struct BeaconValueView: View {
 
     @ScaledMetric var size: CGFloat = 1
     
+    // TODO
+    // adjust using https://www.swiftbysundell.com/tips/optional-swiftui-views/
     @ViewBuilder var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            HStack(spacing: 5) {
-                if beacon.adv != nil {
-                    Text(getTempValue(beaconadv: beaconAdv)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" °C").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
+            Unwrap(beacon.adv) { beaconadv in
+                HStack(spacing: 5) {
+                    Text(getTempValue(beaconadv: beaconadv)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" °C").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
 
-                    Text(getHumValue(beaconadv: beaconAdv)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" %").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
-                    Spacer()
-                } else {
-                    Text("no data").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
+                    Text(getHumValue(beaconadv: beaconadv)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" %").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
                     Spacer()
                 }
             }
-            Text(beacon.descr ?? "descr")
+            Text(beacon.wrappedAdvDateInterpretation(nowDate: nowDate))
+                .font(.footnote).foregroundColor(.secondary) //.padding(.trailing, 4)
         }
     }
 }

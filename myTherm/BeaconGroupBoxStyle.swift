@@ -10,7 +10,7 @@ import SwiftUI
 struct BeaconGroupBoxStyle<V: View>: GroupBoxStyle {
     var color: Color
     var destination: V
-    var dateString: String?
+    var beacon: Beacon
 
     @ScaledMetric var size: CGFloat = 1
     
@@ -19,9 +19,14 @@ struct BeaconGroupBoxStyle<V: View>: GroupBoxStyle {
             GroupBox(label: HStack {
                 configuration.label.foregroundColor(color)
                 Spacer()
-                if dateString != nil {
-                    Text(dateString!).font(.footnote).foregroundColor(.secondary).padding(.trailing, 4)
+                Button(action: {
+                    MyBluetoothManager.shared.downloadManager.addBeaconToDownloadQueue(beacon: beacon)
+                }) {
+                    Image(systemName: "icloud.and.arrow.down")
+                    //                Image(systemName: "arrow.triangle.2.circlepath")
+                    //                ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
                 }
+//                Text(dateString!).font(.footnote).foregroundColor(.secondary).padding(.trailing, 4)
                 Image(systemName: "chevron.right").foregroundColor(.secondary).imageScale(.small)
 
             }) {

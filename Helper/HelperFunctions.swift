@@ -7,6 +7,7 @@
 //  Copyright © 2019 Andreas Erdmann. All rights reserved.
 //
 
+import SwiftUI
 import Foundation
 import CoreData
 
@@ -170,3 +171,4 @@ func getSHT3temperatureValue(msb: UInt8, lsb: UInt8) -> Double {
 func getSHT3humidityValue(msb: UInt8, lsb: UInt8) -> Double {
     return Double((Double(UInt16_decode(msb: msb, lsb: lsb)) * 100.0 ) / Double(0xFFFF))
 }
+

@@ -39,6 +39,7 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
     static let shared = MyCentralManagerDelegate()
     private var moc: NSManagedObjectContext!
     private var lm = LocationManager()
+    private var doUpdateAdv: Bool = false
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
@@ -54,7 +55,8 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
             print("central.state is .poweredOff")
         case .poweredOn:
             print("central.state is .poweredOn")
-            central.scanForPeripherals(withServices: nil, options: nil) // PROFILE
+            stopScanAndLocationService()
+//            central.scanForPeripherals(withServices: nil, options: nil) // PROFILE
         //            central.scanForPeripherals(withServices: [BeaconPeripheral.beaconRemoteServiceUUID], options: nil)
         @unknown default:
             print("central.state is @unknown default")
@@ -73,6 +75,13 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
         print("stopScanAndLocationService")
     }
     
+    func startUpdateAdv() {
+        doUpdateAdv = true
+    }
+    func stopUpdateAdv() {
+        doUpdateAdv = false
+    }
+
 }
 
 extension MyCentralManagerDelegate {
@@ -249,16 +258,29 @@ extension MyCentralManagerDelegate {
                 beacon.beacon_version = extractBeacon.beacon_version
                 beacon.name = peripheral.name ?? "(no name)"
                 beacon.device_name = peripheral.name ?? "(no device name)"
-                
-                beacon.adv = BeaconAdv(context: MyCentralManagerDelegate.shared.moc)
-                guard let newadv = beacon.adv else { return }
-                
+
                 print(beacon)
                 print("add new beacon \(peripheral.identifier)")
+
+                guard let newadv = beacon.adv else { return }
                 print("inverse \(newadv.beacon?.name ?? "inverse beacon not set")")
             }
         }
         
+        if !doUpdateAdv {
+            return
+        }
+        
+        if doUpdateAdv {
+            if let beacon = beaconFind {
+                if beacon.adv != nil {
+                    // nothing
+                } else {
+                    beacon.adv = BeaconAdv(context: MyCentralManagerDelegate.shared.moc)
+                }
+            }
+        }
+            
         guard let beacon = beaconFind else { return }
         guard let beaconadv = beacon.adv else { return }
         

@@ -52,6 +52,22 @@ extension Beacon {
         name ?? "no name"
     }
     
+    public var wrappedLocalHistoryTemperature: [Double] {
+        guard localHistoryTemperature != nil else { return [] }
+        return localHistoryTemperature!
+    }
+    
+    public var wrappedLocalHistoryHumidity: [Double] {
+        guard localHistoryHumidity != nil else { return [] }
+        return localHistoryHumidity!
+    }
+    
+    public var wrappedLocalHistoryTimestamp: [Date] {
+        guard localHistoryTimestamp != nil else { return [] }
+        return localHistoryTimestamp!
+    }
+    
+
     public var historyArray: [BeaconHistoryDataPoint] {
         let set = history as? Set<BeaconHistoryDataPoint> ?? []
         
@@ -94,6 +110,11 @@ extension Beacon {
         return dates
     }
 
+    public func wrappedAdvDateInterpretation(nowDate: Date) -> String {
+        guard let beaconadv = self.adv else { return "never" }
+        guard let date = beaconadv.timestamp else { return "not available" }
+        return getDateInterpretationString(date: date, nowDate: nowDate)
+    }
 }
 
 // MARK: Generated accessors for history
