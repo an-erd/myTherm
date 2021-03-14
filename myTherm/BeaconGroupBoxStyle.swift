@@ -23,10 +23,10 @@ struct BeaconGroupBoxStyle<V: View>: GroupBoxStyle {
                     MyBluetoothManager.shared.downloadManager.addBeaconToDownloadQueue(beacon: beacon)
                 }) {
                     Image(systemName: "icloud.and.arrow.down")
-                    //                Image(systemName: "arrow.triangle.2.circlepath")
-                    //                ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
                 }
-//                Text(dateString!).font(.footnote).foregroundColor(.secondary).padding(.trailing, 4)
+                Spacer()
+                    .frame(width: 25)
+
                 Image(systemName: "chevron.right").foregroundColor(.secondary).imageScale(.small)
 
             }) {

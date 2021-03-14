@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		800F07E925FE481200D9F515 /* BeaconGroupBoxList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800F07E825FE481200D9F515 /* BeaconGroupBoxList.swift */; };
+		800F07EB25FE503F00D9F515 /* BeaconSimpleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800F07EA25FE503F00D9F515 /* BeaconSimpleListView.swift */; };
 		806A52BA25FA813300298441 /* BeaconLocationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806A52B725FA813300298441 /* BeaconLocationExtension.swift */; };
 		806A52BB25FA813300298441 /* BeaconExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806A52B825FA813300298441 /* BeaconExtension.swift */; };
 		806A52BC25FA813300298441 /* BeaconStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806A52B925FA813300298441 /* BeaconStruct.swift */; };
@@ -51,6 +53,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		800F07E825FE481200D9F515 /* BeaconGroupBoxList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconGroupBoxList.swift; sourceTree = "<group>"; };
+		800F07EA25FE503F00D9F515 /* BeaconSimpleListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconSimpleListView.swift; sourceTree = "<group>"; };
 		806A52B725FA813300298441 /* BeaconLocationExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BeaconLocationExtension.swift; path = Model/BeaconLocationExtension.swift; sourceTree = "<group>"; };
 		806A52B825FA813300298441 /* BeaconExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BeaconExtension.swift; path = Model/BeaconExtension.swift; sourceTree = "<group>"; };
 		806A52B925FA813300298441 /* BeaconStruct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BeaconStruct.swift; path = Model/BeaconStruct.swift; sourceTree = "<group>"; };
@@ -138,6 +142,7 @@
 		807838E925DCEB0E009FF0E9 /* myTherm */ = {
 			isa = PBXGroup;
 			children = (
+				800F07EA25FE503F00D9F515 /* BeaconSimpleListView.swift */,
 				808E67EF25E0E88900D37C51 /* MapView.swift */,
 				807838EA25DCEB0E009FF0E9 /* myThermApp.swift */,
 				807838EC25DCEB0E009FF0E9 /* ContentView.swift */,
@@ -153,6 +158,7 @@
 				807838F025DCEB10009FF0E9 /* Preview Content */,
 				80ACFC8F25FA849E00CAA3DD /* BeaconDownloadView.swift */,
 				80D0C26725FCA4B700D69392 /* BeaconLineView.swift */,
+				800F07E825FE481200D9F515 /* BeaconGroupBoxList.swift */,
 			);
 			path = myTherm;
 			sourceTree = "<group>";
@@ -350,6 +356,7 @@
 				8080270725DD9501000C377D /* BeaconGroupBoxStyle.swift in Sources */,
 				80C6FD0B25ED16A5006985D5 /* Line.swift in Sources */,
 				808E67F625E0ED2100D37C51 /* BeaconLocation+CoreDataProperties.swift in Sources */,
+				800F07EB25FE503F00D9F515 /* BeaconSimpleListView.swift in Sources */,
 				8080270925DD952B000C377D /* BeaconValueView.swift in Sources */,
 				8080271525DD9962000C377D /* BeaconBluetoothManager.swift in Sources */,
 				806A52BC25FA813300298441 /* BeaconStruct.swift in Sources */,
@@ -372,6 +379,7 @@
 				8080270B25DD954E000C377D /* BeaconDetail.swift in Sources */,
 				8080270025DD6E86000C377D /* BeaconAdv+CoreDataClass.swift in Sources */,
 				806E50A725E6A2FB001218D5 /* DownloadManager.swift in Sources */,
+				800F07E925FE481200D9F515 /* BeaconGroupBoxList.swift in Sources */,
 				806E50AB25E6AC57001218D5 /* Download.swift in Sources */,
 				8080271025DD959C000C377D /* TextShow.swift in Sources */,
 			);

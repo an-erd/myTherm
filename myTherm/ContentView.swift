@@ -4,31 +4,22 @@ import CoreData
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.scenePhase) private var scenePhase
-        
     
     let locationManager = CLLocationManager()
-
+    
     var body: some View {
         NavigationView {
             BeaconList()
                 .navigationBarTitle("Beacons")
                 .listStyle(GroupedListStyle())
-//                .navigationBarItems(trailing:
-//                    ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
-//                    )
+                .navigationBarItems(
+                    trailing: Button(action: {
+                        MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
+                    }) {
+                        Image(systemName: "icloud.and.arrow.down")
+                    }
+                )
         }
-        
-        .navigationBarItems(
-            trailing: Button(action: {
-                MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
-            }) {
-                Image(systemName: "icloud.and.arrow.down")
-                //                Image(systemName: "arrow.triangle.2.circlepath")
-                //                ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
-            }
-            
-            //                    ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
-        )
         .onAppear {
             MyBluetoothManager.shared.setMoc(moc: viewContext)
         }

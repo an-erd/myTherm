@@ -39,7 +39,7 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
     static let shared = MyCentralManagerDelegate()
     private var moc: NSManagedObjectContext!
     private var lm = LocationManager()
-    private var doUpdateAdv: Bool = false
+    private var doUpdateAdv: Bool = true
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
@@ -56,8 +56,6 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
         case .poweredOn:
             print("central.state is .poweredOn")
             stopScanAndLocationService()
-//            central.scanForPeripherals(withServices: nil, options: nil) // PROFILE
-        //            central.scanForPeripherals(withServices: [BeaconPeripheral.beaconRemoteServiceUUID], options: nil)
         @unknown default:
             print("central.state is @unknown default")
         }

@@ -31,7 +31,7 @@ struct BeaconValueView: View {
                     Text(getTempValue(beaconadv: beaconadv)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" °C").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
 
                     Text(getHumValue(beaconadv: beaconadv)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" %").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
-                    Spacer()
+//                    Spacer()
                 }
             }
             Text(beacon.wrappedAdvDateInterpretation(nowDate: nowDate))
