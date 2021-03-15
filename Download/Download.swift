@@ -15,7 +15,7 @@ enum DownloadStatus {
     case waiting, connecting, downloading_num, downloading_data, downloading_finished, alldone, cancelled, error
 }
 
-class Download {
+class Download : ObservableObject {
 
     weak var delegate: DownloadDelegate?
     
