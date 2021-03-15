@@ -49,11 +49,12 @@ struct BeaconList: View {
                         Toggle("Filter", isOn: $doFilter)
                             .onChange(of: doFilter, perform: { value in
                                 if value == true {
-                                    predicate = NSPredicate(format: "device_name BEGINSWITH %@", "Bx0706")
+                                    let comparison = Date(timeIntervalSinceNow: -120)
+                                    predicate = NSPredicate(format: "localTimestamp >= %@", comparison as NSDate)
                                 } else {
                                     predicate = nil
-                                    print("toggle filter \(value)")
                                 }
+                                print("toggle filter \(value)")
                             })
                         Button(action: {
                             MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
@@ -68,6 +69,22 @@ struct BeaconList: View {
                 self.onAppear()
                 copyBeaconHistoryOnce()
             })
+            .toolbar {
+                ToolbarItemGroup(placement: .bottomBar) {
+                    Button(action: {
+                        print("Filter pressed")
+                    }) {
+                        Image(systemName: "line.horizontal.3.decrease.circle")
+                    }
+                    Spacer()
+                    Text("status text")
+                    Spacer()
+                    Button("Second") {
+                        print("Pressed")
+                    }
+                }
+            }
+
     }
     
     public func onAppear() {

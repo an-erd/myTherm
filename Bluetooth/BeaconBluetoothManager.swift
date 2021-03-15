@@ -39,7 +39,7 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
     static let shared = MyCentralManagerDelegate()
     private var moc: NSManagedObjectContext!
     private var lm = LocationManager()
-    private var doUpdateAdv: Bool = true
+    private var doUpdateAdv: Bool = false
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
@@ -265,6 +265,7 @@ extension MyCentralManagerDelegate {
             }
         }
         
+        beaconFind?.localTimestamp = Date()
         if !doUpdateAdv {
             return
         }
@@ -481,8 +482,9 @@ extension MyCentralManagerDelegate {
             let temperature = getSHT3temperatureValue(msb: characteristicData[6], lsb: characteristicData[7])
             let humidity = getSHT3humidityValue(msb: characteristicData[8], lsb: characteristicData[9])
             
-            let dataPoint = BeaconHistoryDataPointLocal(sequenceNumber: seqNumber, humidity: humidity, temperature: temperature,
-                                                        timestamp: NSDate(timeIntervalSince1970: TimeInterval(epochTime)) as Date)
+            let dataPoint = BeaconHistoryDataPointLocal(
+                sequenceNumber: seqNumber, humidity: humidity, temperature: temperature,
+                timestamp: NSDate(timeIntervalSince1970: TimeInterval(epochTime)) as Date)
             
             if let download = downloadManager.activeDownload {
                 download.history.append(dataPoint)

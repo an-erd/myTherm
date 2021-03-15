@@ -11,6 +11,7 @@
         <attribute name="localHistoryHumidity" optional="YES" transient="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[Double]"/>
         <attribute name="localHistoryTemperature" optional="YES" transient="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[Double]"/>
         <attribute name="localHistoryTimestamp" optional="YES" transient="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[Date]"/>
+        <attribute name="localTimestamp" optional="YES" transient="YES" attributeType="Date" defaultDateTimeInterval="-978307200" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="uuid" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <relationship name="adv" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="BeaconAdv" inverseName="beacon" inverseEntity="BeaconAdv"/>
@@ -42,7 +43,7 @@
         <relationship name="beacon" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Beacon" inverseName="location" inverseEntity="Beacon"/>
     </entity>
     <elements>
-        <element name="Beacon" positionX="-223.1812133789062" positionY="-285.9000091552734" width="128" height="254"/>
+        <element name="Beacon" positionX="-223.1812133789062" positionY="-285.9000091552734" width="128" height="269"/>
         <element name="BeaconAdv" positionX="68.5216064453125" positionY="-408.4564971923828" width="128" height="193"/>
         <element name="BeaconHistoryDataPoint" positionX="79.50518798828125" positionY="-213.89697265625" width="128" height="103"/>
         <element name="BeaconLocation" positionX="84.72802734375" positionY="-71.25010681152344" width="128" height="89"/>

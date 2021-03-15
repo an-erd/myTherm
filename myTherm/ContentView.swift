@@ -37,21 +37,21 @@ struct ContentView: View {
                 print("PHASECHANGE: View entered unknown phase.")
             }
         }
-        .toolbar {
-            ToolbarItemGroup(placement: .bottomBar) {
-                Button(action: {
-                    print("Filter pressed")
-                }) {
-                    Image(systemName: "line.horizontal.3.decrease.circle")
-                }
-                Spacer()
-                Text("status text")
-                Spacer()
-                Button("Second") {
-                    print("Pressed")
-                }
-            }
-        }
+//        .toolbar {
+//            ToolbarItemGroup(placement: .bottomBar) {
+//                Button(action: {
+//                    print("Filter pressed")
+//                }) {
+//                    Image(systemName: "line.horizontal.3.decrease.circle")
+//                }
+//                Spacer()
+//                Text("status text")
+//                Spacer()
+//                Button("Second") {
+//                    print("Pressed")
+//                }
+//            }
+//        }
     }
 }
 

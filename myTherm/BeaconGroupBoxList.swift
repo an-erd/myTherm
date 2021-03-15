@@ -13,7 +13,8 @@ struct BeaconGroupBoxList: View {
     init(predicate: NSPredicate?) {
         fetchRequest = FetchRequest<Beacon>(entity: Beacon.entity(),
                                             sortDescriptors: [NSSortDescriptor(keyPath: \Beacon.name, ascending: true)],
-                                            predicate: predicate)
+                                            predicate: predicate,
+                                            animation: .default)
     }
     
     @State var nowDate: Date = Date()
@@ -34,7 +35,7 @@ struct BeaconGroupBoxList: View {
                             HStack {
                                 BeaconValueView(beacon: beacon, nowDate: nowDate)
 //                                    .frame(width: geometry.size.width * 0.5)
-                                    .frame(width: 150)
+                                    .frame(width: 160)
                                     .border(Color.white)
                                 Spacer()
                                 Button(action: {
@@ -43,7 +44,7 @@ struct BeaconGroupBoxList: View {
                                     BeaconLineView(beacon: beacon, displaySteps: displaySteps)
                                 }
                             }
-                            // BeaconDownloadView(beacon: beacon) //, progress: beacon.localDownloadProgress)
+//                             BeaconDownloadView(beacon: beacon) //, progress: beacon.localDownloadProgress)
                         }
                     }
                 }
