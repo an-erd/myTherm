@@ -82,10 +82,6 @@ extension Beacon {
         if new.count ==  0 {
             return []
         }
-        
-//        let min = new.min()
-//        let new1 = new.map { $0 - min! }
-        
 //        print("Beacon get temperatureArray \(Date())")
         return new
     }
@@ -96,9 +92,6 @@ extension Beacon {
         if new.count ==  0 {
             return []
         }
-        
-//        let min = new.min()
-//        let new1 = new.map { $0 - min! }
         return new
     }
     

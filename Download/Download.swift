@@ -46,6 +46,12 @@ class Download : ObservableObject {
         self.delegate = delegate
     }
     
+    deinit {
+        if let beacon = beacon {
+            beacon.localDownloadProgress = 0
+        }
+    }
+    
     public var historySorted: [BeaconHistoryDataPointLocal] {
         return history.sorted {
             $0.timestamp < $1.timestamp

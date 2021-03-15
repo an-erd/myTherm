@@ -56,11 +56,11 @@ struct BeaconList: View {
                                 }
                                 print("toggle filter \(value)")
                             })
-                        Button(action: {
-                            MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
-                        }) {
-                            Image(systemName: "icloud.and.arrow.down")
-                        }
+//                        Button(action: {
+//                            MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
+//                        }) {
+//                            Image(systemName: "icloud.and.arrow.down")
+//                        }
                     }
                     BeaconGroupBoxList(predicate: predicate)
                 }

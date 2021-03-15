@@ -8,19 +8,17 @@
 import Foundation
 import CoreBluetooth
 import CoreData
+import SwiftUI
 
 enum DownloadManagerStatus{
-    case idle, processing
+    case idle, processing, done
 }
 
 class DownloadManager: NSObject, ObservableObject {
     private var moc: NSManagedObjectContext!
-//    var downloadHistory: Download?
     var activeDownloads: [Download] = []
     var activeDownload: Download?
     var status: DownloadManagerStatus = .idle
-//    var counterControlPointNotification = 0
-//    var counterMeasurementValueNotification = 0
     
     func setMoc(moc: NSManagedObjectContext) {
         self.moc = moc
@@ -49,6 +47,19 @@ class DownloadManager: NSObject, ObservableObject {
         }
     }
     
+    func cleanupDownloadQueue() {
+        let activeDownloadsFiltered = activeDownloads.filter() {download in
+            return download.status == .waiting
+        }
+        if activeDownloadsFiltered.count == 0 {
+            print("cleanupDownloadQueue")
+//            ForEach(activeDownloads) { beacon in
+//                beacon.dowload = 0
+//            }
+            activeDownloads.removeAll()
+        }
+    }
+    
     func resume() {
         print("DownloadManager resume() status \(status)")
         switch status {
@@ -59,8 +70,15 @@ class DownloadManager: NSObject, ObservableObject {
             print("DownloadManager resume() activeDownload waiting count \(activeDownloadsFiltered.count)")
             if activeDownloadsFiltered.count > 0 {
                 startDownload(download: activeDownloadsFiltered.first!)
+            } else {
+                status = .done
+                resume()
             }
         case .processing:
+            return
+        case .done:
+            cleanupDownloadQueue()
+            status = .idle
             return
         }
     }

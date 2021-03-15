@@ -34,9 +34,7 @@ struct BeaconGroupBoxList: View {
                         VStack {
                             HStack {
                                 BeaconValueView(beacon: beacon, nowDate: nowDate)
-//                                    .frame(width: geometry.size.width * 0.5)
-                                    .frame(width: 160)
-                                    .border(Color.white)
+                                    .frame(width: 165)
                                 Spacer()
                                 Button(action: {
                                     displaySteps = (displaySteps + 1) % 2
@@ -44,7 +42,9 @@ struct BeaconGroupBoxList: View {
                                     BeaconLineView(beacon: beacon, displaySteps: displaySteps)
                                 }
                             }
-//                             BeaconDownloadView(beacon: beacon) //, progress: beacon.localDownloadProgress)
+                            BeaconDownloadView(
+                                beacon: beacon,
+                                activeDownloads: MyBluetoothManager.shared.downloadManager.activeDownloads)
                         }
                     }
                 }
@@ -52,6 +52,7 @@ struct BeaconGroupBoxList: View {
                     BeaconGroupBoxStyle(color: .blue,
                                         destination: BeaconDetail(beacon: beacon), beacon: beacon
                     ))
+//                .border(Color.white)
             }
             .padding()
             Spacer()
