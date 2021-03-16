@@ -32,6 +32,7 @@ struct Line: View {
 //        var stepH: CGFloat = 0
 //        var delta: CGFloat = 0
         
+//        print("frame.size x \(frame) w \(frame.size.width) h \(frame.size.height) ")
         if let minPoint = points.min(), let maxPoint = points.max(), minPoint != maxPoint {
             min = minPoint
             max = maxPoint
@@ -45,7 +46,6 @@ struct Line: View {
 //                return (frame.size.height - padding) / CGFloat(max + min)
 //            }
         }
-//        print("frame.size w \(frame.size.width) h \(frame.size.height) min \(min!) max \(max!) stepHeigth \(stepH)")
 
         return 0
     }
@@ -119,6 +119,5 @@ struct Line: View {
 //                        .offset(x: 0, y: -60)
             }
         }
-//        .border(Color.white)
     }
 }
