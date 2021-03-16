@@ -42,10 +42,11 @@ struct BeaconGroupBoxList: View {
                             Spacer()
                                 .frame(width: 25)
                             
-                            Image(systemName: "chevron.right").foregroundColor(.secondary).imageScale(.small)
-                        }
-                    , content: {
-                        
+                            NavigationLink(destination: BeaconDetail(beacon: beacon)) {
+                                Image(systemName: "chevron.right").foregroundColor(.secondary).imageScale(.small)
+                            }
+                        },
+                    content: {
                         VStack {
                             VStack {
                                 if beacon.adv != nil {
@@ -57,7 +58,6 @@ struct BeaconGroupBoxList: View {
                                             displaySteps = (displaySteps + 1) % 2
                                         }) {
                                             BeaconLineView(beacon: beacon, displaySteps: displaySteps)
-//                                            Rectangle().border(Color.red)
                                         }
                                     }.frame(height: 55)
                                 }
@@ -75,7 +75,7 @@ struct BeaconGroupBoxList: View {
             }
         }
         .edgesIgnoringSafeArea(.bottom)
-        .frame(maxWidth: .infinity,maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 //            .background(Color(.systemGroupedBackground))

@@ -30,7 +30,6 @@
 		8080270225DD6E86000C377D /* Beacon+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808026F825DD6E86000C377D /* Beacon+CoreDataClass.swift */; };
 		8080270425DD6E86000C377D /* BeaconHistoryDataPoint+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808026FA25DD6E86000C377D /* BeaconHistoryDataPoint+CoreDataClass.swift */; };
 		8080270525DD6E86000C377D /* BeaconHistoryDataPoint+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808026FB25DD6E86000C377D /* BeaconHistoryDataPoint+CoreDataProperties.swift */; };
-		8080270725DD9501000C377D /* BeaconGroupBoxStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8080270625DD9501000C377D /* BeaconGroupBoxStyle.swift */; };
 		8080270925DD952B000C377D /* BeaconValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8080270825DD952B000C377D /* BeaconValueView.swift */; };
 		8080270B25DD954E000C377D /* BeaconDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8080270A25DD954E000C377D /* BeaconDetail.swift */; };
 		8080270F25DD959C000C377D /* BeaconListEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8080270C25DD959C000C377D /* BeaconListEntry.swift */; };
@@ -78,7 +77,6 @@
 		808026F825DD6E86000C377D /* Beacon+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Beacon+CoreDataClass.swift"; path = "Model/Beacon+CoreDataClass.swift"; sourceTree = "<group>"; };
 		808026FA25DD6E86000C377D /* BeaconHistoryDataPoint+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "BeaconHistoryDataPoint+CoreDataClass.swift"; path = "Model/BeaconHistoryDataPoint+CoreDataClass.swift"; sourceTree = "<group>"; };
 		808026FB25DD6E86000C377D /* BeaconHistoryDataPoint+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "BeaconHistoryDataPoint+CoreDataProperties.swift"; path = "Model/BeaconHistoryDataPoint+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		8080270625DD9501000C377D /* BeaconGroupBoxStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconGroupBoxStyle.swift; sourceTree = "<group>"; };
 		8080270825DD952B000C377D /* BeaconValueView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconValueView.swift; sourceTree = "<group>"; };
 		8080270A25DD954E000C377D /* BeaconDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconDetail.swift; sourceTree = "<group>"; };
 		8080270C25DD959C000C377D /* BeaconListEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconListEntry.swift; sourceTree = "<group>"; };
@@ -151,7 +149,6 @@
 				8080270C25DD959C000C377D /* BeaconListEntry.swift */,
 				8080270A25DD954E000C377D /* BeaconDetail.swift */,
 				8080270825DD952B000C377D /* BeaconValueView.swift */,
-				8080270625DD9501000C377D /* BeaconGroupBoxStyle.swift */,
 				807838F325DCEB10009FF0E9 /* Persistence.swift */,
 				8080271625DEA78C000C377D /* myTherm.entitlements */,
 				807838F825DCEB10009FF0E9 /* Info.plist */,
@@ -353,7 +350,6 @@
 				808026E125DD52F7000C377D /* LocationManager.swift in Sources */,
 				8080270125DD6E86000C377D /* BeaconAdv+CoreDataProperties.swift in Sources */,
 				808E67EC25E030B800D37C51 /* Beacon+CoreDataProperties.swift in Sources */,
-				8080270725DD9501000C377D /* BeaconGroupBoxStyle.swift in Sources */,
 				80C6FD0B25ED16A5006985D5 /* Line.swift in Sources */,
 				808E67F625E0ED2100D37C51 /* BeaconLocation+CoreDataProperties.swift in Sources */,
 				800F07EB25FE503F00D9F515 /* BeaconSimpleListView.swift in Sources */,
