@@ -43,8 +43,8 @@ struct BeaconValueView: View {
                     Spacer()
                 }
                 if let date = beacon.localDragTimestamp {
-                    Text(getDateInterpretationString(date: date, nowDate: nowDate))
-                            .font(.footnote).foregroundColor(.secondary) //.padding(.trailing, 4)
+                    Text(getDateString(date: date))
+                        .font(.footnote).foregroundColor(.secondary) //.padding(.trailing, 4)
                 } else {
                     Text("no date")
                 }

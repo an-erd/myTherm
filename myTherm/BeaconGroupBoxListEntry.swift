@@ -25,7 +25,7 @@ struct BeaconGroupBoxListEntry: View {
                         Image(systemName: "icloud.and.arrow.down")
                     }
                     Spacer()
-                        .frame(width: 25)
+                        .frame(width: 10)
                     
                     NavigationLink(destination: BeaconDetail(beacon: beacon)) {
                         Image(systemName: "chevron.right").foregroundColor(.secondary).imageScale(.small)

@@ -9,28 +9,26 @@ import SwiftUI
 import os
 
 struct LineView: View {
-    @ObservedObject var beacon: Beacon
-    var timestamp: [Date]
-    var data: [Double]
-    var title: String?
     
-    private var min: Double?
-    private var max: Double?
-    private var width: Double?
-    private var heigth: Double?
-
+    @ObservedObject var beacon: Beacon
+    var displaySteps: Int
+    var titleStrings: [String]
+    
+    private var timestamp: [Date]
+    private var dataTemperature: [Double]
+    private var dataHumidity: [Double]
+            
     @State private var dragMode = false
     @State private var dragStart: CGFloat = 0.0
     @State private var dragOffset = CGSize.zero
-
-    public init(beacon: Beacon, timestamp: [Date], data: [Double], title: String? = nil) {
+    
+    public init(beacon: Beacon, displaySteps: Int, titleStrings: [String]) {
         self.beacon = beacon
-        self.timestamp = timestamp
-        self.data = data
-        self.title = title
-        min = data.min()
-        max = data.max()
-//        print("LineView count \(data.count) min \(min ?? 0) max \(max ?? 0)")
+        self.timestamp = beacon.wrappedLocalHistoryTimestamp
+        self.dataTemperature = beacon.wrappedLocalHistoryTemperature
+        self.dataHumidity = beacon.wrappedLocalHistoryHumidity
+        self.displaySteps = displaySteps
+        self.titleStrings = titleStrings
     }
     
     public var body: some View {
@@ -38,7 +36,10 @@ struct LineView: View {
             ZStack{
                 GeometryReader{ reader in
                     Line(beacon: beacon,
-                        timestamp: self.timestamp, data: self.data,
+                         timestamp: self.timestamp,
+                         displaySteps: displaySteps,
+                         dataTemperature: self.dataTemperature,
+                         dataHumidity: self.dataHumidity,
                          frame: .constant(CGRect(x: 0, y: 0,
                                                  width: reader.frame(in: .local).width,
                                                  height: reader.frame(in: .local).height)),
@@ -61,17 +62,17 @@ struct LineView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {
-                    Group{
-                        if (self.title != nil){
-                            Text(self.title!)
-                                .font(.body)
-                                .foregroundColor(Color.white)
-                                .offset(x: -5, y: 0)
-                            Spacer()
-                        }
-                    }.offset(x: 0, y: 0)
-                }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-            }
+                    HStack {
+                        Spacer()
+                        Text(self.titleStrings[displaySteps])
+                            .font(.body)
+                            .foregroundColor(Color.white)
+                            .offset(x: -5, y: 0)
+                    }
+                    Spacer()
+
+                }.offset(x: 0, y: 0)
+            }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
         }
     }
 }

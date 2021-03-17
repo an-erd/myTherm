@@ -11,7 +11,9 @@ import os
 struct Line: View {
     @ObservedObject var beacon: Beacon
     var timestamp: [Date]
-    var data: [Double]
+    var displaySteps: Int
+    var dataTemperature: [Double]
+    var dataHumidity: [Double]
     @Binding var frame: CGRect
     @Binding var dragMode: Bool
     @Binding var dragStart: CGFloat
@@ -20,16 +22,16 @@ struct Line: View {
     let padding:CGFloat = 0
     
     var stepWidth: CGFloat {
-        if data.count < 2 {
+        if dataTemperature.count < 2 {
             return 0
         }
-        return frame.size.width / CGFloat(data.count-1)
+        return frame.size.width / CGFloat(dataTemperature.count-1)
     }
     
     var stepHeight: CGFloat {
         var min: Double?
         var max: Double?
-        let points = self.data
+        let points: [Double] = (displaySteps == 0) ? self.dataTemperature : self.dataHumidity
 //        var stepH: CGFloat = 0
 //        var delta: CGFloat = 0
         
@@ -52,12 +54,13 @@ struct Line: View {
     }
     
     var offset: CGFloat {
-        guard let offset = self.data.min() else { return 0 }
+        let points: [Double] = (displaySteps == 0) ? self.dataTemperature : self.dataHumidity
+        guard let offset = points.min() else { return 0 }
         return CGFloat(offset)
     }
     
     var path: Path {
-        let points = self.data
+        let points: [Double] = (displaySteps == 0) ? self.dataTemperature : self.dataHumidity
         return Path.lineChart(points: points, step: CGPoint(x: stepWidth, y: stepHeight), offset: offset)
     }
     
@@ -74,8 +77,11 @@ struct Line: View {
     }
     
     var circleY: CGFloat {
-//        print("dataIndex \(dataIndex) numentries \(data.count)")
-        return CGFloat(data[dataIndex] - Double(offset)) * stepHeight - frame.size.height / 2
+        let points: [Double] = (displaySteps == 0) ? self.dataTemperature : self.dataHumidity
+        updateBeaconDragTimestamp(dataIndex: dataIndex)
+        updateBeaconDragValues(dataIndex: dataIndex)
+
+        return CGFloat(points[dataIndex] - Double(offset)) * stepHeight - frame.size.height / 2
     }
     
     var verticalLine: Path {
@@ -85,18 +91,18 @@ struct Line: View {
         }
     }
     
-    func getDataBoxDate(dataIndex: Int) -> String {
+    func updateBeaconDragTimestamp(dataIndex: Int) {
         beacon.localDragTimestamp = timestamp[dataIndex]
-//        print("getDataBoxDate \(dataIndex)")
-        return getDateString(date: timestamp[dataIndex])
     }
     
-    func getDataBoxValue(dataIndex: Int) -> String {
-        let value: Double = data[dataIndex]
-        let formatter = NumberFormatter()
-        formatter.maximumFractionDigits = 1
-        beacon.localDragTemperature = value
-        return formatter.string(from: NSNumber(value: value)) ?? ""
+    func updateBeaconDragValues(dataIndex: Int) {
+        let valueTemperature = self.dataTemperature[dataIndex]
+        let valueHumidity = self.dataHumidity[dataIndex]
+//        let formatter = NumberFormatter()
+//        formatter.maximumFractionDigits = 1
+        beacon.localDragTemperature = valueTemperature
+        beacon.localDragHumidity = valueHumidity
+        
     }
     
     public var body: some View {
@@ -114,14 +120,6 @@ struct Line: View {
                     .fill(Color.white)
                     .frame(width: 10, height: 10)
                     .offset(x: boundX, y: -circleY)
-                Text(getDataBoxDate(dataIndex: dataIndex) + " " + getDataBoxValue(dataIndex: dataIndex))
-//                    Rectangle()
-                    .frame(width: 120, height: 50)
-                    .background(Color.white)
-//                    .clipShape(Rectangle())
-                    .offset(x: boundX - 59, y: -70)
-//                        .offset(x: 0, y: -60)
-//                beacon.local
             }
         }
     }
