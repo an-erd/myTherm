@@ -9,9 +9,11 @@ import SwiftUI
 import os
 
 struct LineView: View {
+    @ObservedObject var beacon: Beacon
     var timestamp: [Date]
     var data: [Double]
     var title: String?
+    
     private var min: Double?
     private var max: Double?
     private var width: Double?
@@ -21,7 +23,8 @@ struct LineView: View {
     @State private var dragStart: CGFloat = 0.0
     @State private var dragOffset = CGSize.zero
 
-    public init(timestamp: [Date], data: [Double], title: String? = nil) {
+    public init(beacon: Beacon, timestamp: [Date], data: [Double], title: String? = nil) {
+        self.beacon = beacon
         self.timestamp = timestamp
         self.data = data
         self.title = title
@@ -34,7 +37,8 @@ struct LineView: View {
         GeometryReader{ geometry in
             ZStack{
                 GeometryReader{ reader in
-                    Line(timestamp: self.timestamp, data: self.data,
+                    Line(beacon: beacon,
+                        timestamp: self.timestamp, data: self.data,
                          frame: .constant(CGRect(x: 0, y: 0,
                                                  width: reader.frame(in: .local).width,
                                                  height: reader.frame(in: .local).height)),
@@ -47,9 +51,11 @@ struct LineView: View {
                                 dragMode = true
                                 dragOffset = gesture.translation
                                 dragStart = gesture.startLocation.x
+                                beacon.localDragMode = true
                             }
                             .onEnded { gesture in
                                 dragMode = false
+                                beacon.localDragMode = false
                             }
                     )
                 }
@@ -70,23 +76,23 @@ struct LineView: View {
     }
 }
 
-struct LineView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            LineView(timestamp: [ Date(),
-                                  Date().addingTimeInterval(1),
-                                  Date().addingTimeInterval(2),
-                                  Date().addingTimeInterval(3),
-                                  Date().addingTimeInterval(4),
-                                  Date().addingTimeInterval(5),
-                                  Date().addingTimeInterval(6),
-                                  Date().addingTimeInterval(7),
-                                  Date().addingTimeInterval(8),
-                                  Date().addingTimeInterval(9)],
-                data: [ 1, 0.623,0.696,0.798,0.798,0.623,0.501,0.571,0.713,0.851], title: "title")
-//            LineView(data: [0.6239593970127428,0.6965895913740223,0.7989321379739961,0.7989321379739961,0.6239593970127428,0.5018086155869746,0.5711374374772689,0.7130964537288593,0.8517540975094645], title: "title")
-//            LineView(data: [0,9,8,8,11,7,12],title: "Title")
-        }
-        .previewLayout(.fixed(width: 300, height: 70))
-    }
-}
+//struct LineView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        Group {
+//            LineView(timestamp: [ Date(),
+//                                  Date().addingTimeInterval(1),
+//                                  Date().addingTimeInterval(2),
+//                                  Date().addingTimeInterval(3),
+//                                  Date().addingTimeInterval(4),
+//                                  Date().addingTimeInterval(5),
+//                                  Date().addingTimeInterval(6),
+//                                  Date().addingTimeInterval(7),
+//                                  Date().addingTimeInterval(8),
+//                                  Date().addingTimeInterval(9)],
+//                data: [ 1, 0.623,0.696,0.798,0.798,0.623,0.501,0.571,0.713,0.851], title: "title")
+////            LineView(data: [0.6239593970127428,0.6965895913740223,0.7989321379739961,0.7989321379739961,0.6239593970127428,0.5018086155869746,0.5711374374772689,0.7130964537288593,0.8517540975094645], title: "title")
+////            LineView(data: [0,9,8,8,11,7,12],title: "Title")
+//        }
+//        .previewLayout(.fixed(width: 300, height: 70))
+//    }
+//}

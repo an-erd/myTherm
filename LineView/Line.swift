@@ -9,6 +9,7 @@ import SwiftUI
 import os
 
 struct Line: View {
+    @ObservedObject var beacon: Beacon
     var timestamp: [Date]
     var data: [Double]
     @Binding var frame: CGRect
@@ -85,6 +86,8 @@ struct Line: View {
     }
     
     func getDataBoxDate(dataIndex: Int) -> String {
+        beacon.localDragTimestamp = timestamp[dataIndex]
+//        print("getDataBoxDate \(dataIndex)")
         return getDateString(date: timestamp[dataIndex])
     }
     
@@ -92,6 +95,7 @@ struct Line: View {
         let value: Double = data[dataIndex]
         let formatter = NumberFormatter()
         formatter.maximumFractionDigits = 1
+        beacon.localDragTemperature = value
         return formatter.string(from: NSNumber(value: value)) ?? ""
     }
     
@@ -117,6 +121,7 @@ struct Line: View {
 //                    .clipShape(Rectangle())
                     .offset(x: boundX - 59, y: -70)
 //                        .offset(x: 0, y: -60)
+//                beacon.local
             }
         }
     }

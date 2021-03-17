@@ -11,7 +11,7 @@ struct BeaconValueView: View {
     
     @ObservedObject var beacon: Beacon
     var nowDate: Date
-
+    
     func getTempValue(beaconadv: BeaconAdv) -> String {
         return String(format:"%.1f", beaconadv.temperature)
     }
@@ -19,23 +19,48 @@ struct BeaconValueView: View {
     func getHumValue(beaconadv: BeaconAdv) -> String {
         return String(format:"%.1f", beaconadv.humidity)
     }
-
+    
+    func getTempValue(beacon: Beacon) -> String {
+        return String(format:"%.1f", beacon.localDragTemperature)
+    }
+    
+    func getHumValue(beacon: Beacon) -> String {
+        return String(format:"%.1f", beacon.localDragHumidity)
+    }
+    
     @ScaledMetric var size: CGFloat = 1
     
     // TODO
     // adjust using https://www.swiftbysundell.com/tips/optional-swiftui-views/
     @ViewBuilder var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Unwrap(beacon.adv) { beaconadv in
+            
+            if beacon.localDragMode {
                 HStack(spacing: 5) {
-                    Text(getTempValue(beaconadv: beaconadv)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" °C").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
-
-                    Text(getHumValue(beaconadv: beaconadv)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" %").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
+                    Text(getTempValue(beacon: beacon)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" °C").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
+                    
+                    Text(getHumValue(beacon: beacon)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" %").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
                     Spacer()
                 }
+                if let date = beacon.localDragTimestamp {
+                    Text(getDateInterpretationString(date: date, nowDate: nowDate))
+                            .font(.footnote).foregroundColor(.secondary) //.padding(.trailing, 4)
+                } else {
+                    Text("no date")
+                }
+            } else {
+                Unwrap(beacon.adv) { beaconadv in
+                    HStack(spacing: 5) {
+                        Text(getTempValue(beaconadv: beaconadv)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" °C").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
+                        
+                        Text(getHumValue(beaconadv: beaconadv)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" %").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
+                        Spacer()
+                    }
+                }
+                Text(beacon.wrappedAdvDateInterpretation(nowDate: nowDate))
+                    .font(.footnote).foregroundColor(.secondary) //.padding(.trailing, 4)
             }
-            Text(beacon.wrappedAdvDateInterpretation(nowDate: nowDate))
-                .font(.footnote).foregroundColor(.secondary) //.padding(.trailing, 4)
+            
         }
     }
 }

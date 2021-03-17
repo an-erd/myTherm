@@ -32,6 +32,10 @@ extension Beacon {
     @NSManaged public var localHistoryHumidity: [Double]?
     @NSManaged public var localHistoryTimestamp: [Date]?
     @NSManaged public var localDownloadProgress: Float
+    @NSManaged public var localDragTemperature: Double
+    @NSManaged public var localDragHumidity: Double
+    @NSManaged public var localDragTimestamp: Date?
+    @NSManaged public var localDragMode: Bool
 
     public var wrappedDescr: String {
         descr ?? "no description"

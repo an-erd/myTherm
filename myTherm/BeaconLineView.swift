@@ -17,7 +17,7 @@ struct BeaconLineView: View {
         ZStack {
             if displaySteps == 0 {
                 if beacon.wrappedLocalHistoryTemperature.count >= 2 {
-                    LineView(timestamp: beacon.wrappedLocalHistoryTimestamp,
+                    LineView(beacon: beacon, timestamp: beacon.wrappedLocalHistoryTimestamp,
                              data: beacon.wrappedLocalHistoryTemperature, title: "°C")
                         .isHidden(beacon.wrappedLocalHistoryTemperature.count < 2, remove: false)
                 } else {
@@ -25,7 +25,7 @@ struct BeaconLineView: View {
                 }
             } else if displaySteps == 1 {
                 if beacon.wrappedLocalHistoryHumidity.count >= 2 {
-                    LineView(timestamp: beacon.wrappedLocalHistoryTimestamp,
+                    LineView(beacon: beacon, timestamp: beacon.wrappedLocalHistoryTimestamp,
                              data: beacon.wrappedLocalHistoryHumidity, title: "%")
                         .isHidden(beacon.wrappedLocalHistoryHumidity.count < 2)
                 } else {
