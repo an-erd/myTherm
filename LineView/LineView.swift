@@ -32,12 +32,15 @@ struct LineView: View {
 
     var stepWidth: CGFloat {
         if beacon.wrappedLocalHistoryTemperature.count < 2 {
-            return 0
+            return 1
         }
         return dragWidth / CGFloat(beacon.wrappedLocalHistoryTemperature.count-1)
     }
 
     var dataIndex: Int {
+        if !localValue.dragMode {
+            return 0
+        }
         return Int(round((boundX + dragWidth / 2) / stepWidth))
     }
 
@@ -54,7 +57,9 @@ struct LineView: View {
                          frame: .constant(CGRect(x: 0, y: 0,
                                                  width: reader.frame(in: .local).width,
                                                  height: reader.frame(in: .local).height)),
-                         dragMode: $dragMode, dragStart: $dragStart, dragOffset: $dragOffset
+                         dragMode: $dragMode, dragStart: $dragStart, dragOffset: $dragOffset,
+                         boundX: boundX,
+                         dataIndex: dataIndex
                     )
                     .offset(x: 0, y: 0)
                     .gesture(

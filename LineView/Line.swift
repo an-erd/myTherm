@@ -20,7 +20,8 @@ struct Line: View {
     @Binding var dragMode: Bool
     @Binding var dragStart: CGFloat
     @Binding var dragOffset: CGSize
-    @State private var tempTemp: Double = 0
+    var boundX: CGFloat
+    var dataIndex: Int
 
     let padding:CGFloat = 0
     
@@ -58,18 +59,6 @@ struct Line: View {
     var path: Path {
         let points: [Double] = (displaySteps == 0) ? self.dataTemperature : self.dataHumidity
         return Path.lineChart(points: points, step: CGPoint(x: stepWidth, y: stepHeight), offset: offset)
-    }
-    
-    var boundX: CGFloat {
-        let tempX = -frame.size.width / 2 + dragStart + dragOffset.width
-        if tempX < -frame.size.width / 2 { return -frame.size.width / 2 }
-        if tempX > frame.size.width / 2 { return frame.size.width / 2 }
-        
-        return tempX
-    }
-    
-    var dataIndex: Int {
-        return Int(round((boundX + frame.size.width / 2)/stepWidth))
     }
     
     var circleY: CGFloat {
