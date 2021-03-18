@@ -10,6 +10,7 @@ import SwiftUI
 struct BeaconValueView: View {
     
     @ObservedObject var beacon: Beacon
+    @ObservedObject var localValue: BeaconLocalValueView
     var nowDate: Date
     
     func getTempValue(beaconadv: BeaconAdv) -> String {
@@ -20,12 +21,12 @@ struct BeaconValueView: View {
         return String(format:"%.1f", beaconadv.humidity)
     }
     
-    func getTempValue(beacon: Beacon) -> String {
-        return String(format:"%.1f", beacon.localDragTemperature)
+    func getTempValue() -> String {
+        return String(format:"%.1f", localValue.temperature)
     }
     
-    func getHumValue(beacon: Beacon) -> String {
-        return String(format:"%.1f", beacon.localDragHumidity)
+    func getHumValue() -> String {
+        return String(format:"%.1f", localValue.humidity)
     }
     
     @ScaledMetric var size: CGFloat = 1
@@ -35,14 +36,14 @@ struct BeaconValueView: View {
     @ViewBuilder var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             
-            if beacon.localDragMode {
+            if localValue.dragMode {
                 HStack(spacing: 5) {
-                    Text(getTempValue(beacon: beacon)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" °C").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
+                    Text(getTempValue()).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" °C").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
                     
-                    Text(getHumValue(beacon: beacon)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" %").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
+                    Text(getHumValue()).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" %").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
                     Spacer()
                 }
-                if let date = beacon.localDragTimestamp {
+                if let date = localValue.timestamp {
                     Text(getDateString(date: date))
                         .font(.footnote).foregroundColor(.secondary) //.padding(.trailing, 4)
                 } else {

@@ -10,6 +10,8 @@ import os
 
 struct Line: View {
     @ObservedObject var beacon: Beacon
+    @ObservedObject var localValue: BeaconLocalValueView
+
     var timestamp: [Date]
     var displaySteps: Int
     var dataTemperature: [Double]
@@ -18,6 +20,7 @@ struct Line: View {
     @Binding var dragMode: Bool
     @Binding var dragStart: CGFloat
     @Binding var dragOffset: CGSize
+    @State private var tempTemp: Double = 0
 
     let padding:CGFloat = 0
     
@@ -32,10 +35,7 @@ struct Line: View {
         var min: Double?
         var max: Double?
         let points: [Double] = (displaySteps == 0) ? self.dataTemperature : self.dataHumidity
-//        var stepH: CGFloat = 0
-//        var delta: CGFloat = 0
         
-//        print("frame.size x \(frame) w \(frame.size.width) h \(frame.size.height) ")
         if let minPoint = points.min(), let maxPoint = points.max(), minPoint != maxPoint {
             min = minPoint
             max = maxPoint
@@ -43,11 +43,7 @@ struct Line: View {
             return 0
         }
         if let min = min, let max = max, min != max {
-//            if min <= 0 {
             return (frame.size.height - padding) / CGFloat(max - min)
-//            } else {
-//                return (frame.size.height - padding) / CGFloat(max + min)
-//            }
         }
 
         return 0
@@ -78,31 +74,15 @@ struct Line: View {
     
     var circleY: CGFloat {
         let points: [Double] = (displaySteps == 0) ? self.dataTemperature : self.dataHumidity
-        updateBeaconDragTimestamp(dataIndex: dataIndex)
-        updateBeaconDragValues(dataIndex: dataIndex)
 
         return CGFloat(points[dataIndex] - Double(offset)) * stepHeight - frame.size.height / 2
     }
     
     var verticalLine: Path {
         Path { path in
-            path.move(to: CGPoint(x: frame.size.width / 2 + boundX, y: -20))
+            path.move(to: CGPoint(x: frame.size.width / 2 + boundX, y: 0 ))
             path.addLine(to: CGPoint(x: frame.size.width / 2 + boundX, y: frame.size.height))
         }
-    }
-    
-    func updateBeaconDragTimestamp(dataIndex: Int) {
-        beacon.localDragTimestamp = timestamp[dataIndex]
-    }
-    
-    func updateBeaconDragValues(dataIndex: Int) {
-        let valueTemperature = self.dataTemperature[dataIndex]
-        let valueHumidity = self.dataHumidity[dataIndex]
-//        let formatter = NumberFormatter()
-//        formatter.maximumFractionDigits = 1
-        beacon.localDragTemperature = valueTemperature
-        beacon.localDragHumidity = valueHumidity
-        
     }
     
     public var body: some View {

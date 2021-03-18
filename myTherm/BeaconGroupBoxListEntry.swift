@@ -8,9 +8,12 @@
 import SwiftUI
 
 struct BeaconGroupBoxListEntry: View {
+    
     @ObservedObject var beacon: Beacon
     var nowDate: Date
     @Binding var displaySteps: Int
+
+    @StateObject var localValue: BeaconLocalValueView = BeaconLocalValueView()
 
     var body: some View {
 
@@ -36,13 +39,13 @@ struct BeaconGroupBoxListEntry: View {
                     VStack {
                         if beacon.adv != nil {
                             HStack {
-                                BeaconValueView(beacon: beacon, nowDate: nowDate)
+                                BeaconValueView(beacon: beacon, localValue: localValue, nowDate: nowDate)
                                     .frame(width: 165)
                                 Spacer()
                                 Button(action: {
                                     displaySteps = (displaySteps + 1) % 2
                                 }) {
-                                    BeaconLineView(beacon: beacon, displaySteps: displaySteps)
+                                    BeaconLineView(beacon: beacon, localValue: localValue, displaySteps: displaySteps)
                                 }
                             }.frame(height: 55)
                         }

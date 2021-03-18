@@ -29,23 +29,17 @@ struct BeaconGroupBoxList: View {
     var body: some View {
         VStack {
             ForEach(fetchRequest.wrappedValue, id: \.self) { beacon in
-                BeaconGroupBoxListEntry(beacon: beacon, nowDate: nowDate, displaySteps: $displaySteps)
+                BeaconGroupBoxListEntry(beacon: beacon,
+                                        nowDate: nowDate,
+                                        displaySteps: $displaySteps)
                 .cornerRadius(10)
-                .padding()
+                .padding()  // TODO
             }
         }
         .edgesIgnoringSafeArea(.bottom)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear(perform: {
+            _ = self.timer
+        })
     }
 }
-//            .background(Color(.systemGroupedBackground))
-//            .onAppear(perform: {
-//                _ = self.timer
-//            })
-//            Spacer()
-//                .frame(height: 50)
-//                                        destination: BeaconDetail(beacon: beacon), beacon: beacon
-//        }
-//
-//    }
-

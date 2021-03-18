@@ -10,13 +10,20 @@ import SwiftUI
 struct BeaconLineView: View {
     
     @ObservedObject var beacon: Beacon
+    @ObservedObject var localValue: BeaconLocalValueView
     var displaySteps: Int   // 0 temperature, 1 humidity
+    
     var titleStrings = ["°C", "%"]
     
     var body: some View {
         
         ZStack {
-            LineView(beacon: beacon, displaySteps: displaySteps, titleStrings: titleStrings)
+            LineView(
+                beacon: beacon,
+                localValue: localValue,
+                isDrag: $localValue.dragMode,
+                displaySteps: displaySteps,
+                titleStrings: titleStrings)
                 .isHidden(beacon.wrappedLocalHistoryTemperature.count < 2, remove: false)
         }
     }

@@ -11,35 +11,46 @@ import os
 struct LineView: View {
     
     @ObservedObject var beacon: Beacon
+    @ObservedObject var localValue: BeaconLocalValueView
+    @Binding var isDrag: Bool
     var displaySteps: Int
     var titleStrings: [String]
     
-    private var timestamp: [Date]
-    private var dataTemperature: [Double]
-    private var dataHumidity: [Double]
-            
     @State private var dragMode = false
     @State private var dragStart: CGFloat = 0.0
     @State private var dragOffset = CGSize.zero
     
-    public init(beacon: Beacon, displaySteps: Int, titleStrings: [String]) {
-        self.beacon = beacon
-        self.timestamp = beacon.wrappedLocalHistoryTimestamp
-        self.dataTemperature = beacon.wrappedLocalHistoryTemperature
-        self.dataHumidity = beacon.wrappedLocalHistoryHumidity
-        self.displaySteps = displaySteps
-        self.titleStrings = titleStrings
-    }
+    @State private var dragWidth: CGFloat = 0
     
+    var boundX: CGFloat {
+        let tempX = -dragWidth / 2 + dragStart + dragOffset.width
+        if tempX < -dragWidth / 2 { return -dragWidth / 2 }
+        if tempX > dragWidth / 2 { return dragWidth / 2 }
+        
+        return tempX
+    }
+
+    var stepWidth: CGFloat {
+        if beacon.wrappedLocalHistoryTemperature.count < 2 {
+            return 0
+        }
+        return dragWidth / CGFloat(beacon.wrappedLocalHistoryTemperature.count-1)
+    }
+
+    var dataIndex: Int {
+        return Int(round((boundX + dragWidth / 2) / stepWidth))
+    }
+
     public var body: some View {
         GeometryReader{ geometry in
             ZStack{
                 GeometryReader{ reader in
                     Line(beacon: beacon,
-                         timestamp: self.timestamp,
+                         localValue: localValue,
+                         timestamp: beacon.wrappedLocalHistoryTimestamp,
                          displaySteps: displaySteps,
-                         dataTemperature: self.dataTemperature,
-                         dataHumidity: self.dataHumidity,
+                         dataTemperature: beacon.wrappedLocalHistoryTemperature,
+                         dataHumidity: beacon.wrappedLocalHistoryHumidity,
                          frame: .constant(CGRect(x: 0, y: 0,
                                                  width: reader.frame(in: .local).width,
                                                  height: reader.frame(in: .local).height)),
@@ -52,12 +63,16 @@ struct LineView: View {
                                 dragMode = true
                                 dragOffset = gesture.translation
                                 dragStart = gesture.startLocation.x
-                                beacon.localDragMode = true
+                                dragWidth = reader.frame(in: .local).width
+                                
+                                localValue.temperature = beacon.wrappedLocalHistoryTemperature[dataIndex]
+                                localValue.humidity = beacon.wrappedLocalHistoryHumidity[dataIndex]
+                                localValue.timestamp = beacon.wrappedLocalHistoryTimestamp[dataIndex]
+                                localValue.dragMode = true
                             }
                             .onEnded { gesture in
                                 dragMode = false
-                                beacon.localDragMode = false
-                            }
+                                localValue.dragMode = false                            }
                     )
                 }
                 
