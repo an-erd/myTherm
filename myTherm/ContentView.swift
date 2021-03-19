@@ -14,7 +14,7 @@ struct ContentView: View {
                 .listStyle(GroupedListStyle())
 //                .navigationBarItems(
 //                    trailing: Button(action: {
-//                        MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
+////                        MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
 //                    }) {
 //                        Image(systemName: "icloud.and.arrow.down")
 //                    }

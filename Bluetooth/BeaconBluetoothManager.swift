@@ -39,7 +39,7 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
     static let shared = MyCentralManagerDelegate()
     private var moc: NSManagedObjectContext!
     private var lm = LocationManager()
-    private var doUpdateAdv: Bool = false
+    private var doUpdateAdv: Bool = true
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
@@ -55,7 +55,8 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
             print("central.state is .poweredOff")
         case .poweredOn:
             print("central.state is .poweredOn")
-            stopScanAndLocationService()
+//            stopScanAndLocationService()
+        startScanAndLocationService()
         @unknown default:
             print("central.state is @unknown default")
         }

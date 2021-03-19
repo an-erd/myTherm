@@ -17,8 +17,8 @@ struct BeaconList: View {
     private var beacons: FetchedResults<Beacon>
     
     @State private var editMode: EditMode = .inactive
-    @State private var doScan: Bool = false
-    @State private var doUpdateAdv: Bool = false
+    @State private var doScan: Bool = true
+    @State private var doUpdateAdv: Bool = true
     @State private var doFilter: Bool = false
     
     @State var predicate: NSPredicate?
@@ -27,41 +27,41 @@ struct BeaconList: View {
         
             ScrollView {
                 VStack(spacing: 8) {
-                    HStack {
-                        Toggle("Scan", isOn: $doScan)
-                            .onChange(of: doScan, perform: { value in
-                                if value == true {
-                                    MyCentralManagerDelegate.shared.startScanAndLocationService()
-                                } else {
-                                    MyCentralManagerDelegate.shared.stopScanAndLocationService()
-                                }
-                                print("toggle scan \(value)")
-                            })
-                        Toggle("Adv", isOn: $doUpdateAdv)
-                            .onChange(of: doUpdateAdv, perform: { value in
-                                if value == true {
-                                    MyCentralManagerDelegate.shared.startUpdateAdv()
-                                } else {
-                                    MyCentralManagerDelegate.shared.stopUpdateAdv()
-                                }
-                                print("toggle update adv \(value)")
-                            })
-                        Toggle("Filter", isOn: $doFilter)
-                            .onChange(of: doFilter, perform: { value in
-                                if value == true {
-                                    let comparison = Date(timeIntervalSinceNow: -120)
-                                    predicate = NSPredicate(format: "localTimestamp >= %@", comparison as NSDate)
-                                } else {
-                                    predicate = nil
-                                }
-                                print("toggle filter \(value)")
-                            })
-                        Button(action: {
-                            MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
-                        }) {
-                            Image(systemName: "icloud.and.arrow.down")
-                        }
-                    }
+//                    HStack {
+//                        Toggle("Scan", isOn: $doScan)
+//                            .onChange(of: doScan, perform: { value in
+//                                if value == true {
+//                                    MyCentralManagerDelegate.shared.startScanAndLocationService()
+//                                } else {
+//                                    MyCentralManagerDelegate.shared.stopScanAndLocationService()
+//                                }
+//                                print("toggle scan \(value)")
+//                            })
+//                        Toggle("Adv", isOn: $doUpdateAdv)
+//                            .onChange(of: doUpdateAdv, perform: { value in
+//                                if value == true {
+//                                    MyCentralManagerDelegate.shared.startUpdateAdv()
+//                                } else {
+//                                    MyCentralManagerDelegate.shared.stopUpdateAdv()
+//                                }
+//                                print("toggle update adv \(value)")
+//                            })
+//                        Toggle("Filter", isOn: $doFilter)
+//                            .onChange(of: doFilter, perform: { value in
+//                                if value == true {
+//                                    let comparison = Date(timeIntervalSinceNow: -120)
+//                                    predicate = NSPredicate(format: "localTimestamp >= %@", comparison as NSDate)
+//                                } else {
+//                                    predicate = nil
+//                                }
+//                                print("toggle filter \(value)")
+//                            })
+//                        Button(action: {
+//                            MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
+//                        }) {
+//                            Image(systemName: "icloud.and.arrow.down")
+//                        }
+//                    }
                     BeaconGroupBoxList(predicate: predicate)
                 }
             }
@@ -84,6 +84,25 @@ struct BeaconList: View {
                     }
                 }
             }
+            .navigationBarItems(
+                trailing: Button(action: {
+                    //                        MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
+                    if doScan {
+                        doScan = false
+                        MyCentralManagerDelegate.shared.stopScanAndLocationService()
+                    } else {
+                        doScan = true
+                        MyCentralManagerDelegate.shared.startScanAndLocationService()
+                    }
+                }) {
+                    if doScan {
+                        Text("Stop Scan")
+                    } else {
+                        Text("Scan")
+                    }
+                }
+            )
+        
 
     }
     

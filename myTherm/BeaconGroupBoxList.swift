@@ -33,7 +33,7 @@ struct BeaconGroupBoxList: View {
                                         nowDate: nowDate,
                                         displaySteps: $displaySteps)
                 .cornerRadius(10)
-                .padding()  // TODO
+                .padding(10)
             }
         }
         .edgesIgnoringSafeArea(.bottom)
