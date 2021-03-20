@@ -32,6 +32,16 @@ extension Beacon {
     @NSManaged public var localHistoryHumidity: [Double]?
     @NSManaged public var localHistoryTimestamp: [Date]?
     @NSManaged public var localDownloadProgress: Float
+    @NSManaged public var localDownloadStatusValue: Int32
+    
+    public var localDownloadStatus: DownloadStatus {
+        get {
+            return DownloadStatus(rawValue: self.localDownloadStatusValue)!
+        }
+        set {
+            self.localDownloadStatusValue = newValue.rawValue
+        }
+    }
 
     public var wrappedDescr: String {
         descr ?? "no description"
@@ -158,6 +168,10 @@ extension Beacon : DownloadDelegate {
     
     func downloadProgressUpdated(for progress: Float, for uuid: UUID) {
             self.localDownloadProgress = progress
+    }
+    
+    func downloadStatusUpdated(for status: DownloadStatus, for uuid: UUID) {
+            self.localDownloadStatus = status
     }
     
 }

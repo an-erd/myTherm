@@ -31,8 +31,7 @@ class MyBluetoothManager {
     var racpMeasurementValueChar: CBCharacteristic?
     var racpControlPointNotifying: Bool = false
     var racpMeasurementValueNotifying: Bool = false
-//    var counterControlPointNotification = 0
-//    var counterMeasurementValueNotification = 0
+    var connectTimer: Timer?
 }
 
 class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
@@ -40,7 +39,7 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
     private var moc: NSManagedObjectContext!
     private var lm = LocationManager()
     private var doUpdateAdv: Bool = true
-    
+
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
         case .unknown:
@@ -314,6 +313,13 @@ extension MyCentralManagerDelegate {
         peripheral.delegate = self
         MyBluetoothManager.shared.discoveredPeripheral = peripheral
         central.stopScan()
+        
+        if let timer = MyBluetoothManager.shared.connectTimer {
+            print("stopTimer because connected")
+            timer.invalidate()
+        }
+        
+        MyBluetoothManager.shared.connectTimer = nil
         if let downloadHistory =  MyBluetoothManager.shared.downloadManager.activeDownload {
             downloadHistory.status = .downloading_num
         }

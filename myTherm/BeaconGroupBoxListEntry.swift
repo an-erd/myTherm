@@ -12,11 +12,18 @@ struct BeaconGroupBoxListEntry: View {
     @ObservedObject var beacon: Beacon
     var nowDate: Date
     @Binding var displaySteps: Int
-
+    
     @StateObject var localValue: BeaconLocalValueView = BeaconLocalValueView()
-
+    
+    func getDownload(beacon: Beacon) -> Download? {
+        let activeDownloadsFiltered = MyBluetoothManager.shared.downloadManager.activeDownloads.filter() { download in
+            return download.uuid == beacon.uuid
+        }
+        return activeDownloadsFiltered.first
+    }
+    
     var body: some View {
-
+        
         GroupBox(
             label:
                 HStack {
@@ -53,7 +60,7 @@ struct BeaconGroupBoxListEntry: View {
                     VStack {
                         BeaconDownloadView(
                             beacon: beacon,
-                            activeDownloads: MyBluetoothManager.shared.downloadManager.activeDownloads)
+                            activeDownload: getDownload(beacon: beacon))
                     }
                 }
             }

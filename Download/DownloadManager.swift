@@ -83,6 +83,12 @@ class DownloadManager: NSObject, ObservableObject {
         }
     }
     
+    @objc
+    func connectTimerFire() {
+        print("connectTimerFire")
+        cancelDownload()
+    }
+    
     func startDownload(download: Download) {
         download.status = .connecting
         activeDownload = download
@@ -97,14 +103,34 @@ class DownloadManager: NSObject, ObservableObject {
         MyBluetoothManager.shared.connectedPeripheral = foundPeripherals.first
         if let connectto = MyBluetoothManager.shared.connectedPeripheral {
             MyBluetoothManager.shared.central.connect(connectto, options: nil)
+            MyBluetoothManager.shared.connectTimer =
+                Timer.scheduledTimer(timeInterval: 10,
+                                     target: self,
+                                     selector: #selector(connectTimerFire),
+                                     userInfo: nil, repeats: false)
         } else {
             print("no peripheral")
             download.status = .error
             activeDownload = nil
+            MyBluetoothManager.shared.connectedPeripheral = nil
             self.status = .idle
         }
     }
-
+    
+    func cancelDownload() {
+        print("cancelDownload")
+        if let connectedPeripheral = MyBluetoothManager.shared.connectedPeripheral{
+            MyBluetoothManager.shared.central.cancelPeripheralConnection(connectedPeripheral)
+            MyBluetoothManager.shared.connectedPeripheral = nil
+            if let download = activeDownload {
+                download.status = .error
+            }
+            activeDownload = nil
+            self.status = .idle
+            resume()
+        }
+    }
+    
     func mergeHistoryToStore(uuid: UUID) {
         guard (activeDownload?.history) != nil else {
             print("mergeHistoryToStore downloadHistory error")
