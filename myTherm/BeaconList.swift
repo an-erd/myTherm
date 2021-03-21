@@ -19,91 +19,129 @@ struct BeaconList: View {
     @State private var editMode: EditMode = .inactive
     @State private var doScan: Bool = true
     @State private var doUpdateAdv: Bool = true
-    @State private var doFilter: Bool = false
     
+    @State private var doFilter: Bool = false
     @State var predicate: NSPredicate?
+    @State var filterPredicateUpdateTimer: Timer?
+    @State var filterCriteria: Int = 0
+    let filterPredicateTimeinterval: Double = 30
+    
+    func startFilterUpdate() {
+        filterUpdatePredicate()
+        filterPredicateUpdateTimer =
+            Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                filterUpdatePredicate()
+            }
+    }
+    
+    func stopFilterUpdate() {
+        if let timer = filterPredicateUpdateTimer {
+            timer.invalidate()
+        }
+        predicate = nil
+    }
+    
+    func filterUpdatePredicate() {
+        withAnimation {
+            let comparison = Date(timeIntervalSinceNow: -filterPredicateTimeinterval)
+            predicate = NSPredicate(format: "localTimestamp >= %@", comparison as NSDate)
+        }
+    }
     
     var body: some View {
         
-            ScrollView {
-                VStack(spacing: 8) {
-//                    HStack {
-//                        Toggle("Scan", isOn: $doScan)
-//                            .onChange(of: doScan, perform: { value in
-//                                if value == true {
-//                                    MyCentralManagerDelegate.shared.startScanAndLocationService()
-//                                } else {
-//                                    MyCentralManagerDelegate.shared.stopScanAndLocationService()
-//                                }
-//                                print("toggle scan \(value)")
-//                            })
-//                        Toggle("Adv", isOn: $doUpdateAdv)
-//                            .onChange(of: doUpdateAdv, perform: { value in
-//                                if value == true {
-//                                    MyCentralManagerDelegate.shared.startUpdateAdv()
-//                                } else {
-//                                    MyCentralManagerDelegate.shared.stopUpdateAdv()
-//                                }
-//                                print("toggle update adv \(value)")
-//                            })
-//                        Toggle("Filter", isOn: $doFilter)
-//                            .onChange(of: doFilter, perform: { value in
-//                                if value == true {
-//                                    let comparison = Date(timeIntervalSinceNow: -120)
-//                                    predicate = NSPredicate(format: "localTimestamp >= %@", comparison as NSDate)
-//                                } else {
-//                                    predicate = nil
-//                                }
-//                                print("toggle filter \(value)")
-//                            })
-//                        Button(action: {
-//                            MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
-//                        }) {
-//                            Image(systemName: "icloud.and.arrow.down")
-//                        }
-//                    }
+        ScrollView {
+            VStack(spacing: 8) {
+                HStack {
+                    //                        Toggle("Scan", isOn: $doScan)
+                    //                            .onChange(of: doScan, perform: { value in
+                    //                                if value == true {
+                    //                                    MyCentralManagerDelegate.shared.startScanAndLocationService()
+                    //                                } else {
+                    //                                    MyCentralManagerDelegate.shared.stopScanAndLocationService()
+                    //                                }
+                    //                                print("toggle scan \(value)")
+                    //                            })
+                    //                        Toggle("Adv", isOn: $doUpdateAdv)
+                    //                            .onChange(of: doUpdateAdv, perform: { value in
+                    //                                if value == true {
+                    //                                    MyCentralManagerDelegate.shared.startUpdateAdv()
+                    //                                } else {
+                    //                                    MyCentralManagerDelegate.shared.stopUpdateAdv()
+                    //                                }
+                    //                                print("toggle update adv \(value)")
+                    //                            })
+                    //                    Toggle("Filter", isOn: $doFilter)
+                    //                        .onChange(of: doFilter, perform: { value in
+                    //                            if value == true {
+                    //                                startFilterUpdate()
+                    //                            } else {
+                    //                                stopFilterUpdate()
+                    //                            }
+                    //                            print("toggle filter \(value)")
+                    //                        })
+                    //                        Button(action: {
+                    //                            MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
+                    //                        }) {
+                    //                            Image(systemName: "icloud.and.arrow.down")
+                    //                        }
+                }
+                withAnimation {
                     BeaconGroupBoxList(predicate: predicate)
                 }
             }
-            .onAppear(perform: {
-                self.onAppear()
-                copyBeaconHistoryOnce()
-            })
-            .toolbar {
-                ToolbarItemGroup(placement: .bottomBar) {
-                    Button(action: {
+        }
+        .onAppear(perform: {
+            self.onAppear()
+            copyBeaconHistoryOnce()
+        })
+        .toolbar {
+            ToolbarItem(placement: .bottomBar) {
+                Button(action: {
+                    withAnimation {
                         print("Filter pressed")
-                    }) {
-                        Image(systemName: "line.horizontal.3.decrease.circle")
+                        doFilter.toggle()
+                        if doFilter {
+                            startFilterUpdate()
+                        } else {
+                            stopFilterUpdate()
+                        }
                     }
-                    Spacer()
-                    Text("status text")
-                    Spacer()
-                    Button("Second") {
-                        print("Pressed")
+                }
+                ) {
+                    HStack {
+                        doFilter ? Image(systemName: "line.horizontal.3.decrease.circle.fill") :
+                            Image(systemName: "line.horizontal.3.decrease.circle")
                     }
+                }
+                Spacer()
+                Text("status text")
+                Spacer()
+                Button("Second") {
+                    print("Pressed")
                 }
             }
-            .navigationBarItems(
-                trailing: Button(action: {
-                    //                        MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
-                    if doScan {
-                        doScan = false
-                        MyCentralManagerDelegate.shared.stopScanAndLocationService()
-                    } else {
-                        doScan = true
-                        MyCentralManagerDelegate.shared.startScanAndLocationService()
-                    }
-                }) {
-                    if doScan {
-                        Text("Stop Scan")
-                    } else {
-                        Text("Scan")
-                    }
+        }
+        .navigationBarItems(
+            trailing: Button(action: {
+                //                        MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
+                if doScan {
+                    doScan = false
+                    MyCentralManagerDelegate.shared.stopScanAndLocationService()
+                } else {
+                    doScan = true
+                    MyCentralManagerDelegate.shared.startScanAndLocationService()
                 }
-            )
+            }) {
+                if doScan {
+                    Text("Stop Scan")
+                } else {
+                    Text("Scan")
+                }
+            }
+        )
         
-
+        
     }
     
     public func onAppear() {
