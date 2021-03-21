@@ -21,10 +21,18 @@ struct BeaconList: View {
     @State private var doUpdateAdv: Bool = true
     
     @State private var doFilter: Bool = false
-    @State var predicate: NSPredicate?
+    @State var predicateTimeFilter: NSPredicate?
+    @State var predicateLocationFilter: NSPredicate?
+    @State var predicateFlaggedFilter: NSPredicate?
+    @State var compoundPredicate: NSCompoundPredicate?
     @State var filterPredicateUpdateTimer: Timer?
-    @State var filterCriteria: Int = 0
+    @State var filterByTime: Bool = false
+    @State var filterByLocation: Bool = true
+    @State var filterByFlag: Bool = false
     let filterPredicateTimeinterval: Double = 30
+    let filterPredicateDistanceMeter: Double = 50
+    
+    @State var sort: Int = 0
     
     func startFilterUpdate() {
         filterUpdatePredicate()
@@ -38,13 +46,32 @@ struct BeaconList: View {
         if let timer = filterPredicateUpdateTimer {
             timer.invalidate()
         }
-        predicate = nil
+        predicateTimeFilter = nil
+        predicateLocationFilter = nil
+        predicateFlaggedFilter = nil
+        compoundPredicate = nil
     }
     
     func filterUpdatePredicate() {
-        withAnimation {
+        var compound: [NSPredicate] = []
+        
+        if filterByTime {
             let comparison = Date(timeIntervalSinceNow: -filterPredicateTimeinterval)
-            predicate = NSPredicate(format: "localTimestamp >= %@", comparison as NSDate)
+            predicateTimeFilter = NSPredicate(format: "localTimestamp >= %@", comparison as NSDate)
+            if let predicateTimeFilter = predicateTimeFilter {
+                compound.append(predicateTimeFilter)
+            }
+        }
+        
+        if filterByLocation {
+            predicateLocationFilter = NSPredicate(format: "localDistanceFromPosition <= %@", filterPredicateDistanceMeter as NSNumber)
+            if let predicateLocationFilter = predicateLocationFilter {
+                compound.append(predicateLocationFilter)
+            }
+        }
+        
+        withAnimation {
+            compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: compound)
         }
     }
     
@@ -71,28 +98,20 @@ struct BeaconList: View {
                     //                                }
                     //                                print("toggle update adv \(value)")
                     //                            })
-                    //                    Toggle("Filter", isOn: $doFilter)
-                    //                        .onChange(of: doFilter, perform: { value in
-                    //                            if value == true {
-                    //                                startFilterUpdate()
-                    //                            } else {
-                    //                                stopFilterUpdate()
-                    //                            }
-                    //                            print("toggle filter \(value)")
-                    //                        })
                     //                        Button(action: {
-                    //                            MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
+                    //                    MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
                     //                        }) {
                     //                            Image(systemName: "icloud.and.arrow.down")
                     //                        }
                 }
                 withAnimation {
-                    BeaconGroupBoxList(predicate: predicate)
+                    BeaconGroupBoxList(predicate: compoundPredicate)
                 }
             }
         }
         .onAppear(perform: {
             self.onAppear()
+            //            calculateDistanceToPosition()
             copyBeaconHistoryOnce()
         })
         .toolbar {
@@ -114,33 +133,44 @@ struct BeaconList: View {
                             Image(systemName: "line.horizontal.3.decrease.circle")
                     }
                 }
-                Spacer()
-                Text("status text")
-                Spacer()
-                Button("Second") {
-                    print("Pressed")
+            }
+            
+            ToolbarItem(placement: .bottomBar) {
+                Button(action: {
+                    
+                }) {
+                    Menu("status text") {
+                        Picker(selection: $sort, label: Text("Sorting options")) {
+                                                    Text("Size").tag(0)
+                                                    Text("Date").tag(1)
+                                                    Text("Location").tag(2)
+                                                }
+                        Button("Option 1", action: {} )
+                        Button("Option 2", action: {} )
+                    }
                 }
+                
+                Spacer()
             }
         }
-        .navigationBarItems(
-            trailing: Button(action: {
-                //                        MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
-                if doScan {
-                    doScan = false
-                    MyCentralManagerDelegate.shared.stopScanAndLocationService()
-                } else {
-                    doScan = true
-                    MyCentralManagerDelegate.shared.startScanAndLocationService()
-                }
-            }) {
-                if doScan {
-                    Text("Stop Scan")
-                } else {
-                    Text("Scan")
-                }
-            }
-        )
-        
+        //        .navigationBarItems(
+        //            trailing: Button(action: {
+        //                //                        MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
+        //                if doScan {
+        //                    doScan = false
+        //                    MyCentralManagerDelegate.shared.stopScanAndLocationService()
+        //                } else {
+        //                    doScan = true
+        //                    MyCentralManagerDelegate.shared.startScanAndLocationService()
+        //                }
+        //            }) {
+        //                if doScan {
+        //                    Text("Stop Scan")
+        //                } else {
+        //                    Text("Scan")
+        //                }
+        //            }
+        //        )
         
     }
     

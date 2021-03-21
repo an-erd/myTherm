@@ -28,6 +28,7 @@ extension Beacon {
     @NSManaged public var history: NSSet?
     @NSManaged public var location: BeaconLocation?
     @NSManaged public var localTimestamp: Date?
+    @NSManaged public var localDistanceFromPosition: Double
     @NSManaged public var localHistoryTemperature: [Double]?
     @NSManaged public var localHistoryHumidity: [Double]?
     @NSManaged public var localHistoryTimestamp: [Date]?

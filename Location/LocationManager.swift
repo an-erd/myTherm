@@ -62,6 +62,17 @@ extension LocationManager: CLLocationManagerDelegate {
         self.geocode()
         
         print("locationManager didUpdateLocations")
+        
+        DispatchQueue.main.async {
+            let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons()
+            for beacon in beacons {
+                if let beaconLocation = beacon.location {
+                    let distance = location.distance(from: beaconLocation.clLocation)
+                    print("distance \(beacon.wrappedName) = \(distance)")
+                    beacon.localDistanceFromPosition = distance
+                }
+            }
+        }
     }
 }
 

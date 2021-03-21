@@ -10,10 +10,14 @@ import CoreLocation
 
 
 extension BeaconLocation {
-
-var location: CLLocationCoordinate2D {
-    return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-}
-
+    
+    var location: CLLocationCoordinate2D {
+        return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+    
+    var clLocation: CLLocation {
+        return CLLocation(latitude: latitude, longitude: longitude)
+    }
+    
 }
 
