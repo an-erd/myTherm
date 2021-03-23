@@ -12,13 +12,14 @@ import CoreLocation
 struct myThermApp: App {
     let persistenceController = PersistenceController.shared
     @StateObject var lm = LocationManager()
+    @StateObject var model = BeaconModel()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .environmentObject(lm)
-
+                .environmentObject(model)
         }
     }
 }

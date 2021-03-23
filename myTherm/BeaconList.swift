@@ -10,6 +10,7 @@ import SwiftUI
 
 struct BeaconList: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @EnvironmentObject var beaconModel: BeaconModel
     
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Beacon.name, ascending: true)],
@@ -17,7 +18,6 @@ struct BeaconList: View {
     private var beacons: FetchedResults<Beacon>
     
     @State private var editMode: EditMode = .inactive
-    @State private var showingFilterSheet = false
     
     @State private var doScan: Bool = true
     @State private var doUpdateAdv: Bool = true
@@ -28,8 +28,8 @@ struct BeaconList: View {
     @State var predicateFlaggedFilter: NSPredicate?
     @State var compoundPredicate: NSCompoundPredicate?
     @State var filterPredicateUpdateTimer: Timer?
-    @State var filterByTime: Bool = false
-    @State var filterByLocation: Bool = true
+    @State var filterByTime: Bool = true
+    @State var filterByLocation: Bool = false
     @State var filterByFlag: Bool = false
     let filterPredicateTimeinterval: Double = 30
     let filterPredicateDistanceMeter: Double = 50
@@ -82,23 +82,21 @@ struct BeaconList: View {
         ScrollView {
             VStack(spacing: 8) {
                 HStack {
-                    //                        Toggle("Adv", isOn: $doUpdateAdv)
-                    //                            .onChange(of: doUpdateAdv, perform: { value in
-                    //                                if value == true {
-                    //                                    MyCentralManagerDelegate.shared.startUpdateAdv()
-                    //                                } else {
-                    //                                    MyCentralManagerDelegate.shared.stopUpdateAdv()
-                    //                                }
-                    //                                print("toggle update adv \(value)")
-                    //                            })
-                    //                        Button(action: {
-                    //                    MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
-                    //                        }) {
-                    //                            Image(systemName: "icloud.and.arrow.down")
-                    //                        }
+                    //                    Toggle("Adv", isOn: $doUpdateAdv)
+                    //                        .onChange(of: doUpdateAdv, perform: { value in
+                    //                            if value == true {
+                    //                                MyCentralManagerDelegate.shared.startUpdateAdv()
+                    //                            } else {
+                    //                                MyCentralManagerDelegate.shared.stopUpdateAdv()
+                    //                            }
+                    //                            print("toggle update adv \(value)")
+                    //                        })
+                    //                    Button(action: {
+                    //                        MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
+                    //                    }) {
+                    //                        Image(systemName: "icloud.and.arrow.down")
+                    //                    }
                 }
-                BeaconBottomBarStatusFilterButton(
-                    filterActive: doFilter, filterByTime: $filterByTime, filterByLocation: $filterByLocation, filterByFlag: $filterByFlag)
                 withAnimation {
                     BeaconGroupBoxList(predicate: compoundPredicate)
                 }
@@ -107,7 +105,6 @@ struct BeaconList: View {
         }
         .onAppear(perform: {
             self.onAppear()
-            //            calculateDistanceToPosition()
             copyBeaconHistoryOnce()
         })
         .toolbar {
@@ -125,58 +122,72 @@ struct BeaconList: View {
                 }
                 ) {
                     HStack {
-                        doFilter ? Image(systemName: "line.horizontal.3.decrease.circle.fill") :
+                        if doFilter {
+                            Image(systemName: "line.horizontal.3.decrease.circle.fill")
+                                .font(.largeTitle)
+                        } else {
                             Image(systemName: "line.horizontal.3.decrease.circle")
+                        }
+                    }
+                    .padding()
+//                    .border(Color.white)
+                }
+
+                Spacer()
+                ZStack {
+                    BeaconBottomBarStatusFilterButton(
+                        filterActive: doFilter, filterString: "\(beacons.count) sensors found",
+                        filterByTime: $filterByTime, filterByLocation: $filterByLocation, filterByFlag: $filterByFlag)
+                    if doFilter {
+                        Button(action: { beaconModel.isPresentingSettingsView.toggle() } ) {
+                            HStack { }
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+//                                .border(Color.white)
+                        }
                     }
                 }
-                
-                Spacer()
-                //                BeaconBottomBarStatusFilterButton(
-                //                    filterActive: doFilter, filterByTime: $filterByTime, filterByLocation: $filterByLocation, filterByFlag: $filterByFlag)
-                
-                //                Button(action: { self.showingFilterSheet.toggle() }) {
-                //                    Text("Filter")
-                //                }
-                //                .sheet(isPresented: $showingFilterSheet) {
-                //                    BeaconFilterSheet(showingFilterSheet: self.$showingFilterSheet,
-                //                                      filterByTime: $filterByTime,
-                //                                      filterByLocation: $filterByLocation,
-                //                                      filterByFlag: $filterByFlag)
-                //                }
                 Spacer()
                 
+                //                Button(action: { beaconModel.isPresentingSettingsView.toggle() }
+                //                ) {
+                //                    Image(systemName: "tortoise")
+                //                }
             }
         }
         .navigationBarItems(
             trailing:
-                HStack { Button(action: {
-                    //                        MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
-                    if doScan {
-                        doScan = false
-                        MyCentralManagerDelegate.shared.stopScanAndLocationService()
-                    } else {
-                        doScan = true
-                        MyCentralManagerDelegate.shared.startScanAndLocationService()
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        if doScan {
+                            doScan = false
+                            MyCentralManagerDelegate.shared.stopScanAndLocationService()
+                        } else {
+                            doScan = true
+                            MyCentralManagerDelegate.shared.startScanAndLocationService()
+                        }
+                    }) {
+                        if doScan {
+                            Text("Stop Scan")
+                        } else {
+                            Text("Scan")
+                        }
                     }
-                }) {
-                    if doScan {
-                        Text("Stop Scan")
-                    } else {
-                        Text("Scan")
-                    }
-                }
-                
-                Button(action: { self.showingFilterSheet.toggle() }) {
-                    Text("Filter")
-                }
-                .sheet(isPresented: $showingFilterSheet) {
-                    BeaconFilterSheet(showingFilterSheet: self.$showingFilterSheet,
-                                      filterByTime: $filterByTime,
-                                      filterByLocation: $filterByLocation,
-                                      filterByFlag: $filterByFlag)
-                }
+                    .padding(10)
+//                    .border(Color.white)
                 }
         )
+        .sheet(
+            isPresented: $beaconModel.isPresentingSettingsView,
+            onDismiss: { beaconModel.isPresentingSettingsView = false },
+            content: {
+                BeaconFilterSheet(filterByTime: $filterByTime,
+                                  filterByLocation: $filterByLocation,
+                                  filterByFlag: $filterByFlag)
+                    .environmentObject(beaconModel)
+            }
+        )
+        
     }
     
     public func onAppear() {

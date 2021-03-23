@@ -55,6 +55,7 @@
 		80D0C26825FCA4B700D69392 /* BeaconLineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80D0C26725FCA4B700D69392 /* BeaconLineView.swift */; };
 		80E1C43A25FD01B00017AD20 /* HelperFunctionsCoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E1C43925FD01B00017AD20 /* HelperFunctionsCoreData.swift */; };
 		80ECC8F32607D6D2006AA4AE /* BeaconBottomBarStatusFilterButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80ECC8F22607D6D2006AA4AE /* BeaconBottomBarStatusFilterButton.swift */; };
+		80ECC8F52608E250006AA4AE /* BeaconModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80ECC8F42608E250006AA4AE /* BeaconModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -109,6 +110,7 @@
 		80D0C26725FCA4B700D69392 /* BeaconLineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconLineView.swift; sourceTree = "<group>"; };
 		80E1C43925FD01B00017AD20 /* HelperFunctionsCoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperFunctionsCoreData.swift; sourceTree = "<group>"; };
 		80ECC8F22607D6D2006AA4AE /* BeaconBottomBarStatusFilterButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconBottomBarStatusFilterButton.swift; sourceTree = "<group>"; };
+		80ECC8F42608E250006AA4AE /* BeaconModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,6 +203,7 @@
 				808E67EB25E030B800D37C51 /* Beacon+CoreDataProperties.swift */,
 				808026FA25DD6E86000C377D /* BeaconHistoryDataPoint+CoreDataClass.swift */,
 				808026FB25DD6E86000C377D /* BeaconHistoryDataPoint+CoreDataProperties.swift */,
+				80ECC8F42608E250006AA4AE /* BeaconModel.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -379,6 +382,7 @@
 				80A56E062607C57000C1DFD3 /* BeaconFilterSheetEntry.swift in Sources */,
 				8080271525DD9962000C377D /* BeaconBluetoothManager.swift in Sources */,
 				806A52BC25FA813300298441 /* BeaconStruct.swift in Sources */,
+				80ECC8F52608E250006AA4AE /* BeaconModel.swift in Sources */,
 				80C6FD0925ED12E6006985D5 /* LineView.swift in Sources */,
 				8080270225DD6E86000C377D /* Beacon+CoreDataClass.swift in Sources */,
 				806E50A925E6A961001218D5 /* BeaconPeripheral.swift in Sources */,

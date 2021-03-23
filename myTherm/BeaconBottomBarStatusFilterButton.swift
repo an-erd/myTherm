@@ -10,16 +10,17 @@ import SwiftUI
 struct BeaconBottomBarStatusFilterButton: View {
 
     var filterActive: Bool
+    var filterString: String
     @Binding var filterByTime: Bool
     @Binding var filterByLocation: Bool
     @Binding var filterByFlag: Bool
-    
+
     func buildFilterString() -> String {
         var firstEntry: Bool = true
         var filterString: String = ""
         
         if filterByTime {
-            filterString.append("Last seen")
+            filterString.append("Seen recently")
             firstEntry = false
             print("filter last seen")
         }
@@ -49,11 +50,13 @@ struct BeaconBottomBarStatusFilterButton: View {
                 Text("Filtered by:")
                     .font(.subheadline)
                 Text(buildFilterString())
-                    .font(.subheadline)
+                    .font(.footnote)
                     .foregroundColor(.blue)
             }
+            .padding(10)
         } else{
-            Text("no filter!")
+            Text(filterString)
+                .font(.subheadline)
         }
     }
 }

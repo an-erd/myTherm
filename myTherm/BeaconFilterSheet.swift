@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct BeaconFilterSheet: View {
-    @Binding var showingFilterSheet: Bool
+    @Environment(\.presentationMode) var presentationMode
+
     @Binding var filterByTime: Bool
     @Binding var filterByLocation: Bool
     @Binding var filterByFlag: Bool
@@ -23,9 +24,11 @@ struct BeaconFilterSheet: View {
             .navigationBarTitle(Text("Filter"), displayMode: .inline)
             .navigationBarItems(trailing: Button(action: {
                 print("Dismissing sheet view... \(filterByTime) \(filterByLocation) \(filterByFlag)")
-                self.showingFilterSheet = false
+                presentationMode.wrappedValue.dismiss()
             }) {
                 Text("Done").bold()
+                    .padding(10)
+//                    .border(Color.white)
             })
         }
     }
