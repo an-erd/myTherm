@@ -38,6 +38,7 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
     static let shared = MyCentralManagerDelegate()
     private var moc: NSManagedObjectContext!
     private var lm = LocationManager()
+    
     private var doUpdateAdv: Bool = true
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -49,7 +50,7 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
         case .unsupported:
             print("central.state is .unsupported")
         case .unauthorized:
-            print("central.state is .unauthorized")
+            print("central.state is .unauthorized") // TODO
         case .poweredOff:
             print("central.state is .poweredOff")
         case .poweredOn:

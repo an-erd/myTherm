@@ -47,6 +47,7 @@ class LocationManager: NSObject, ObservableObject {
         self.locationManager.requestWhenInUseAuthorization()
 //      self.locationManager.startUpdatingLocation()
         startMySignificantLocationChanges()
+//        stopMySignificantLocationChanges()
     }
 
 }
