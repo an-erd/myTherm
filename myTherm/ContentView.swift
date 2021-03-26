@@ -22,6 +22,8 @@ struct ContentView: View {
                 BeaconList()
                     .navigationBarTitle("Beacons")
                     .listStyle(GroupedListStyle())
+                    .environmentObject(lm)
+
             }
         }
         .onAppear {

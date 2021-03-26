@@ -23,7 +23,6 @@ struct myThermApp: App {
             MotherView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .environmentObject(model)
-//                .environmentObject(lm)
                 .environmentObject(viewRouter)
 //       ContentView()
 //       OnboardingView()

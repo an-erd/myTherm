@@ -10,6 +10,7 @@ import Foundation
 final class BeaconModel: ObservableObject {
     
     @Published var isPresentingSettingsView: Bool = false
+    
     @Published var isBluetoothAuthorization: Bool = false
     
     static var shared = BeaconModel()

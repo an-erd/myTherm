@@ -30,7 +30,6 @@ struct BeaconListAlertEntry: View {
         GroupBox(
             label:
                 HStack {
-//                    Label(title, systemImage: image).foregroundColor(Color.white)
                     Label {
                         Text(title)
                             .fontWeight(.bold)

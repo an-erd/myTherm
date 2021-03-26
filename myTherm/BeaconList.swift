@@ -10,6 +10,8 @@ import SwiftUI
 
 struct BeaconList: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @EnvironmentObject var lm: LocationManager
+
     //    @EnvironmentObject var beaconModel: BeaconModel
     @StateObject var beaconModel = BeaconModel.shared
     
@@ -82,33 +84,34 @@ struct BeaconList: View {
         
         ScrollView {
             VStack(spacing: 8) {
-                //                HStack {
-                //                    if !beaconModel.isBluetoothAuthorization {
-                BeaconListAlertEntry(title: "Bluetooth permission required",
-                                     image: "exclamationmark.triangle.fill",
-                                     text: "Sensors communicate by Bluetooth. On your phone, please go to Settings > Thermometer and turn on Bluetooth.",
-                                     foregroundColor: .white,
-                                     backgroundColor: Color("alertRed"))
-                //                }
-                //                HStack {
-                BeaconListAlertEntry(title: "Location permission preferable",
-                                     image: "questionmark.circle.fill",
-                                     text: "If you want to store sensor location, you should allow location services. On your phone, please go to Settings > Thermometer and turn on Location services.",
-                                     foregroundColor: .white,
-                                     backgroundColor: Color("alertYellow"))
-                BeaconListAlertEntry(title: "No data yet",
-                                     image: "questionmark.circle.fill",
-                                     text: "Sensors available? Placed too far away?",
-                                     foregroundColor: .white,
-                                     backgroundColor: Color("alertGreen"))
-                BeaconListAlertEntry(title: "No data yet 2",
-                                     image: "questionmark.circle.fill",
-                                     text: "Sensors available? Placed too far away?",
-                                     foregroundColor: .white,
-                                     backgroundColor: Color("alertBlue"))
-
-                //                    }
                 
+                if !beaconModel.isBluetoothAuthorization {
+                    BeaconListAlertEntry(title: "Bluetooth permission required",
+                                         image: "exclamationmark.triangle.fill",
+                                         text: "Sensors communicate by Bluetooth. On your phone, please go to Settings > Thermometer and turn on Bluetooth.",
+                                         foregroundColor: .white,
+                                         backgroundColor: Color("alertRed"))
+                }
+                
+                if (lm.status == .restricted) || (lm.status == .denied) {
+                    BeaconListAlertEntry(title: "Location permission preferable",
+                                         image: "questionmark.circle.fill",
+                                         text: "If you want to store sensor location, you should allow location services. On your phone, please go to Settings > Thermometer and turn on Location services.",
+                                         foregroundColor: .white,
+                                         backgroundColor: Color("alertYellow"))
+                }
+//                
+//                BeaconListAlertEntry(title: "No data yet",
+//                                     image: "questionmark.circle.fill",
+//                                     text: "Sensors available? Placed too far away?",
+//                                     foregroundColor: .white,
+//                                     backgroundColor: Color("alertGreen"))
+//                BeaconListAlertEntry(title: "No data yet 2",
+//                                     image: "questionmark.circle.fill",
+//                                     text: "Sensors available? Placed too far away?",
+//                                     foregroundColor: .white,
+//                                     backgroundColor: Color("alertBlue"))
+//                
                 //                    Toggle("Adv", isOn: $doUpdateAdv)
                 //                        .onChange(of: doUpdateAdv, perform: { value in
                 //                            if value == true {
