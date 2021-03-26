@@ -7,15 +7,22 @@ struct ContentView: View {
     
     let persistenceController = PersistenceController.shared
     @StateObject var lm = LocationManager()
-    @StateObject var model = BeaconModel()
+    @StateObject var model = BeaconModel.shared
 
     let locationManager = CLLocationManager()
     
     var body: some View {
         NavigationView {
-            BeaconList()
-                .navigationBarTitle("Beacons")
-                .listStyle(GroupedListStyle())
+            VStack {
+//                if !model.isBluetoothAuthorization {
+//                    BeaconListAlertEntry(title: "Bluetooth not authorized",
+//                                         image: "exclamationmark.triangle.fill",
+//                                         text: "Bluetooth authorization necessary. ")
+//                }
+                BeaconList()
+                    .navigationBarTitle("Beacons")
+                    .listStyle(GroupedListStyle())
+            }
         }
         .onAppear {
             MyBluetoothManager.shared.setMoc(moc: viewContext)

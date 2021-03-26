@@ -61,6 +61,7 @@
 		80ECC8FC260A50C5006AA4AE /* OnboardingCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80ECC8FB260A50C5006AA4AE /* OnboardingCard.swift */; };
 		80ECC8FE260B4FB9006AA4AE /* MotherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80ECC8FD260B4FB9006AA4AE /* MotherView.swift */; };
 		80ECC901260B511F006AA4AE /* ViewRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80ECC900260B511F006AA4AE /* ViewRouter.swift */; };
+		80ECC903260BBDD6006AA4AE /* BeaconListAlertEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80ECC902260BBDD6006AA4AE /* BeaconListAlertEntry.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -121,6 +122,7 @@
 		80ECC8FB260A50C5006AA4AE /* OnboardingCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCard.swift; sourceTree = "<group>"; };
 		80ECC8FD260B4FB9006AA4AE /* MotherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotherView.swift; sourceTree = "<group>"; };
 		80ECC900260B511F006AA4AE /* ViewRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewRouter.swift; sourceTree = "<group>"; };
+		80ECC902260BBDD6006AA4AE /* BeaconListAlertEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconListAlertEntry.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -188,6 +190,7 @@
 				80A56E032607BC3800C1DFD3 /* BeaconFilterSheet.swift */,
 				80A56E052607C57000C1DFD3 /* BeaconFilterSheetEntry.swift */,
 				80ECC8F22607D6D2006AA4AE /* BeaconBottomBarStatusFilterButton.swift */,
+				80ECC902260BBDD6006AA4AE /* BeaconListAlertEntry.swift */,
 			);
 			path = myTherm;
 			sourceTree = "<group>";
@@ -432,6 +435,7 @@
 				8080270525DD6E86000C377D /* BeaconHistoryDataPoint+CoreDataProperties.swift in Sources */,
 				8080270F25DD959C000C377D /* BeaconListEntry.swift in Sources */,
 				807838EB25DCEB0E009FF0E9 /* myThermApp.swift in Sources */,
+				80ECC903260BBDD6006AA4AE /* BeaconListAlertEntry.swift in Sources */,
 				80ECC8FA260A12F3006AA4AE /* OnboardingView.swift in Sources */,
 				8080271125DD959C000C377D /* TextEdit.swift in Sources */,
 				808026E325DD5431000C377D /* HelperFunctions.swift in Sources */,

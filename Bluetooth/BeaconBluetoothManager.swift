@@ -38,7 +38,7 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
     static let shared = MyCentralManagerDelegate()
     private var moc: NSManagedObjectContext!
     private var lm = LocationManager()
-    
+    private var model = BeaconModel.shared
     private var doUpdateAdv: Bool = true
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -51,10 +51,12 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
             print("central.state is .unsupported")
         case .unauthorized:
             print("central.state is .unauthorized") // TODO
+            model.isBluetoothAuthorization = false
         case .poweredOff:
             print("central.state is .poweredOff")
         case .poweredOn:
             print("central.state is .poweredOn")
+            model.isBluetoothAuthorization = true
 //            stopScanAndLocationService()
         startScanAndLocationService()
         @unknown default:

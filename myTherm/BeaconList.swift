@@ -82,6 +82,12 @@ struct BeaconList: View {
         ScrollView {
             VStack(spacing: 8) {
                 HStack {
+                    if !beaconModel.isBluetoothAuthorization {
+                        BeaconListAlertEntry(title: "Bluetooth permission required",
+                                             image: "exclamationmark.triangle.fill",
+                                             text: "Sensors communicate by Bluetooth. On your phone, please go to Settings > Thermometer and turn on Bluetooth.")
+                    }
+
                     //                    Toggle("Adv", isOn: $doUpdateAdv)
                     //                        .onChange(of: doUpdateAdv, perform: { value in
                     //                            if value == true {
