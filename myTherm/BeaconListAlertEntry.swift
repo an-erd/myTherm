@@ -14,9 +14,7 @@ struct AlertGroupBox: GroupBoxStyle {
             configuration.content
         }
         .frame(maxWidth: .infinity)
-        .padding(10)
-        .background(RoundedRectangle(cornerRadius: 10).fill(Color.red))
-//        .overlay(configuration.label.padding(.leading, 10), alignment: .topLeading)
+        .padding(15)
     }
 }
 
@@ -24,13 +22,26 @@ struct BeaconListAlertEntry: View {
     var title: String
     var image: String   
     var text: String
+    var foregroundColor: Color
+    var backgroundColor: Color
     
     var body: some View {
         
         GroupBox(
             label:
                 HStack {
-                    Label(title, systemImage: image).foregroundColor(Color.white)
+//                    Label(title, systemImage: image).foregroundColor(Color.white)
+                    Label {
+                        Text(title)
+                            .fontWeight(.bold)
+                            .padding(.bottom, 15)
+                            .foregroundColor(foregroundColor)
+                        
+                    } icon: {
+                        Image(systemName: image)
+                            .foregroundColor(foregroundColor)
+
+                    }
                     Spacer()
                 },
             content: {
@@ -39,12 +50,13 @@ struct BeaconListAlertEntry: View {
                 }) {
                     VStack {
                         Text(text)
-                            .foregroundColor(Color.white)
+                            .foregroundColor(foregroundColor)
                     }
                 }}
         )
         .groupBoxStyle(AlertGroupBox())
         .cornerRadius(10)
+        .background(RoundedRectangle(cornerRadius: 10).fill(backgroundColor))
         .padding(10)
     }
 }
