@@ -23,8 +23,11 @@ struct BeaconSimpleListView: View {
     }
 }
 
-//struct BeaconSimpleListView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        BeaconSimpleListView()
-//    }
-//}
+struct BeaconSimpleListView_Previews: PreviewProvider {
+    static var viewContext = PersistenceController.preview.container.viewContext
+
+    static var previews: some View {
+        BeaconSimpleListView(filter: "FilterString")
+            .environment(\.managedObjectContext, viewContext)
+    }
+}

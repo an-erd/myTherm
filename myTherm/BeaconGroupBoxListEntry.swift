@@ -68,8 +68,21 @@ struct BeaconGroupBoxListEntry: View {
     }
 }
 
-//struct BeaconGroupBoxListEntry_Previews: PreviewProvider {
-//    static var previews: some View {
-//        BeaconGroupBoxListEntry()
-//    }
-//}
+struct BeaconGroupBoxListEntry_Previews_Container : View {
+    var beacon: Beacon = PersistenceController.preview.container.viewContext.registeredObjects.first(where: { $0 is Beacon }) as! Beacon
+    
+    @State var displaySteps: Int = 0
+    var body: some View {
+        BeaconGroupBoxListEntry(beacon: beacon, nowDate: Date(), displaySteps: $displaySteps)
+    }
+}
+
+
+struct BeaconGroupBoxListEntry_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            BeaconGroupBoxListEntry_Previews_Container()
+        }
+        .previewLayout(.fixed(width: 300, height: 70))
+    }
+}

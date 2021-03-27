@@ -60,8 +60,13 @@ struct BeaconListAlertEntry: View {
     }
 }
 
-//struct BeaconListAlertEntry_Previews: PreviewProvider {
-//    static var previews: some View {
-//        BeaconListAlertEntry()
-//    }
-//}
+struct BeaconListAlertEntry_Previews: PreviewProvider {
+    
+    static var previews: some View {
+        BeaconListAlertEntry(title: "Title",
+                             image: "tortoise",
+                             text: "Text",
+                             foregroundColor: .white,
+                             backgroundColor: Color("alertRed"))
+    }
+}

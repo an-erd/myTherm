@@ -41,7 +41,7 @@ struct BeaconDownloadViewEntry: View {
             HStack {
                 if ( beacon.localDownloadStatus == .downloading_num ) ||
                     ( beacon.localDownloadStatus == .downloading_data )  {
-                    ProgressView(value: beacon.localDownloadProgress, total: 1.0)
+                    ProgressView(value: Float(beacon.localDownloadProgress), total: 1.0)
                 }
             }
         }
@@ -49,8 +49,20 @@ struct BeaconDownloadViewEntry: View {
     
 }
 
-//struct BeaconDownloadViewEntry_Previews: PreviewProvider {
-//    static var previews: some View {
-//        BeaconDownloadViewEntry()
-//    }
-//}
+struct BeaconDownloadViewEntry_Previews_Container : View {
+    var beacon: Beacon = PersistenceController.preview.container.viewContext.registeredObjects.first(where: { $0 is Beacon }) as! Beacon
+    
+    var body: some View {
+        BeaconDownloadViewEntry(beacon: beacon, download: Download(uuid: beacon.uuid!, beacon: beacon, delegate: beacon))
+     }
+    
+}
+
+struct BeaconDownloadViewEntry_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            BeaconDownloadViewEntry_Previews_Container()
+        }
+        .previewLayout(.fixed(width: 300, height: 70))
+    }
+}

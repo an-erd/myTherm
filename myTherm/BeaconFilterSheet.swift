@@ -9,7 +9,7 @@ import SwiftUI
 
 struct BeaconFilterSheet: View {
     @Environment(\.presentationMode) var presentationMode
-
+    
     @Binding var filterByTime: Bool
     @Binding var filterByLocation: Bool
     @Binding var filterByFlag: Bool
@@ -28,14 +28,18 @@ struct BeaconFilterSheet: View {
             }) {
                 Text("Done").bold()
                     .padding(10)
-//                    .border(Color.white)
+                //                    .border(Color.white)
             })
         }
     }
 }
 
-//struct BeaconFilterSheet_Previews: PreviewProvider {
-//    static var previews: some View {
-//        BeaconFilterSheet()
-//    }
-//}
+struct BeaconFilterSheet_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            BeaconFilterSheet(filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true))
+            BeaconFilterSheet(filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true))
+        }
+        .previewLayout(.fixed(width: 300, height: 70))
+    }
+}

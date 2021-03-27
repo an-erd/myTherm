@@ -43,3 +43,4 @@ struct BeaconGroupBoxList: View {
         })
     }
 }
+

@@ -236,5 +236,7 @@ struct BeaconList_Previews: PreviewProvider {
     static var previews: some View {
         BeaconList()
             .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+            .environmentObject(BeaconModel())
+            .environmentObject(ViewRouter())
     }
 }

@@ -33,8 +33,12 @@ struct BeaconFilterSheetEntry: View {
     }
 }
 
-//struct BeaconFilterSheetEntry_Previews: PreviewProvider {
-//    static var previews: some View {
-//        BeaconFilterSheetEntry()
-//    }
-//}
+struct BeaconFilterSheetEntry_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            BeaconFilterSheetEntry(imageName: "timer", title: "Title1", option: .constant(true))
+            BeaconFilterSheetEntry(imageName: "timer", title: "Title1", option: .constant(false))
+        }
+        .previewLayout(.fixed(width: 300, height: 70))
+    }
+}
