@@ -13,10 +13,11 @@ import os
 
 struct LineView: View {
     
+    @StateObject var model = BeaconModel.shared
+
     @ObservedObject var beacon: Beacon
     @ObservedObject var localValue: BeaconLocalValueView
     @Binding var isDragging: Bool
-    var displaySteps: Int
     var titleStrings: [String]
     var frameSize: CGRect
     
@@ -44,9 +45,11 @@ struct LineView: View {
 
     var dataIndex: Int {
         if !localValue.isDragging {
+            print("dataIndex !isDragging")
             return 0
         }
         if stepWidth == 0 {
+            print("dataIndex stepWidth == 0")
             return 0
         }
         let idx = Int(round((boundX + dragWidth / 2) / stepWidth))
@@ -129,38 +132,41 @@ struct LineView: View {
         let tapGesture = DragGesture(minimumDistance: 0, coordinateSpace: .local)
             .updating($isTapping) {value, isTapping, transaction in
                 if !isTapping {
-                    print("tapGesture .updating touch down location \(value.location.x)")
+//                    print("tapGesture .updating touch down location \(value.location.x)")
                     localValue.firstTouchLocation = value.location.x
                 }
                 isTapping = true
             }
             .onEnded {_ in
-                print("tapGesture .onEnded")
+//                print("tapGesture .onEnded")
+                if !dragMode {
+                    model.isShownTemperature.toggle()
+                }
             }
 
         let longPressGesture = LongPressGesture(minimumDuration: 0.1)
             .onChanged { _ in
-                print("longPressGesture .onChanged")
+//                print("longPressGesture .onChanged")
             }
             .onEnded {_ in
-                print("longPressGesture .onEnded")
                 dragMode = true
+                localValue.isDragging = true
                 dragOffset = .zero
                 dragStart = localValue.firstTouchLocation
                 dragWidth = frameSize.width
+//                print("longPressGesture .onEnded dataIndex \(dataIndex) dragOffset \(dragOffset) dragStart \(dragStart) dragWidth \(dragWidth)")
 
                 localValue.temperature = beacon.wrappedLocalHistoryTemperature[dataIndex]
                 localValue.humidity = beacon.wrappedLocalHistoryHumidity[dataIndex]
                 localValue.timestamp = beacon.wrappedLocalHistoryTimestamp[dataIndex]
-                localValue.isDragging = true
             }
         
         let dragGesture = DragGesture(minimumDistance: 0, coordinateSpace: .local)
             .onChanged { _ in
-                print("dragGesture .onChanged")
+//                print("dragGesture .onChanged")
             }
             .onEnded {_ in
-                print("dragGesture .onEnded")
+//                print("dragGesture .onEnded")
             }
         
         
@@ -169,7 +175,7 @@ struct LineView: View {
                 switch value {
                 case .second(true, let drag):
                     if let drag = drag {
-                        print("dragGesture onChanged translation \(drag.translation) x \(drag.startLocation.x) width \(frameSize.width)")
+//                        print("dragGesture onChanged translation \(drag.translation) x \(drag.startLocation.x) width \(frameSize.width)")
                         dragMode = true
                         dragOffset = drag.translation
                         dragStart = drag.startLocation.x
@@ -180,22 +186,22 @@ struct LineView: View {
                         localValue.timestamp = beacon.wrappedLocalHistoryTimestamp[dataIndex]
                         localValue.isDragging = true
                     } else {
-                        print("set to zero")
+//                        print("set to zero")
                     }
                 default:
                     break
                 }
             }
             .onEnded { value in
-                print("sequenced .onEnded")
+//                print("sequenced .onEnded")
         }
 
         let simultaneously = tapGesture.simultaneously(with: sequenced)
             .onChanged {_ in
-                print("simultaneously .onChanged")
+//                print("simultaneously .onChanged")
             }
             .onEnded {_ in
-                print("simultaneously .onEnded")
+//                print("simultaneously .onEnded")
                 dragMode = false
                 localValue.isDragging = false
                 dragOffset = .zero
@@ -208,7 +214,7 @@ struct LineView: View {
                     Line(beacon: beacon,
                          localValue: localValue,
                          timestamp: beacon.wrappedLocalHistoryTimestamp,
-                         displaySteps: displaySteps,
+                         displaySteps: model.isShownTemperature ? 0 : 1,
                          dataTemperature: beacon.wrappedLocalHistoryTemperature,
                          dataHumidity: beacon.wrappedLocalHistoryHumidity,
                          frame: .constant(CGRect(x: 0, y: 0,
@@ -224,7 +230,7 @@ struct LineView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Spacer()
-                        Text(self.titleStrings[displaySteps])
+                        Text(self.titleStrings[model.isShownTemperature ? 0 : 1])
                             .font(.body)
                             .foregroundColor(Color.white)
                             .offset(x: -5, y: 0)
@@ -233,7 +239,6 @@ struct LineView: View {
 
                 }.offset(x: 0, y: 0)
             }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-            .border(Color.green)
             .contentShape(Rectangle())
             .gesture(simultaneously)
 

@@ -24,7 +24,7 @@ struct BeaconLineView: View {
                         localValue: localValue,
                         //                isTabbing: $localValue.isTabbing,
                         isDragging: $localValue.isDragging,
-                        displaySteps: displaySteps,
+//                        displaySteps: displaySteps,
                         titleStrings: titleStrings,
                         frameSize: CGRect(x: 0, y: 0,
                                           width: reader.frame(in: .local).width,

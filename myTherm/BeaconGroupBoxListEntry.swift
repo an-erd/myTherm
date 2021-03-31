@@ -9,6 +9,8 @@ import SwiftUI
 
 struct BeaconGroupBoxListEntry: View {
     
+    @StateObject var model = BeaconModel.shared
+
     @ObservedObject var beacon: Beacon
     var nowDate: Date
     @Binding var displaySteps: Int
@@ -44,12 +46,7 @@ struct BeaconGroupBoxListEntry: View {
                                 BeaconValueView(beacon: beacon, localValue: localValue, nowDate: nowDate)
                                     .frame(width: 165)
                                 Spacer()
-                                Button(action: {
-                                    displaySteps = (displaySteps + 1) % 2
-                                }) {
-                                    BeaconLineView(beacon: beacon, localValue: localValue, displaySteps: displaySteps)
-//                                        .border(Color.white)
-                                }
+                                BeaconLineView(beacon: beacon, localValue: localValue, displaySteps: displaySteps)
                             }.frame(height: 55)
                         }
                     }

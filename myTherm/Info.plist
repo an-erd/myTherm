@@ -17,11 +17,11 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Retrieve beacon sensor data using Bluetooth</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Retrieve beacon sensor data like temperature and humidity is done using Bluetooth. Please allow the usage of Bluetooth.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Store location where Beacon was last seen to find it again</string>
 	<key>UIApplicationSceneManifest</key>

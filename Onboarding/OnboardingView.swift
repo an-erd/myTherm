@@ -56,7 +56,6 @@ struct OnboardingView: View {
                                         .frame(width: 80)
                                         .padding(10)
                                     Image(systemName: "arrow.right.circle")
-//                                        .background(Circle().fill(Color.green))
                                         .imageScale(.large)
                                         .padding(10)
                                 }
