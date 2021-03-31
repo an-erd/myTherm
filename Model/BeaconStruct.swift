@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 struct ExtractBeaconAdv {
     var temperature: Double
@@ -37,6 +38,7 @@ struct BeaconHistoryDataPointLocal : Hashable{
 class BeaconLocalValueView : ObservableObject {
 //    @Published var isTabbing: Bool = false
     @Published var isDragging: Bool = false
+    @Published var firstTouchLocation: CGFloat = 0
     @Published var timestamp: Date?
     @Published var temperature: Double = 0
     @Published var humidity: Double = 0

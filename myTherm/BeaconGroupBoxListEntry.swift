@@ -48,6 +48,7 @@ struct BeaconGroupBoxListEntry: View {
                                     displaySteps = (displaySteps + 1) % 2
                                 }) {
                                     BeaconLineView(beacon: beacon, localValue: localValue, displaySteps: displaySteps)
+//                                        .border(Color.white)
                                 }
                             }.frame(height: 55)
                         }

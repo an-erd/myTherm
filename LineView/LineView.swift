@@ -26,11 +26,6 @@ struct LineView: View {
     @State private var dragOffset = CGSize.zero
     
     @State private var dragWidth: CGFloat = 0
-
-    var startX: CGFloat = 0
-    @State var longPressLocation = CGPoint.zero
-
-
     
     var boundX: CGFloat {
         let tempX = -dragWidth / 2 + dragStart + dragOffset.width
@@ -56,7 +51,6 @@ struct LineView: View {
         }
         let idx = Int(round((boundX + dragWidth / 2) / stepWidth))
         print("dataIndex boundX \(boundX) dragWidth \(dragWidth) stepWidth \(stepWidth) index \(idx)")
-//        return 0
         return idx
     }
 
@@ -110,23 +104,55 @@ struct LineView: View {
          sequenced .onEnded
  *       simultaneously .onEnded                    -> stop drag
 
+         
+         tapGesture .updating touch down location 64.5
+         longPressGesture .onChanged
+         simultaneously .onChanged
+         *
+*        tapGesture .onEnded
+         simultaneously .onEnded
+         
+         tapGesture .updating touch down location 67.5
+         longPressGesture .onChanged
+         simultaneously .onChanged
+         longPressGesture .onEnded
+         set to zero
+         simultaneously .onChanged
+         dataIndex boundX -7.5 dragWidth 150.0 stepWidth 0.2608695652173913 index 259
+*        tapGesture .onEnded
+         dragGesture .onEnded
+         sequenced .onEnded
+         simultaneously .onEnded
+
 */
         
         let tapGesture = DragGesture(minimumDistance: 0, coordinateSpace: .local)
             .updating($isTapping) {value, isTapping, transaction in
                 if !isTapping {
                     print("tapGesture .updating touch down location \(value.location.x)")
-                    startX  = value.location.x
+                    localValue.firstTouchLocation = value.location.x
                 }
                 isTapping = true
             }
+            .onEnded {_ in
+                print("tapGesture .onEnded")
+            }
 
-        let longPressGesture = LongPressGesture(minimumDuration: 1)
+        let longPressGesture = LongPressGesture(minimumDuration: 0.1)
             .onChanged { _ in
                 print("longPressGesture .onChanged")
             }
             .onEnded {_ in
                 print("longPressGesture .onEnded")
+                dragMode = true
+                dragOffset = .zero
+                dragStart = localValue.firstTouchLocation
+                dragWidth = frameSize.width
+
+                localValue.temperature = beacon.wrappedLocalHistoryTemperature[dataIndex]
+                localValue.humidity = beacon.wrappedLocalHistoryHumidity[dataIndex]
+                localValue.timestamp = beacon.wrappedLocalHistoryTimestamp[dataIndex]
+                localValue.isDragging = true
             }
         
         let dragGesture = DragGesture(minimumDistance: 0, coordinateSpace: .local)
@@ -137,16 +163,23 @@ struct LineView: View {
                 print("dragGesture .onEnded")
             }
         
+        
         let sequenced = longPressGesture.sequenced(before: dragGesture)
             .onChanged {value in
                 switch value {
                 case .second(true, let drag):
                     if let drag = drag {
-                        longPressLocation = drag.location
-                        print("sequenced .onChanged \(longPressLocation)")
-                        startX = drag.location.x
+                        print("dragGesture onChanged translation \(drag.translation) x \(drag.startLocation.x) width \(frameSize.width)")
+                        dragMode = true
+                        dragOffset = drag.translation
+                        dragStart = drag.startLocation.x
+                        dragWidth = frameSize.width
+                        
+                        localValue.temperature = beacon.wrappedLocalHistoryTemperature[dataIndex]
+                        localValue.humidity = beacon.wrappedLocalHistoryHumidity[dataIndex]
+                        localValue.timestamp = beacon.wrappedLocalHistoryTimestamp[dataIndex]
+                        localValue.isDragging = true
                     } else {
-                        longPressLocation = .zero
                         print("set to zero")
                     }
                 default:
@@ -163,69 +196,12 @@ struct LineView: View {
             }
             .onEnded {_ in
                 print("simultaneously .onEnded")
+                dragMode = false
+                localValue.isDragging = false
+                dragOffset = .zero
+                isDragging = false
             }
         
-//        // Gets triggered immediately because a drag of 0 distance starts already when touching down.
-//        let tapGesture = DragGesture(minimumDistance: 0)
-//            .updating($isTapping) {value, isTapping, transaction in
-//                if !isTapping {
-//                    print("not tabbing .updating value.location.x \(value.location.x)")
-////                    startX = value.location.x
-//                }
-//                isTapping = true
-//                print("tapGesture width \(frameSize.width)")
-//            }
-//
-//        // minimumDistance here is mainly relevant to change to red before the drag
-//        let dragGesture = DragGesture(minimumDistance: 0)
-//            .onChanged { dragOffset = $0.translation
-//                print("dragGesture onChanged translation \($0.translation) x \($0.startLocation.x) width \(frameSize.width)")
-//                dragMode = true
-//                dragOffset = $0.translation
-//                dragStart = $0.startLocation.x
-////                dragWidth = reader.frame(in: .local).width
-//                dragWidth = frameSize.width
-//
-//                localValue.temperature = beacon.wrappedLocalHistoryTemperature[dataIndex]
-//                localValue.humidity = beacon.wrappedLocalHistoryHumidity[dataIndex]
-//                localValue.timestamp = beacon.wrappedLocalHistoryTimestamp[dataIndex]
-//                localValue.isDragging = true
-//            }
-//            .onEnded { _ in
-//                print("dragGesture onEnded")
-//                dragMode = false
-//                localValue.isDragging = false
-////
-////            }
-////                withAnimation {
-//                    dragOffset = .zero
-//                    isDragging = false
-////                }
-//            }
-//
-//        let longPressGesture = LongPressGesture(minimumDuration: 1)
-//            .onEnded { value in
-//                print("pressGesture LongPressGesture width \(frameSize.width) value \(value) dragStart \(startX)")
-//// X2
-//                dragStart = startX
-//
-//                withAnimation {
-//                    isDragging = true
-//                    dragMode = true
-//                }
-//            }
-//
-//        // The dragGesture will wait until the pressGesture has triggered after minimumDuration 1.0 seconds.
-//        let combined = longPressGesture.sequenced(before: dragGesture)
-//
-//        // The new combined gesture is set to run together with the tapGesture.
-//        let simultaneously = tapGesture.simultaneously(with: combined)
-//            .onChanged { value in
-//                print("simultaneously onChanged")
-////                var l = value.
-////                dragMode = true
-//            }
-//
         GeometryReader{ geometry in
             ZStack{
                 GeometryReader{ reader in
@@ -243,25 +219,6 @@ struct LineView: View {
                          dataIndex: dataIndex
                     )
                     .offset(x: 0, y: 0)
-                    .gesture(simultaneously)
-//                    .gesture(
-//                        LongPressGesture(minimumDuration: 1).sequenced(before: DragGesture()
-//                            .onChanged { gesture in
-//                                dragMode = true
-//                                dragOffset = gesture.translation
-//                                dragStart = gesture.startLocation.x
-//                                dragWidth = reader.frame(in: .local).width
-//
-//                                localValue.temperature = beacon.wrappedLocalHistoryTemperature[dataIndex]
-//                                localValue.humidity = beacon.wrappedLocalHistoryHumidity[dataIndex]
-//                                localValue.timestamp = beacon.wrappedLocalHistoryTimestamp[dataIndex]
-//                                localValue.isDragging = true
-//                            }
-//                            .onEnded { gesture in
-//                                dragMode = false
-//                                localValue.isDragging = false
-//                            }
-//                    ))
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {
@@ -276,6 +233,10 @@ struct LineView: View {
 
                 }.offset(x: 0, y: 0)
             }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+            .border(Color.green)
+            .contentShape(Rectangle())
+            .gesture(simultaneously)
+
         }
     }
 }
