@@ -21,6 +21,7 @@ public enum DownloadStatus: Int32 {
     case alldone = 5
     case cancelled = 6
     case error = 7
+    case none = 8
 }
 
 class Download : ObservableObject {

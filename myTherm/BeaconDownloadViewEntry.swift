@@ -18,11 +18,14 @@ struct BeaconDownloadViewEntry: View {
             HStack {
                 switch beacon.localDownloadStatus {
                 case .waiting:
+                    ProgressCircle(progress: CGFloat(beacon.localDownloadProgress), mode: .idle)
                     Text("Waiting for Download...")
                     Spacer()
                 case .connecting:
                     ProgressView()
                         .padding(.trailing, 2)
+                    ProgressCircle(progress: CGFloat(beacon.localDownloadProgress), mode: .busy)
+
                     Text("Connecting...")
                     Spacer()
                 case .downloading_num, .downloading_data:
@@ -42,6 +45,7 @@ struct BeaconDownloadViewEntry: View {
                 if ( beacon.localDownloadStatus == .downloading_num ) ||
                     ( beacon.localDownloadStatus == .downloading_data )  {
                     ProgressView(value: Float(beacon.localDownloadProgress), total: 1.0)
+                    ProgressCircle(progress: CGFloat(beacon.localDownloadProgress), mode: .progress)
                 }
             }
         }

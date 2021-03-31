@@ -29,14 +29,9 @@ struct BeaconGroupBoxListEntry: View {
                 HStack {
                     Label(beacon.wrappedName, systemImage: "thermometer").foregroundColor(Color.blue)
                     Spacer()
-                    Button(action: {
-                        MyBluetoothManager.shared.downloadManager.addBeaconToDownloadQueue(beacon: beacon)
-                    }) {
-                        Image(systemName: "icloud.and.arrow.down")
-                    }
+                    BeaconDownloadImageButton(beacon: beacon, activeDownload: getDownload(beacon: beacon))
                     Spacer()
                         .frame(width: 10)
-                    
                     NavigationLink(destination: BeaconDetail(beacon: beacon)) {
                         Image(systemName: "chevron.right").foregroundColor(.secondary).imageScale(.small)
                     }
@@ -56,11 +51,6 @@ struct BeaconGroupBoxListEntry: View {
                                 }
                             }.frame(height: 55)
                         }
-                    }
-                    VStack {
-                        BeaconDownloadView(
-                            beacon: beacon,
-                            activeDownload: getDownload(beacon: beacon))
                     }
                 }
             }

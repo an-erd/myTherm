@@ -36,7 +36,7 @@ struct BeaconValueView: View {
     @ViewBuilder var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             
-            if localValue.dragMode {
+            if localValue.isDragging {
                 HStack(spacing: 5) {
                     Text(getTempValue()).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" °C").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
                     

@@ -35,7 +35,8 @@ struct BeaconHistoryDataPointLocal : Hashable{
 }
 
 class BeaconLocalValueView : ObservableObject {
-    @Published var dragMode: Bool = false
+//    @Published var isTabbing: Bool = false
+    @Published var isDragging: Bool = false
     @Published var timestamp: Date?
     @Published var temperature: Double = 0
     @Published var humidity: Double = 0

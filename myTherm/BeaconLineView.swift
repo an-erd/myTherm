@@ -16,15 +16,23 @@ struct BeaconLineView: View {
     var titleStrings = ["°C", "%"]
     
     var body: some View {
-        
-        ZStack {
-            LineView(
-                beacon: beacon,
-                localValue: localValue,
-                isDrag: $localValue.dragMode,
-                displaySteps: displaySteps,
-                titleStrings: titleStrings)
-                .isHidden(beacon.wrappedLocalHistoryTemperature.count < 2, remove: false)
+        GeometryReader{ geometry in
+            ZStack {
+                GeometryReader{ reader in
+                    LineView(
+                        beacon: beacon,
+                        localValue: localValue,
+                        //                isTabbing: $localValue.isTabbing,
+                        isDragging: $localValue.isDragging,
+                        displaySteps: displaySteps,
+                        titleStrings: titleStrings,
+                        frameSize: CGRect(x: 0, y: 0,
+                                          width: reader.frame(in: .local).width,
+                                          height: reader.frame(in: .local).height)
+                        )
+                        .isHidden(beacon.wrappedLocalHistoryTemperature.count < 2, remove: false)
+                }
+            }
         }
     }
 }

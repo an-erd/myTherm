@@ -53,9 +53,9 @@ class DownloadManager: NSObject, ObservableObject {
         }
         if activeDownloadsFiltered.count == 0 {
             print("cleanupDownloadQueue")
-//            ForEach(activeDownloads) { beacon in
-//                beacon.dowload = 0
-//            }
+            for download in activeDownloads {
+                download.status = DownloadStatus.waiting
+            }
             activeDownloads.removeAll()
         }
     }

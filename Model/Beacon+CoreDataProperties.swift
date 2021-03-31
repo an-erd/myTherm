@@ -168,11 +168,12 @@ extension Beacon : Identifiable {
 extension Beacon : DownloadDelegate {
     
     func downloadProgressUpdated(for progress: Float, for uuid: UUID) {
-            self.localDownloadProgress = progress
+        self.localDownloadProgress = progress
     }
     
     func downloadStatusUpdated(for status: DownloadStatus, for uuid: UUID) {
-            self.localDownloadStatus = status
+        self.localDownloadStatus = status
+        print("downloadStatusUpdated for \(self.wrappedDeviceName) to \(status)")
     }
     
 }
