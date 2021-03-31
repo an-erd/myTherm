@@ -16,7 +16,7 @@ struct BeaconDownloadImageButton: View {
         Button(action: {
             MyBluetoothManager.shared.downloadManager.addBeaconToDownloadQueue(beacon: beacon)
         }) {
-            if let activeDownload = activeDownload {
+            if activeDownload != nil {
                 switch beacon.localDownloadStatus {
                 case .waiting:
                     ProgressCircle(mode: .busy)

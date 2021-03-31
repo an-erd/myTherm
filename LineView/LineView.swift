@@ -27,7 +27,9 @@ struct LineView: View {
     
     @State private var dragWidth: CGFloat = 0
 
-    @State var startX: CGFloat = 0
+    var startX: CGFloat = 0
+    @State var longPressLocation = CGPoint.zero
+
 
     
     var boundX: CGFloat {
@@ -60,67 +62,170 @@ struct LineView: View {
 
     public var body: some View {
         
-        // Gets triggered immediately because a drag of 0 distance starts already when touching down.
-        let tapGesture = DragGesture(minimumDistance: 0)
+/*
+    short tap
+         tapGesture touch down location 47.0
+         longPressGesture .onChanged
+         simultaneously .onChanged
+         simultaneously .onEnded
+         
+         TODO: Negative Values, values > width?
+
+    short tap and move
+*        tapGesture touch down location 28.0
+         longPressGesture .onChanged
+         simultaneously .onChanged
+         ...
+         simultaneously .onChanged
+         simultaneously .onEnded
+
+    long tap no move
+ *       tapGesture touch down location 34.5        -> store initial location
+         longPressGesture .onChanged
+         simultaneously .onChanged
+ *       longPressGesture .onEnded                  -> start drag
+         set to zero
+         simultaneously .onChanged
+         dragGesture .onEnded
+         sequenced .onEnded
+ *       simultaneously .onEnded                    -> stop drag
+         
+    long tab and move
+ *       tapGesture touch down location 21.5        -> store location
+         longPressGesture .onChanged
+         simultaneously .onChanged
+ *       longPressGesture .onEnded                  -> start drag
+         set to zero
+         simultaneously .onChanged
+         
+         dragGesture .onChanged
+ *       sequenced .onChanged (23.0, 6.5)           -> update values and marker
+         simultaneously .onChanged
+         ...
+         dragGesture .onChanged
+         sequenced .onChanged (29.0, 6.0)           -> --"--
+         simultaneously .onChanged
+         
+         dragGesture .onEnded
+         sequenced .onEnded
+ *       simultaneously .onEnded                    -> stop drag
+
+*/
+        
+        let tapGesture = DragGesture(minimumDistance: 0, coordinateSpace: .local)
             .updating($isTapping) {value, isTapping, transaction in
                 if !isTapping {
-                    print("not tabbing .updating value.location.x \(value.location.x)")
-//                    startX = value.location.x
+                    print("tapGesture .updating touch down location \(value.location.x)")
+                    startX  = value.location.x
                 }
                 isTapping = true
-                print("tapGesture width \(frameSize.width)")
             }
 
-        // minimumDistance here is mainly relevant to change to red before the drag
-        let dragGesture = DragGesture(minimumDistance: 0)
-            .onChanged { dragOffset = $0.translation
-                print("dragGesture onChanged translation \($0.translation) x \($0.startLocation.x) width \(frameSize.width)")
-                dragMode = true
-                dragOffset = $0.translation
-                dragStart = $0.startLocation.x
-//                dragWidth = reader.frame(in: .local).width
-                dragWidth = frameSize.width
-
-                localValue.temperature = beacon.wrappedLocalHistoryTemperature[dataIndex]
-                localValue.humidity = beacon.wrappedLocalHistoryHumidity[dataIndex]
-                localValue.timestamp = beacon.wrappedLocalHistoryTimestamp[dataIndex]
-                localValue.isDragging = true
+        let longPressGesture = LongPressGesture(minimumDuration: 1)
+            .onChanged { _ in
+                print("longPressGesture .onChanged")
             }
-            .onEnded { _ in
-                print("dragGesture onEnded")
-                dragMode = false
-                localValue.isDragging = false
-//
-//            }
-//                withAnimation {
-                    dragOffset = .zero
-                    isDragging = false
-//                }
+            .onEnded {_ in
+                print("longPressGesture .onEnded")
             }
-
-        let pressGesture = LongPressGesture(minimumDuration: 1)
-            .onEnded { value in
-                print("pressGesture LongPressGesture width \(frameSize.width) value \(value) dragStart \(startX)")
-// X2
-                dragStart = startX
-
-                withAnimation {
-                    isDragging = true
-                    dragMode = true
+        
+        let dragGesture = DragGesture(minimumDistance: 0, coordinateSpace: .local)
+            .onChanged { _ in
+                print("dragGesture .onChanged")
+            }
+            .onEnded {_ in
+                print("dragGesture .onEnded")
+            }
+        
+        let sequenced = longPressGesture.sequenced(before: dragGesture)
+            .onChanged {value in
+                switch value {
+                case .second(true, let drag):
+                    if let drag = drag {
+                        longPressLocation = drag.location
+                        print("sequenced .onChanged \(longPressLocation)")
+                        startX = drag.location.x
+                    } else {
+                        longPressLocation = .zero
+                        print("set to zero")
+                    }
+                default:
+                    break
                 }
             }
+            .onEnded { value in
+                print("sequenced .onEnded")
+        }
 
-        // The dragGesture will wait until the pressGesture has triggered after minimumDuration 1.0 seconds.
-        let combined = pressGesture.sequenced(before: dragGesture)
-
-        // The new combined gesture is set to run together with the tapGesture.
-        let simultaneously = tapGesture.simultaneously(with: combined)
-            .onChanged { value in
-                print("simultaneously onChanged")
-//                var l = value.
-//                dragMode = true
+        let simultaneously = tapGesture.simultaneously(with: sequenced)
+            .onChanged {_ in
+                print("simultaneously .onChanged")
             }
-
+            .onEnded {_ in
+                print("simultaneously .onEnded")
+            }
+        
+//        // Gets triggered immediately because a drag of 0 distance starts already when touching down.
+//        let tapGesture = DragGesture(minimumDistance: 0)
+//            .updating($isTapping) {value, isTapping, transaction in
+//                if !isTapping {
+//                    print("not tabbing .updating value.location.x \(value.location.x)")
+////                    startX = value.location.x
+//                }
+//                isTapping = true
+//                print("tapGesture width \(frameSize.width)")
+//            }
+//
+//        // minimumDistance here is mainly relevant to change to red before the drag
+//        let dragGesture = DragGesture(minimumDistance: 0)
+//            .onChanged { dragOffset = $0.translation
+//                print("dragGesture onChanged translation \($0.translation) x \($0.startLocation.x) width \(frameSize.width)")
+//                dragMode = true
+//                dragOffset = $0.translation
+//                dragStart = $0.startLocation.x
+////                dragWidth = reader.frame(in: .local).width
+//                dragWidth = frameSize.width
+//
+//                localValue.temperature = beacon.wrappedLocalHistoryTemperature[dataIndex]
+//                localValue.humidity = beacon.wrappedLocalHistoryHumidity[dataIndex]
+//                localValue.timestamp = beacon.wrappedLocalHistoryTimestamp[dataIndex]
+//                localValue.isDragging = true
+//            }
+//            .onEnded { _ in
+//                print("dragGesture onEnded")
+//                dragMode = false
+//                localValue.isDragging = false
+////
+////            }
+////                withAnimation {
+//                    dragOffset = .zero
+//                    isDragging = false
+////                }
+//            }
+//
+//        let longPressGesture = LongPressGesture(minimumDuration: 1)
+//            .onEnded { value in
+//                print("pressGesture LongPressGesture width \(frameSize.width) value \(value) dragStart \(startX)")
+//// X2
+//                dragStart = startX
+//
+//                withAnimation {
+//                    isDragging = true
+//                    dragMode = true
+//                }
+//            }
+//
+//        // The dragGesture will wait until the pressGesture has triggered after minimumDuration 1.0 seconds.
+//        let combined = longPressGesture.sequenced(before: dragGesture)
+//
+//        // The new combined gesture is set to run together with the tapGesture.
+//        let simultaneously = tapGesture.simultaneously(with: combined)
+//            .onChanged { value in
+//                print("simultaneously onChanged")
+////                var l = value.
+////                dragMode = true
+//            }
+//
         GeometryReader{ geometry in
             ZStack{
                 GeometryReader{ reader in
