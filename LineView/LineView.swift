@@ -45,7 +45,7 @@ struct LineView: View {
 
     var dataIndex: Int {
         if !localValue.isDragging {
-            print("dataIndex !isDragging")
+//            print("dataIndex !isDragging")
             return 0
         }
         if stepWidth == 0 {
@@ -53,7 +53,7 @@ struct LineView: View {
             return 0
         }
         let idx = Int(round((boundX + dragWidth / 2) / stepWidth))
-        print("dataIndex boundX \(boundX) dragWidth \(dragWidth) stepWidth \(stepWidth) index \(idx)")
+//        print("dataIndex boundX \(boundX) dragWidth \(dragWidth) stepWidth \(stepWidth) index \(idx)")
         return idx
     }
 

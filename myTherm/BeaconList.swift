@@ -177,11 +177,12 @@ struct BeaconList: View {
                     }
                 }
                 Spacer()
-                
-                //                Button(action: { beaconModel.isPresentingSettingsView.toggle() }
-                //                ) {
-                //                    Image(systemName: "tortoise")
-                //                }
+                Button(action: {
+                    // show debug settings dialog
+                }
+                ) {
+                    Image(systemName: "tortoise")
+                }
             }
         }
         .navigationBarItems(

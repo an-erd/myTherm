@@ -14,11 +14,6 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack {
-//                if !model.isBluetoothAuthorization {
-//                    BeaconListAlertEntry(title: "Bluetooth not authorized",
-//                                         image: "exclamationmark.triangle.fill",
-//                                         text: "Bluetooth authorization necessary. ")
-//                }
                 BeaconList()
                     .navigationBarTitle("Beacons")
                     .listStyle(GroupedListStyle())
