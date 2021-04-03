@@ -142,7 +142,9 @@ struct BeaconList: View {
         }
         .onAppear(perform: {
             self.onAppear()
-            copyBeaconHistoryOnce()
+            DispatchQueue.main.async {
+                copyBeaconHistoryOnce()
+            }
         })
         .toolbar {
             ToolbarItemGroup (placement: .bottomBar) {
