@@ -75,6 +75,13 @@ struct BeaconList: View {
             }
         }
         
+        if filterByFlag {
+            predicateFlaggedFilter = NSPredicate(format: "flag == true")
+            if let predicateFlaggedFilter = predicateFlaggedFilter {
+                compound.append(predicateFlaggedFilter)
+            }
+
+        }
         withAnimation {
             compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: compound)
         }

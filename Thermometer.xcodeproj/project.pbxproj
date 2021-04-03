@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -14,6 +14,8 @@
 		806A52BA25FA813300298441 /* BeaconLocationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806A52B725FA813300298441 /* BeaconLocationExtension.swift */; };
 		806A52BB25FA813300298441 /* BeaconExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806A52B825FA813300298441 /* BeaconExtension.swift */; };
 		806A52BC25FA813300298441 /* BeaconStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806A52B925FA813300298441 /* BeaconStruct.swift */; };
+		806E2EA82617566F00AFA883 /* Introspect in Frameworks */ = {isa = PBXBuildFile; productRef = 806E2EA72617566F00AFA883 /* Introspect */; };
+		806E2EAE26175AE900AFA883 /* SwipeCell in Frameworks */ = {isa = PBXBuildFile; productRef = 806E2EAD26175AE900AFA883 /* SwipeCell */; };
 		806E50A725E6A2FB001218D5 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806E50A625E6A2FB001218D5 /* DownloadManager.swift */; };
 		806E50A925E6A961001218D5 /* BeaconPeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806E50A825E6A961001218D5 /* BeaconPeripheral.swift */; };
 		806E50AB25E6AC57001218D5 /* Download.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806E50AA25E6AC57001218D5 /* Download.swift */; };
@@ -73,6 +75,7 @@
 		806A52B725FA813300298441 /* BeaconLocationExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BeaconLocationExtension.swift; path = Model/BeaconLocationExtension.swift; sourceTree = "<group>"; };
 		806A52B825FA813300298441 /* BeaconExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BeaconExtension.swift; path = Model/BeaconExtension.swift; sourceTree = "<group>"; };
 		806A52B925FA813300298441 /* BeaconStruct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BeaconStruct.swift; path = Model/BeaconStruct.swift; sourceTree = "<group>"; };
+		806E2EAB26175A0000AFA883 /* SwipeCell */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SwipeCell; path = ../SwipeCell; sourceTree = "<group>"; };
 		806E50A625E6A2FB001218D5 /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
 		806E50A825E6A961001218D5 /* BeaconPeripheral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconPeripheral.swift; sourceTree = "<group>"; };
 		806E50AA25E6AC57001218D5 /* Download.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Download.swift; sourceTree = "<group>"; };
@@ -133,15 +136,26 @@
 			buildActionMask = 2147483647;
 			files = (
 				8080271925DEA796000C377D /* CloudKit.framework in Frameworks */,
+				806E2EA82617566F00AFA883 /* Introspect in Frameworks */,
+				806E2EAE26175AE900AFA883 /* SwipeCell in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		806AF07226164F5F00DE0BD6 /* SlideMenu */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = SlideMenu;
+			sourceTree = "<group>";
+		};
 		807838DE25DCEB0E009FF0E9 = {
 			isa = PBXGroup;
 			children = (
+				806E2EAB26175A0000AFA883 /* SwipeCell */,
+				806AF07226164F5F00DE0BD6 /* SlideMenu */,
 				80ECC8FF260B5094006AA4AE /* ViewRouter */,
 				80ECC8F62609D2E5006AA4AE /* Onboarding */,
 				80DF141525FA78CC00393B97 /* Download */,
@@ -341,6 +355,8 @@
 			);
 			name = Thermometer;
 			packageProductDependencies = (
+				806E2EA72617566F00AFA883 /* Introspect */,
+				806E2EAD26175AE900AFA883 /* SwipeCell */,
 			);
 			productName = myTherm;
 			productReference = 807838E725DCEB0E009FF0E9 /* Thermometer.app */;
@@ -370,6 +386,8 @@
 			);
 			mainGroup = 807838DE25DCEB0E009FF0E9;
 			packageReferences = (
+				806E2EA62617566F00AFA883 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
+				806E2EAC26175AE900AFA883 /* XCRemoteSwiftPackageReference "SwipeCell" */,
 			);
 			productRefGroup = 807838E825DCEB0E009FF0E9 /* Products */;
 			projectDirPath = "";
@@ -642,6 +660,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		806E2EA62617566F00AFA883 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/SwiftUI-Introspect.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.3;
+			};
+		};
+		806E2EAC26175AE900AFA883 /* XCRemoteSwiftPackageReference "SwipeCell" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "file:///Users/ae/Library/Mobile%20Documents/com~apple~CloudDocs/mycode/SwipeCell";
+			requirement = {
+				branch = add_delay;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		806E2EA72617566F00AFA883 /* Introspect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 806E2EA62617566F00AFA883 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
+			productName = Introspect;
+		};
+		806E2EAD26175AE900AFA883 /* SwipeCell */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 806E2EAC26175AE900AFA883 /* XCRemoteSwiftPackageReference "SwipeCell" */;
+			productName = SwipeCell;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		807838FE25DD0A7A009FF0E9 /* myTherm.xcdatamodeld */ = {

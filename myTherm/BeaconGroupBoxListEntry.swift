@@ -29,13 +29,19 @@ struct BeaconGroupBoxListEntry: View {
         GroupBox(
             label:
                 HStack {
+                    Group {
                     Label(beacon.wrappedName, systemImage: "thermometer").foregroundColor(Color.blue)
                     Spacer()
+                    HStack {
+                        Image(systemName: "flag.fill").foregroundColor(.orange).imageScale(.small)
+                        Spacer().frame(width: 10)
+                    }
+                    .isHidden(!beacon.flag)
                     BeaconDownloadImageButton(beacon: beacon, activeDownload: getDownload(beacon: beacon))
-                    Spacer()
-                        .frame(width: 10)
+                    Spacer().frame(width: 10)
                     NavigationLink(destination: BeaconDetail(beacon: beacon)) {
-                        Image(systemName: "chevron.right").foregroundColor(.secondary).imageScale(.small)
+                        Image(systemName: "chevron.right").foregroundColor(.secondary) //.imageScale(.small)
+                    }
                     }
                 },
             content: {

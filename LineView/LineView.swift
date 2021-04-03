@@ -232,7 +232,7 @@ struct LineView: View {
                         Spacer()
                         Text(self.titleStrings[model.isShownTemperature ? 0 : 1])
                             .font(.body)
-                            .foregroundColor(Color.white)
+                            .foregroundColor(Color.primary)
                             .offset(x: -5, y: 0)
                     }
                     Spacer()

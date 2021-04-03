@@ -83,10 +83,10 @@ struct Line: View {
                 .drawingGroup()
             if dragMode == true {
                 self.verticalLine
-                    .stroke(Color.white, lineWidth: 2)
+                    .stroke(Color.primary, lineWidth: 2)
                     .offset(x: 0, y: 0)
                 Circle()
-                    .fill(Color.white)
+                    .fill(Color.primary)
                     .frame(width: 10, height: 10)
                     .offset(x: boundX, y: -circleY)
             }
