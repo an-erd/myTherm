@@ -66,7 +66,10 @@ extension Beacon {
     }
     
     public var wrappedLocalHistoryTemperature: [Double] {
-        guard localHistoryTemperature != nil else { return [] }
+        guard localHistoryTemperature != nil else {
+            print("wrappedLocalHistoryTemperature \(self.wrappedDeviceName) guard localHistoryTemperature != nil")
+            return []
+        }
         return localHistoryTemperature!
     }
     
@@ -83,7 +86,9 @@ extension Beacon {
 
     public var historyArray: [BeaconHistoryDataPoint] {
         let set = history as? Set<BeaconHistoryDataPoint> ?? []
-        
+        if let history = history {
+            print("\(self.wrappedDeviceName) historyArray.count() \(history.count)")
+        }
         return set.sorted {
             $0.wrappedTimeStamp < $1.wrappedTimeStamp
         }
@@ -91,6 +96,7 @@ extension Beacon {
 
     public var temperatureArray: [Double] {
         let new = historyArray.suffix(576).map { Double($0.temperature) }
+        print("\(self.wrappedDeviceName) temperatureArray.count() = \(new.count)")
         if new.count ==  0 {
             return []
         }
@@ -120,6 +126,11 @@ extension Beacon {
         guard let beaconadv = self.adv else { return "never" }
         guard let date = beaconadv.timestamp else { return "not available" }
         return getDateInterpretationString(date: date, nowDate: nowDate)
+    }
+    
+    public var historyCount: Int {
+        guard let history = self.history else { return 0 }
+        return history.count
     }
 }
 
@@ -160,6 +171,7 @@ extension Beacon {
 
 extension Beacon : Identifiable {
     public func copyHistoryArrayToLocalArray() {
+        print("copyHistoryArrayToLocalArray \(self.wrappedDeviceName)")
         self.localHistoryTemperature = self.temperatureArray
         self.localHistoryHumidity = self.humidityArray
         self.localHistoryTimestamp = self.dateArray

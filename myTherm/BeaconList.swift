@@ -89,8 +89,8 @@ struct BeaconList: View {
     
     func printBeaconListHistoryCount() {
         let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons()
-        for beacon in beacons {
-            print("\(beacon.wrappedDeviceName) historyCount \(beacon.wrappedLocalHistoryTemperature.count) distance \(beacon.localDistanceFromPosition)")
+        for beacon in beacons.sorted(by: { $0.wrappedDeviceName < $1.wrappedDeviceName }) {
+            print("\(beacon.wrappedDeviceName) historyCount \(beacon.wrappedLocalHistoryTemperature.count) overallCount \(beacon.historyCount) distance \(beacon.localDistanceFromPosition)")
         }
     }
     

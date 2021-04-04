@@ -148,6 +148,7 @@ func getDateInterpretationString(date: Date, nowDate: Date ) -> String {
 func getDateString(date: Date? ) -> String {
     let formatter2 = DateFormatter()
     formatter2.dateFormat = "yyyy/MM/dd HH:mm:ss"
+    formatter2.timeZone = TimeZone(secondsFromGMT: 0)
     
     if let date = date {
         return formatter2.string(from: date)
