@@ -47,10 +47,13 @@ class Download : ObservableObject {
      }
     
     private func updateProgress() {
-        if delegate != nil {
-        delegate?.downloadProgressUpdated(for: progress, for: uuid)
+        DispatchQueue.main.async {
+            
+            if self.delegate != nil {
+                self.delegate?.downloadProgressUpdated(for: self.progress, for: self.uuid)
         } else {
             print("updateProgress() delegate is nil")
+        }
         }
     }
 

@@ -10,13 +10,13 @@ import os
 /// background in how to set this all up.
 class MyBluetoothManager {
     static let shared = MyBluetoothManager()
-    var queue: DispatchQueue
+//    var queue: DispatchQueue
     var central: CBCentralManager
     
     private init() {
         print("MyBluetoothmanager init called")
-        queue = DispatchQueue(label: "CentralManager")
-        central = CBCentralManager(delegate: MyCentralManagerDelegate.shared, queue: queue)
+//        queue = DispatchQueue(label: "CentralManager")
+        central = CBCentralManager(delegate: MyCentralManagerDelegate.shared, queue: nil)
     }
 
     func setMoc(moc: NSManagedObjectContext){
@@ -42,7 +42,7 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
     private var lm = LocationManager()
     private var model = BeaconModel.shared
     private var doUpdateAdv: Bool = true
-    private var advQueue = DispatchQueue(label: "adv_queue")
+//    private var advQueue = DispatchQueue(label: "adv_queue")
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
@@ -61,7 +61,7 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
             print("central.state is .poweredOn")
             model.isBluetoothAuthorization = true
 //            stopScanAndLocationService()
-        startScanAndLocationService()
+            startScanAndLocationService()
         @unknown default:
             print("central.state is @unknown default")
         }
@@ -488,6 +488,7 @@ extension MyCentralManagerDelegate {
 //            (characteristicData.hexEncodedString(options: .upperCase) as String).group(by: 2, separator: " ")
         //        print("encoded data \(encodedData)")
     
+        
         DispatchQueue.main.async {
             let downloadManager = MyBluetoothManager.shared.downloadManager
             if characteristic.uuid == BeaconPeripheral.beaconRACPMeasurementValuesCharUUID {

@@ -38,6 +38,7 @@ struct LineView: View {
 
     var stepWidth: CGFloat {
         if beacon.wrappedLocalHistoryTemperature.count < 2 {
+            print("LineView count \(beacon.wrappedDeviceName) count \(beacon.wrappedLocalHistoryTemperature.count)")
             return 1
         }
         return dragWidth / CGFloat(beacon.wrappedLocalHistoryTemperature.count-1)

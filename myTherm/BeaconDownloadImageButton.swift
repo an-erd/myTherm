@@ -25,7 +25,9 @@ struct BeaconDownloadImageButton: View {
                 case .downloading_num, .downloading_data:
                     ProgressCircle(progress: CGFloat(beacon.localDownloadProgress), mode: .progress)
                 case .downloading_finished:
-                    ProgressCircle(mode: .idle)
+//                    ProgressCircle(mode: .idle)
+                    Image(systemName: "checkmark")
+
                 case .alldone:
                     Image(systemName: "checkmark")
                 case .cancelled:

@@ -87,6 +87,13 @@ struct BeaconList: View {
         }
     }
     
+    func printBeaconListHistoryCount() {
+        let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons()
+        for beacon in beacons {
+            print("\(beacon.wrappedDeviceName) historyCount \(beacon.wrappedLocalHistoryTemperature.count) distance \(beacon.localDistanceFromPosition)")
+        }
+    }
+    
     var body: some View {
         
         ScrollView {
@@ -188,6 +195,7 @@ struct BeaconList: View {
                 Spacer()
                 Button(action: {
                     // show debug settings dialog
+                        printBeaconListHistoryCount()
                 }
                 ) {
                     Image(systemName: "tortoise")
