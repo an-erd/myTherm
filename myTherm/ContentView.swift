@@ -15,12 +15,19 @@ struct ContentView: View {
         NavigationView {
             VStack {
                 BeaconList()
-                    .navigationBarTitle("Beacons")
                     .listStyle(GroupedListStyle())
                     .environmentObject(lm)
-
             }
+            .navigationTitle("Beacons")
+            .navigationViewStyle(StackNavigationViewStyle())
+//            .navigationBarTitleDisplayMode(.inline)
+//            .navigationBarTitle("Beacons")
+//            .toolbar(content: {
+//                 ToolbarItem(placement: .principal, content: {
+//                 Text("Beacons")
+//              })})
         }
+
         .onAppear {
             MyBluetoothManager.shared.setMoc(moc: viewContext)
         }

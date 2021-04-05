@@ -22,8 +22,8 @@ struct BeaconList: View {
     
     @State private var editMode: EditMode = .inactive
     
-    @State private var doScan: Bool = true
-    @State private var doUpdateAdv: Bool = true
+    @State private var doScan: Bool = false
+    @State private var doUpdateAdv: Bool = false
     
     @State private var doFilter: Bool = false
     @State var predicateTimeFilter: NSPredicate?
@@ -126,20 +126,33 @@ struct BeaconList: View {
 //                                     foregroundColor: .white,
 //                                     backgroundColor: Color("alertBlue"))
 //                
-                //                    Toggle("Adv", isOn: $doUpdateAdv)
-                //                        .onChange(of: doUpdateAdv, perform: { value in
-                //                            if value == true {
-                //                                MyCentralManagerDelegate.shared.startUpdateAdv()
-                //                            } else {
-                //                                MyCentralManagerDelegate.shared.stopUpdateAdv()
-                //                            }
-                //                            print("toggle update adv \(value)")
-                //                        })
-                //                    Button(action: {
-                //                        MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
-                //                    }) {
-                //                        Image(systemName: "icloud.and.arrow.down")
-                //                    }
+                HStack {
+                    Toggle("Scan", isOn: $doScan)
+                        .onChange(of: doScan, perform: { value in
+                            if value == true {
+                                MyCentralManagerDelegate.shared.startScanAndLocationService()
+                            } else {
+                                MyCentralManagerDelegate.shared.stopScanAndLocationService()
+                            }
+                            print("toggle update adv \(value)")
+                        })
+                    Spacer()
+                    Toggle("Adv", isOn: $doUpdateAdv)
+                        .onChange(of: doUpdateAdv, perform: { value in
+                            if value == true {
+                                MyCentralManagerDelegate.shared.startUpdateAdv()
+                            } else {
+                                MyCentralManagerDelegate.shared.stopUpdateAdv()
+                            }
+                            print("toggle update adv \(value)")
+                        })
+                    Button(action: {
+                        MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
+                    }) {
+                        Image(systemName: "icloud.and.arrow.down")
+                    }
+
+                }
             }
             withAnimation {
                 BeaconGroupBoxList(predicate: compoundPredicate)
@@ -147,6 +160,7 @@ struct BeaconList: View {
             //                BeaconBottomBarStatusFilterButton(filterActive: doFilter, filterByTime: $filterByTime, filterByLocation: $filterByLocation, filterByFlag: $filterByFlag)
             //            }
         }
+
         .onAppear(perform: {
             self.onAppear()
             DispatchQueue.main.async {
@@ -178,7 +192,7 @@ struct BeaconList: View {
                     .padding()
                     //                    .border(Color.white)
                 }
-                
+
                 Spacer()
                 ZStack {
                     BeaconBottomBarStatusFilterButton(

@@ -244,8 +244,16 @@ extension MyCentralManagerDelegate {
         
         //        print(advertisementData)
         
+        let log = OSLog(
+            subsystem: "com.anerd.myTherm",
+            category: "download"
+        )
+        os_signpost(.begin, log: log, name: "didDiscover Peripheral")
+
         let (extractBeacon, extractBeaconAdv) = extractBeaconFromAdvertisment(advertisementData: advertisementData)
         if(extractBeacon.beacon_version != 4){
+            os_signpost(.end, log: log, name: "didDiscover Peripheral")
+
             return
         }
 
@@ -311,12 +319,20 @@ extension MyCentralManagerDelegate {
                 beaconloc.timestamp = Date()
             }
         }
+        os_signpost(.end, log: log, name: "didDiscover Peripheral")
+
         //        PersistenceController.shared.saveBackgroundContext(backgroundContext: MyCentralManagerDelegate.shared.moc)
         // PROFIL
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         print("centralManager didConnect peripheral")
+        let log = OSLog(
+            subsystem: "com.anerd.myTherm",
+            category: "download"
+        )
+        os_signpost(.event, log: log, name: "didConnect Peripheral")
+
         peripheral.delegate = self
         MyBluetoothManager.shared.discoveredPeripheral = peripheral
         central.stopScan()
@@ -336,6 +352,12 @@ extension MyCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral,
                         error: Error?) {
         print("centralManager didDisconnect peripheral")
+        let log = OSLog(
+            subsystem: "com.anerd.myTherm",
+            category: "download"
+        )
+        os_signpost(.event, log: log, name: "didDisconnectPeripheral Peripheral")
+
         peripheral.delegate = nil
         MyBluetoothManager.shared.discoveredPeripheral = nil
 //        central.scanForPeripherals(withServices: nil, options: nil)
@@ -452,6 +474,12 @@ extension MyCentralManagerDelegate {
         
         if ( MyBluetoothManager.shared.racpMeasurementValueNotifying == true) {
             if ( MyBluetoothManager.shared.racpControlPointNotifying == true) {
+                let log = OSLog(
+                    subsystem: "com.anerd.myTherm",
+                    category: "download"
+                )
+                os_signpost(.event, log: log, name: "didUpdateNotificationStateFor get num")
+
                 let rawPacket: [UInt8] = [04, 01]   // get num
                 let data = Data(rawPacket)
                 if let downloadHistory = MyBluetoothManager.shared.downloadManager.activeDownload {
@@ -489,9 +517,15 @@ extension MyCentralManagerDelegate {
         //        print("encoded data \(encodedData)")
     
         
+        let log = OSLog(
+            subsystem: "com.anerd.myTherm",
+            category: "download"
+        )
+
         DispatchQueue.main.async {
             let downloadManager = MyBluetoothManager.shared.downloadManager
             if characteristic.uuid == BeaconPeripheral.beaconRACPMeasurementValuesCharUUID {
+                os_signpost(.begin, log: log, name: "didUpdateValueFor")
                 //            downloadManager.counterMeasurementValueNotification += 1
                 let seqNumber = UInt16_decode(msb: characteristicData[1], lsb: characteristicData[0])
                 let epochTime = UInt32_decode(msb1: characteristicData[5],msb0: characteristicData[4], lsb1: characteristicData[3], lsb0: characteristicData[2])
@@ -507,6 +541,8 @@ extension MyCentralManagerDelegate {
                     download.numEntriesReceived += 1
                     download.progress = Float(download.numEntriesReceived) / Float(download.numEntriesAll)
                 }
+                os_signpost(.end, log: log, name: "didUpdateValueFor")
+
             }
             
             if characteristic.uuid == BeaconPeripheral.beaconRACPControlPointCharUUID {
@@ -526,15 +562,23 @@ extension MyCentralManagerDelegate {
                           let transferCharacteristic = MyBluetoothManager.shared.racpControlPointChar
                     else { return }
                     let rawPacket: [UInt8] = [01, 01]   // get all
+                    
                     let data = Data(rawPacket)
                     discoveredPeripheral.writeValue(data, for: transferCharacteristic, type: .withResponse)
+                    os_signpost(.begin, log: log, name: "getAllHistory")
+
                 } else {
                     if let downloadHistory = MyBluetoothManager.shared.downloadManager.activeDownload {
                         //                    print("Done received value \(MyBluetoothManager.shared.counterMeasurementValueNotification), control \(MyBluetoothManager.shared.counterControlPointNotification)")
                         print("beaconHistory.count \(downloadHistory.history.count)")
                         print("cleanup called")
                         downloadHistory.status = .downloading_finished
-                        
+                        let log = OSLog(
+                            subsystem: "com.anerd.myTherm",
+                            category: "download"
+                        )
+                        os_signpost(.end, log: log, name: "getAllHistory")
+
                         if let connectto = MyBluetoothManager.shared.connectedPeripheral {
                             MyBluetoothManager.shared.downloadManager.mergeHistoryToStore(uuid: connectto.identifier)
                         }

@@ -27,53 +27,5 @@
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "B98ECBA8-0A34-4282-8E15-965BFB8B974F"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ProgressCircle/ProgressCircle.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "55"
-            endingLineNumber = "55"
-            landmarkName = "body"
-            landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "B98ECBA8-0A34-4282-8E15-965BFB8B974F - 689f4b900bad51dc"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Thermometer.ProgressCircle.ForegroundCircle.body.getter : some"
-                  moduleName = "Thermometer"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/ae/Library/Mobile%20Documents/com~apple~CloudDocs/mycode/myTherm/ProgressCircle/ProgressCircle.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "55"
-                  endingLineNumber = "55"
-                  offsetFromSymbolStart = "1452">
-               </Location>
-               <Location
-                  uuid = "B98ECBA8-0A34-4282-8E15-965BFB8B974F - dc904f486e4af128"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in Thermometer.ProgressCircle.ForegroundCircle.body.getter : some"
-                  moduleName = "Thermometer"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/ae/Library/Mobile%20Documents/com~apple~CloudDocs/mycode/myTherm/ProgressCircle/ProgressCircle.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "55"
-                  endingLineNumber = "55"
-                  offsetFromSymbolStart = "24">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

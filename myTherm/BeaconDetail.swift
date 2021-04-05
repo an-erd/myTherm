@@ -50,7 +50,7 @@ struct BeaconDetail: View {
             }
         }
         .navigationTitle(beacon.name!)
-        .navigationBarTitleDisplayMode(.inline)
+//        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             Button(action: {
                 MyBluetoothManager.shared.downloadManager.addBeaconToDownloadQueue(beacon: beacon)

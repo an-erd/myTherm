@@ -9,6 +9,7 @@ import Foundation
 import CoreBluetooth
 import CoreData
 import SwiftUI
+import os.signpost
 
 enum DownloadManagerStatus{
     case idle, processing, done
@@ -142,6 +143,13 @@ class DownloadManager: NSObject, ObservableObject {
             return
         }
 
+        
+        let log = OSLog(
+            subsystem: "com.anerd.myTherm",
+            category: "download"
+        )
+        os_signpost(.begin, log: log, name: "mergeHistoryToStore")
+
         var dateLastHistoryEntry = Date.init(timeIntervalSince1970: 0)
         let historySorted = beacon.historyArray
         print("history count before \(String(describing: historySorted.count))")
@@ -166,6 +174,8 @@ class DownloadManager: NSObject, ObservableObject {
         PersistenceController.shared.saveBackgroundContext(backgroundContext: self.moc)
         beacon.copyHistoryArrayToLocalArray()
         
+        os_signpost(.end, log: log, name: "mergeHistoryToStore")
+
         print("history count after \(String(describing: beacon.historyArray.count))")
         
         print("Temp min \(beacon.temperatureArray.min() ?? -40) max \(beacon.temperatureArray.max() ?? -40)")

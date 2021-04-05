@@ -97,8 +97,10 @@ struct PersistenceController {
 //            }
 //        })
 //        persistentContainerQueue.maxConcurrentOperationCount = 1
-        
+//        container.viewContext.automaticallyMergesChangesFromParent = false
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        container.viewContext.undoManager = nil
+//        container.viewContext.shouldDeleteInaccessibleFaults = true
         container.viewContext.transactionAuthor = appTransactionAuthorName
 
         // Pin the viewContext to the current generation token and set it to keep itself up to date with local changes.
@@ -109,6 +111,20 @@ struct PersistenceController {
             fatalError("###\(#function): Failed to pin viewContext to the current generation:\(error)")
         }
     }
+
+    /**
+     Creates and configures a private queue context.
+    */
+    private func newTaskContext() -> NSManagedObjectContext {
+        // Create a private queue context.
+        let taskContext = container.newBackgroundContext()
+        taskContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        // Set unused undoManager to nil for macOS (it is nil by default on iOS)
+        // to reduce resource requirements.
+        taskContext.undoManager = nil
+        return taskContext
+    }
+    
 
     func saveBackgroundContext(backgroundContext: NSManagedObjectContext) {
         print("saveBackgroundContext")

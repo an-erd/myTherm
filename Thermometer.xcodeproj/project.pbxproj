@@ -223,10 +223,10 @@
 		8080269725DD1E77000C377D /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				807838FE25DD0A7A009FF0E9 /* myTherm.xcdatamodeld */,
 				806A52B825FA813300298441 /* BeaconExtension.swift */,
 				806A52B725FA813300298441 /* BeaconLocationExtension.swift */,
 				806A52B925FA813300298441 /* BeaconStruct.swift */,
-				807838FE25DD0A7A009FF0E9 /* myTherm.xcdatamodeld */,
 				808E67F325E0ED2100D37C51 /* BeaconLocation+CoreDataClass.swift */,
 				808E67F425E0ED2100D37C51 /* BeaconLocation+CoreDataProperties.swift */,
 				808026F625DD6E86000C377D /* BeaconAdv+CoreDataClass.swift */,

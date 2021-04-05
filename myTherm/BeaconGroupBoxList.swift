@@ -78,11 +78,12 @@ struct BeaconGroupBoxList: View {
                     .cornerRadius(10)
                     .padding(10)
             }
+//            .navigationTitle("Beacons")
         }
         .edgesIgnoringSafeArea(.bottom)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear(perform: {
-            _ = self.timer
+//            _ = self.timer
         })
     }
 }
