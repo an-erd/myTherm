@@ -144,6 +144,16 @@ extension MyCentralManagerDelegate {
         return []
     }
     
+    public func copyHistoryArrayToLocalArray(context: NSManagedObjectContext, uuid: UUID) {
+        context.perform {
+            if let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: context, with: uuid) {
+                beacon.copyHistoryArrayToLocalArray()
+            } else {
+                print("copyHistoryArrayToLocalArray beacon not found")
+            }
+        }
+    }
+
     func extractBeaconFromAdvertisment(advertisementData: [String : Any]) -> ( ExtractBeacon, ExtractBeaconAdv ) {
         var extractBeacon = ExtractBeacon(beacon_version: 0, company_id: 0, id_maj: "", id_min: "", name: "", descr: "")
         var extractBeaconAdv = ExtractBeaconAdv(temperature: -40.0, humidity: 0, battery: 0, accel_x: 0, accel_y: 0, accel_z: 0, rawdata: "")
@@ -555,80 +565,80 @@ extension MyCentralManagerDelegate {
             category: "download"
         )
         
-        DispatchQueue.main.async {
-            let downloadManager = MyBluetoothManager.shared.downloadManager
-            if characteristic.uuid == BeaconPeripheral.beaconRACPMeasurementValuesCharUUID {
-                os_signpost(.begin, log: log, name: "didUpdateValueFor")
-                //            downloadManager.counterMeasurementValueNotification += 1
-                let seqNumber = UInt16_decode(msb: characteristicData[1], lsb: characteristicData[0])
-                let epochTime = UInt32_decode(msb1: characteristicData[5],msb0: characteristicData[4], lsb1: characteristicData[3], lsb0: characteristicData[2])
-                let temperature = getSHT3temperatureValue(msb: characteristicData[6], lsb: characteristicData[7])
-                let humidity = getSHT3humidityValue(msb: characteristicData[8], lsb: characteristicData[9])
-                
-                let dataPoint = BeaconHistoryDataPointLocal(
-                    sequenceNumber: seqNumber, humidity: humidity, temperature: temperature,
-                    timestamp: NSDate(timeIntervalSince1970: TimeInterval(epochTime)) as Date)
-                
-                if let download = downloadManager.activeDownload {
-                    download.history.append(dataPoint)
-                    download.numEntriesReceived += 1
+        let downloadManager = MyBluetoothManager.shared.downloadManager
+        if characteristic.uuid == BeaconPeripheral.beaconRACPMeasurementValuesCharUUID {
+            os_signpost(.begin, log: log, name: "didUpdateValueFor")
+            //            downloadManager.counterMeasurementValueNotification += 1
+            let seqNumber = UInt16_decode(msb: characteristicData[1], lsb: characteristicData[0])
+            let epochTime = UInt32_decode(msb1: characteristicData[5],msb0: characteristicData[4], lsb1: characteristicData[3], lsb0: characteristicData[2])
+            let temperature = getSHT3temperatureValue(msb: characteristicData[6], lsb: characteristicData[7])
+            let humidity = getSHT3humidityValue(msb: characteristicData[8], lsb: characteristicData[9])
+            
+            let dataPoint = BeaconHistoryDataPointLocal(
+                sequenceNumber: seqNumber, humidity: humidity, temperature: temperature,
+                timestamp: NSDate(timeIntervalSince1970: TimeInterval(epochTime)) as Date)
+            
+            if let download = downloadManager.activeDownload {
+                download.history.append(dataPoint)
+                download.numEntriesReceived += 1
+                let interval = Int(download.numEntriesAll / 40)
+                if Int(download.numEntriesReceived) % interval == 0 {
                     let moc = PersistenceController.shared.container.viewContext
                     self.updateBeaconDownloadProgress(context: moc, with: download.uuid,
                                                       progress: Float(download.numEntriesReceived) / Float(download.numEntriesAll) )
-                    os_signpost(.end, log: log, name: "didUpdateValueFor")
-                    
                 }
-            }
-            
-            if characteristic.uuid == BeaconPeripheral.beaconRACPControlPointCharUUID {
-                //            MyBluetoothManager.shared.counterControlPointNotification += 1
+                os_signpost(.end, log: log, name: "didUpdateValueFor")
                 
-                if (characteristicData[0] == 5) && (characteristicData[1] == 0) {
-                    let historyCount = UInt16_decode(msb: characteristicData[3] , lsb: characteristicData[2] )
-                    print("number of history points \(historyCount)")
-                    
-                    if let downloadHistory = MyBluetoothManager.shared.downloadManager.activeDownload {
-                        let moc = PersistenceController.shared.container.viewContext
-                        self.updateBeaconDownloadStatus(context: moc, with: downloadHistory.uuid, status: .downloading_data)
-                        downloadHistory.numEntriesAll = Int(historyCount)
-                        //                    downloadHistory.numEntriesReceived = 0
-                    }
-                    
-                    guard let discoveredPeripheral = MyBluetoothManager.shared.discoveredPeripheral,
-                          let transferCharacteristic = MyBluetoothManager.shared.racpControlPointChar
-                    else { return }
-                    let rawPacket: [UInt8] = [01, 01]   // get all
-                    
-                    let data = Data(rawPacket)
-                    discoveredPeripheral.writeValue(data, for: transferCharacteristic, type: .withResponse)
-                    os_signpost(.begin, log: log, name: "getAllHistory")
-                    
-                } else {
-                    if let downloadHistory = MyBluetoothManager.shared.downloadManager.activeDownload {
-                        //                    print("Done received value \(MyBluetoothManager.shared.counterMeasurementValueNotification), control \(MyBluetoothManager.shared.counterControlPointNotification)")
-                        print("beaconHistory.count \(downloadHistory.history.count)")
-                        print("cleanup called")
-                        let moc = PersistenceController.shared.container.viewContext
-                        self.updateBeaconDownloadStatus(context: moc, with: downloadHistory.uuid, status: .downloading_finished)
-                        
-                        let log = OSLog(
-                            subsystem: "com.anerd.myTherm",
-                            category: "download"
-                        )
-                        os_signpost(.end, log: log, name: "getAllHistory")
-                        
-                        if let connectto = MyBluetoothManager.shared.connectedPeripheral {
-                            MyBluetoothManager.shared.downloadManager.mergeHistoryToStore(uuid: connectto.identifier)
-                        }
-                        
-                        self.cleanup()
-                        downloadManager.status = .idle
-                        downloadManager.resume()
-                    }
-                }
             }
         }
         
+        if characteristic.uuid == BeaconPeripheral.beaconRACPControlPointCharUUID {
+            //            MyBluetoothManager.shared.counterControlPointNotification += 1
+            
+            if (characteristicData[0] == 5) && (characteristicData[1] == 0) {
+                let historyCount = UInt16_decode(msb: characteristicData[3] , lsb: characteristicData[2] )
+                print("number of history points \(historyCount)")
+                
+                if let downloadHistory = MyBluetoothManager.shared.downloadManager.activeDownload {
+                    let moc = PersistenceController.shared.container.viewContext
+                    self.updateBeaconDownloadStatus(context: moc, with: downloadHistory.uuid, status: .downloading_data)
+                    downloadHistory.numEntriesAll = Int(historyCount)
+                    //                    downloadHistory.numEntriesReceived = 0
+                }
+                
+                guard let discoveredPeripheral = MyBluetoothManager.shared.discoveredPeripheral,
+                      let transferCharacteristic = MyBluetoothManager.shared.racpControlPointChar
+                else { return }
+                let rawPacket: [UInt8] = [01, 01]   // get all
+                
+                let data = Data(rawPacket)
+                discoveredPeripheral.writeValue(data, for: transferCharacteristic, type: .withResponse)
+                os_signpost(.begin, log: log, name: "getAllHistory")
+                
+            } else {
+                if let downloadHistory = MyBluetoothManager.shared.downloadManager.activeDownload {
+                    //                    print("Done received value \(MyBluetoothManager.shared.counterMeasurementValueNotification), control \(MyBluetoothManager.shared.counterControlPointNotification)")
+                    print("beaconHistory.count \(downloadHistory.history.count)")
+                    print("cleanup called")
+                    let moc = PersistenceController.shared.container.viewContext
+                    self.updateBeaconDownloadStatus(context: moc, with: downloadHistory.uuid, status: .downloading_finished)
+                    
+                    let log = OSLog(
+                        subsystem: "com.anerd.myTherm",
+                        category: "download"
+                    )
+                    os_signpost(.end, log: log, name: "getAllHistory")
+                    
+                    if let connectto = MyBluetoothManager.shared.connectedPeripheral {
+                        MyBluetoothManager.shared.downloadManager.mergeHistoryToStore(uuid: connectto.identifier)
+                    }
+                    
+                    self.cleanup()
+                    downloadManager.status = .idle
+                    downloadManager.resume()
+                }
+            }
+        }
         
         func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
             if let error = error {

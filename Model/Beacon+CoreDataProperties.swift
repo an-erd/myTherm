@@ -69,7 +69,7 @@ extension Beacon {
     
     public var wrappedLocalHistoryTemperature: [Double] {
         guard localHistoryTemperature != nil else {
-            print("wrappedLocalHistoryTemperature \(self.wrappedDeviceName) guard localHistoryTemperature != nil")
+//            print("wrappedLocalHistoryTemperature \(self.wrappedDeviceName) guard localHistoryTemperature != nil")
             return []
         }
         return localHistoryTemperature!
@@ -88,9 +88,9 @@ extension Beacon {
 
     public var historyArray: [BeaconHistoryDataPoint] {
         let set = history as? Set<BeaconHistoryDataPoint> ?? []
-        if let history = history {
-            print("\(self.wrappedDeviceName) historyArray.count() \(history.count)")
-        }
+//        if let history = history {
+//            print("\(self.wrappedDeviceName) historyArray.count() \(history.count)")
+//        }
         return set.sorted {
             $0.wrappedTimeStamp < $1.wrappedTimeStamp
         }
@@ -98,7 +98,7 @@ extension Beacon {
 
     public var temperatureArray: [Double] {
         let new = historyArray.suffix(576).map { Double($0.temperature) }
-        print("\(self.wrappedDeviceName) temperatureArray.count() = \(new.count)")
+//        print("\(self.wrappedDeviceName) temperatureArray.count() = \(new.count)")
         if new.count ==  0 {
             return []
         }

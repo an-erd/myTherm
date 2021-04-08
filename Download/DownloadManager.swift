@@ -62,10 +62,13 @@ class DownloadManager: NSObject, ObservableObject {
         }
         if activeDownloadsFiltered.count == 0 {
             print("cleanupDownloadQueue")
+            print("\(Thread.current)")
             for download in activeDownloads {
                 download.status = DownloadStatus.waiting
             }
-            activeDownloads.removeAll()
+            localMoc.perform {
+                self.activeDownloads.removeAll()
+            }
         }
     }
     
@@ -163,7 +166,7 @@ class DownloadManager: NSObject, ObservableObject {
             
             var dateLastHistoryEntry = Date.init(timeIntervalSince1970: 0)
             let historySorted = beacon.historyArray
-            print("history count before \(String(describing: historySorted.count))")
+//            print("history count before \(String(describing: historySorted.count))")
             
             if historySorted.count > 0 {
                 dateLastHistoryEntry = historySorted.last!.wrappedTimeStamp
@@ -172,8 +175,8 @@ class DownloadManager: NSObject, ObservableObject {
             let downloadHistoryFiltered = activeDownload!.history.filter { dataPoint in
                 return dataPoint.timestamp > dateLastHistoryEntry
             }
-            print("download history count \(String(describing: activeDownload!.history.count))")
-            print("download history filtered count \(String(describing: downloadHistoryFiltered.count))")
+//            print("download history count \(String(describing: activeDownload!.history.count))")
+//            print("download history filtered count \(String(describing: downloadHistoryFiltered.count))")
             
             for data in downloadHistoryFiltered {
                 let newPoint = BeaconHistoryDataPoint(context: self.localMoc)        // TODO moc
@@ -184,15 +187,20 @@ class DownloadManager: NSObject, ObservableObject {
             }
             
             PersistenceController.shared.saveBackgroundContext(backgroundContext: self.localMoc)
-            
-            beacon.copyHistoryArrayToLocalArray()
+            if let uuid = beacon.uuid {
+                DispatchQueue.main.async {
+                    let moc = PersistenceController.shared.container.viewContext
+                    MyCentralManagerDelegate.shared.copyHistoryArrayToLocalArray(context: moc, uuid: uuid)
+                }
+            } else {
+                    print("MyCentralManagerDelegate.shared.copyHistoryArrayToLocalArray uuid nil")
+            }
             
             os_signpost(.end, log: log, name: "mergeHistoryToStore")
             
-            print("history count after \(String(describing: beacon.historyArray.count))")
-            
-            print("Temp min \(beacon.temperatureArray.min() ?? -40) max \(beacon.temperatureArray.max() ?? -40)")
-            print("Humidity min \(beacon.humidityArray.min() ?? 0) max \(beacon.humidityArray.max() ?? 0)")
+//            print("history count after \(String(describing: beacon.historyArray.count))")
+//            print("Temp min \(beacon.temperatureArray.min() ?? -40) max \(beacon.temperatureArray.max() ?? -40)")
+//            print("Humidity min \(beacon.humidityArray.min() ?? 0) max \(beacon.humidityArray.max() ?? 0)")
         }
     }
 }
