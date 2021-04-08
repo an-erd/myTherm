@@ -47,7 +47,7 @@ struct BeaconGroupBoxListEntry: View {
             content: {
                 VStack {
                     VStack {
-                        if beacon.adv != nil {
+                        if beacon.localAdv != nil {
                             HStack {
                                 BeaconValueView(beacon: beacon, localValue: localValue, nowDate: nowDate)
                                     .frame(width: 165)

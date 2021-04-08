@@ -50,7 +50,7 @@ struct BeaconValueView: View {
                     Text("no date")
                 }
             } else {
-                Unwrap(beacon.adv) { beaconadv in
+                Unwrap(beacon.localAdv) { beaconadv in
                     HStack(spacing: 5) {
                         Text(getTempValue(beaconadv: beaconadv)).font(.system(size: 24 * size, weight: .bold, design: .rounded)) + Text(" °C").font(.system(size: 14 * size, weight: .semibold, design: .rounded)).foregroundColor(.secondary)
                         
@@ -58,7 +58,7 @@ struct BeaconValueView: View {
                         Spacer()
                     }
                 }
-                Text(beacon.wrappedAdvDateInterpretation(nowDate: nowDate))
+                Text(beacon.wrappedLocalAdvDateInterpretation(nowDate: nowDate))
                     .font(.footnote).foregroundColor(.secondary) //.padding(.trailing, 4)
             }
             

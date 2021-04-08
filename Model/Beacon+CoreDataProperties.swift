@@ -36,6 +36,7 @@ extension Beacon {
     @NSManaged public var localDownloadProgress: Float
     @NSManaged public var localDownloadStatusValue: Int32
     @NSManaged public var localAdv: BeaconAdv?
+    @NSManaged public var localLocation: BeaconLocation?
     
     public var localDownloadStatus: DownloadStatus {
         get {
@@ -129,6 +130,12 @@ extension Beacon {
         return getDateInterpretationString(date: date, nowDate: nowDate)
     }
     
+    public func wrappedLocalAdvDateInterpretation(nowDate: Date) -> String {
+        guard let beaconadv = self.localAdv else { return "never" }
+        guard let date = beaconadv.timestamp else { return "not available" }
+        return getDateInterpretationString(date: date, nowDate: nowDate)
+    }
+
     public var historyCount: Int {
         guard let history = self.history else { return 0 }
         return history.count
@@ -179,15 +186,15 @@ extension Beacon : Identifiable {
     }
 }
 
-extension Beacon : DownloadDelegate {
-    
-    func downloadProgressUpdated(for progress: Float, for uuid: UUID) {
-        self.localDownloadProgress = progress
-    }
-    
-    func downloadStatusUpdated(for status: DownloadStatus, for uuid: UUID) {
-        self.localDownloadStatus = status
-        print("downloadStatusUpdated for \(self.wrappedDeviceName) to \(status)")
-    }
-    
-}
+//extension Beacon : DownloadDelegate {
+//    
+//    func downloadProgressUpdated(for progress: Float, for uuid: UUID) {
+//        self.localDownloadProgress = progress
+//    }
+//    
+//    func downloadStatusUpdated(for status: DownloadStatus, for uuid: UUID) {
+//        self.localDownloadStatus = status
+//        print("downloadStatusUpdated for \(self.wrappedDeviceName) to \(status)")
+//    }
+//    
+//}

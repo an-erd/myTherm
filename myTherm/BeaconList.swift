@@ -88,7 +88,7 @@ struct BeaconList: View {
     }
     
     func printBeaconListHistoryCount() {
-        let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons()
+        let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons(context: PersistenceController.shared.container.viewContext)
         for beacon in beacons.sorted(by: { $0.wrappedDeviceName < $1.wrappedDeviceName }) {
             print("\(beacon.wrappedDeviceName) historyCount \(beacon.wrappedLocalHistoryTemperature.count) overallCount \(beacon.historyCount) distance \(beacon.localDistanceFromPosition)")
         }
@@ -147,7 +147,7 @@ struct BeaconList: View {
                             print("toggle update adv \(value)")
                         })
                     Button(action: {
-                        MyBluetoothManager.shared.downloadManager.addAllBeaconToDownloadQueue()
+                        MyBluetoothManager.shared.downloadManager.addAllBeaconsToDownloadQueue()
                     }) {
                         Image(systemName: "icloud.and.arrow.down")
                     }

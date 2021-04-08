@@ -35,11 +35,11 @@ struct BeaconDetail: View {
                 }
                 
                 DisclosureGroup("PAYLOAD", isExpanded: $isExpandedPayload) {
-                    buildViewAdv(beaconadv: beacon.adv)
+                    buildViewAdv(beaconadv: beacon.localAdv)
                 }
 
                 DisclosureGroup("LAST LOCATION", isExpanded: $isExpandedLocation) {
-                    if let location = beacon.location {
+                    if let location = beacon.localLocation {
                         buildViewLocation(beaconlocation: location)
 //                            .frame(width: 200, height: 200)
                     } else {
@@ -53,7 +53,7 @@ struct BeaconDetail: View {
 //        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             Button(action: {
-                MyBluetoothManager.shared.downloadManager.addBeaconToDownloadQueue(beacon: beacon)
+                MyBluetoothManager.shared.downloadManager.addBeaconToDownloadQueue(uuid: beacon.uuid!)
             }) {
                 Image(systemName: "icloud.and.arrow.down")
 //                Image(systemName: "arrow.triangle.2.circlepath")

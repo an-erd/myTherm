@@ -7,10 +7,10 @@
 
 import Foundation
 
-protocol DownloadDelegate: AnyObject {
-    func downloadProgressUpdated(for progress: Float, for uuid: UUID)
-    func downloadStatusUpdated(for status: DownloadStatus, for uuid: UUID)
-}
+//protocol DownloadDelegate: AnyObject {
+//    func downloadProgressUpdated(for progress: Float, for uuid: UUID)
+//    func downloadStatusUpdated(for status: DownloadStatus, for uuid: UUID)
+//}
 
 public enum DownloadStatus: Int32 {
     case waiting = 0
@@ -26,49 +26,51 @@ public enum DownloadStatus: Int32 {
 
 class Download : ObservableObject {
 
-    weak var delegate: DownloadDelegate?
+//    weak var delegate: DownloadDelegate?
     
     var uuid: UUID
     var beacon: Beacon?
-    var status: DownloadStatus = .waiting {
-        didSet {
-            updateStatus()
-        }
-    }
+    var status: DownloadStatus = .waiting
+//    {
+//        didSet {
+//            updateStatus()
+//        }
+//    }
 
     var numEntriesAll: Int = 0
     var numEntriesReceived: Int = 0
     var history: [BeaconHistoryDataPointLocal] = []
         
-    var progress: Float = 0.0 {
-        didSet {
-            updateProgress()
-        }
-     }
-    
-    private func updateProgress() {
-        DispatchQueue.main.async {
-            
-            if self.delegate != nil {
-                self.delegate?.downloadProgressUpdated(for: self.progress, for: self.uuid)
-        } else {
-            print("updateProgress() delegate is nil")
-        }
-        }
-    }
+    var progress: Float = 0.0
+//    {
+//        didSet {
+//            updateProgress()
+//        }
+//     }
+//    
+//    private func updateProgress() {
+//        DispatchQueue.main.async {
+//
+//            if self.delegate != nil {
+//                self.delegate?.downloadProgressUpdated(for: self.progress, for: self.uuid)
+//        } else {
+//            print("updateProgress() delegate is nil")
+//        }
+//        }
+//    }
+//
+//    private func updateStatus() {
+//        if delegate != nil {
+//        delegate?.downloadStatusUpdated(for: status, for: uuid)
+//        } else {
+//            print("updateStatus() delegate is nil")
+//        }
+//    }
 
-    private func updateStatus() {
-        if delegate != nil {
-        delegate?.downloadStatusUpdated(for: status, for: uuid)
-        } else {
-            print("updateStatus() delegate is nil")
-        }
-    }
-
-    init(uuid: UUID, beacon: Beacon, delegate: DownloadDelegate ){
+    init(uuid: UUID, beacon: Beacon) { //}, delegate: DownloadDelegate ){
         self.uuid = uuid
         self.beacon = beacon
-        self.delegate = delegate
+//        self.delegate = delegate
     }
     
     deinit {

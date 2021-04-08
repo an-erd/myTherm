@@ -83,7 +83,7 @@ struct BeaconGroupBoxList: View {
         .edgesIgnoringSafeArea(.bottom)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear(perform: {
-//            _ = self.timer
+            _ = self.timer
         })
     }
 }

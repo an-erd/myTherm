@@ -16,39 +16,47 @@ enum DownloadManagerStatus{
 }
 
 class DownloadManager: NSObject, ObservableObject {
-    private var moc: NSManagedObjectContext!
+    private var localMoc: NSManagedObjectContext!
     var activeDownloads: [Download] = []
     var activeDownload: Download?
     var status: DownloadManagerStatus = .idle
     
     func setMoc(moc: NSManagedObjectContext) {
-        self.moc = moc
+        self.localMoc = moc
     }
 
-    func addBeaconToDownloadQueue(beacon: Beacon){
-        print("DownloadManager queue len \(activeDownloads.count)")
-        let activeDownloadsFiltered = activeDownloads.filter() {download in
-            return download.uuid == beacon.uuid
+    func addBeaconToDownloadQueue(uuid: UUID){
+        localMoc.perform { [self] in
+            print("DownloadManager queue len \(activeDownloads.count)")
+            let activeDownloadsFiltered = activeDownloads.filter() {download in
+                return download.uuid == uuid
+            }
+            if activeDownloadsFiltered.count > 0 {
+                print("DownloadManager addBeaconToDownloadQueue beacon already in queue")
+                return
+            }
+            
+            if let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: localMoc, with: uuid) {
+                let newDownload = Download(uuid: beacon.uuid!, beacon: beacon) // , delegate: beacon)
+                activeDownloads.append(newDownload)
+                
+                resume()
+            } else {
+                print("addBeaconToDownloadQueue beacon not found in store")
+            }
         }
-        if activeDownloadsFiltered.count > 0 {
-            print("DownloadManager addBeaconToDownloadQueue beacon already in queue")
-            return
-        }
-        
-        let newDownload = Download(uuid: beacon.uuid!, beacon: beacon, delegate: beacon)
-        activeDownloads.append(newDownload)
-        
-        resume()
     }
     
-    func addAllBeaconToDownloadQueue() {
-        let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons()
-        for beacon in beacons {
-            addBeaconToDownloadQueue(beacon: beacon)
+    func addAllBeaconsToDownloadQueue() {
+        localMoc.perform { [self] in
+            let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons(context: localMoc)
+            for beacon in beacons {
+                addBeaconToDownloadQueue(uuid: beacon.uuid!)
+            }
         }
     }
     
-    func cleanupDownloadQueue() {
+    private func cleanupDownloadQueue() {
         let activeDownloadsFiltered = activeDownloads.filter() {download in
             return download.status == .waiting
         }
@@ -62,35 +70,38 @@ class DownloadManager: NSObject, ObservableObject {
     }
     
     func resume() {
-        print("DownloadManager resume() status \(status)")
-        switch status {
-        case .idle:
-            let activeDownloadsFiltered = activeDownloads.filter() {download in
-                return download.status == .waiting
+        localMoc.perform { [self] in
+            print("DownloadManager resume() status \(status)")
+            print("\(Thread.current)")
+            switch status {
+            case .idle:
+                let activeDownloadsFiltered = activeDownloads.filter() {download in
+                    return download.status == .waiting
+                }
+                print("DownloadManager resume() activeDownload waiting count \(activeDownloadsFiltered.count)")
+                if activeDownloadsFiltered.count > 0 {
+                    startDownload(download: activeDownloadsFiltered.first!)
+                } else {
+                    status = .done
+                    resume()
+                }
+            case .processing:
+                return
+            case .done:
+                cleanupDownloadQueue()
+                status = .idle
+                return
             }
-            print("DownloadManager resume() activeDownload waiting count \(activeDownloadsFiltered.count)")
-            if activeDownloadsFiltered.count > 0 {
-                startDownload(download: activeDownloadsFiltered.first!)
-            } else {
-                status = .done
-                resume()
-            }
-        case .processing:
-            return
-        case .done:
-            cleanupDownloadQueue()
-            status = .idle
-            return
         }
     }
     
     @objc
-    func connectTimerFire() {
+    private func connectTimerFire() {
         print("connectTimerFire")
         cancelDownload()
     }
     
-    func startDownload(download: Download) {
+    private func startDownload(download: Download) {
         download.status = .connecting
         activeDownload = download
         self.status = .processing
@@ -118,7 +129,7 @@ class DownloadManager: NSObject, ObservableObject {
         }
     }
     
-    func cancelDownload() {
+    private func cancelDownload() {
         print("cancelDownload")
         if let connectedPeripheral = MyBluetoothManager.shared.connectedPeripheral{
             MyBluetoothManager.shared.central.cancelPeripheralConnection(connectedPeripheral)
@@ -133,53 +144,55 @@ class DownloadManager: NSObject, ObservableObject {
     }
     
     func mergeHistoryToStore(uuid: UUID) {
-        guard (activeDownload?.history) != nil else {
-            print("mergeHistoryToStore downloadHistory error")
-            return
+        localMoc.perform { [self] in
+            guard (activeDownload?.history) != nil else {
+                print("mergeHistoryToStore downloadHistory error")
+                return
+            }
+            
+            guard let beacon = activeDownload?.beacon else {
+                print("mergeHistoryToStore fetchBeacon error")
+                return
+            }
+            
+            let log = OSLog(
+                subsystem: "com.anerd.myTherm",
+                category: "download"
+            )
+            os_signpost(.begin, log: log, name: "mergeHistoryToStore")
+            
+            var dateLastHistoryEntry = Date.init(timeIntervalSince1970: 0)
+            let historySorted = beacon.historyArray
+            print("history count before \(String(describing: historySorted.count))")
+            
+            if historySorted.count > 0 {
+                dateLastHistoryEntry = historySorted.last!.wrappedTimeStamp
+            }
+            
+            let downloadHistoryFiltered = activeDownload!.history.filter { dataPoint in
+                return dataPoint.timestamp > dateLastHistoryEntry
+            }
+            print("download history count \(String(describing: activeDownload!.history.count))")
+            print("download history filtered count \(String(describing: downloadHistoryFiltered.count))")
+            
+            for data in downloadHistoryFiltered {
+                let newPoint = BeaconHistoryDataPoint(context: self.localMoc)        // TODO moc
+                newPoint.humidity = data.humidity
+                newPoint.temperature = data.temperature
+                newPoint.timestamp = data.timestamp
+                beacon.addToHistory(newPoint)
+            }
+            
+            PersistenceController.shared.saveBackgroundContext(backgroundContext: self.localMoc)
+            
+            beacon.copyHistoryArrayToLocalArray()
+            
+            os_signpost(.end, log: log, name: "mergeHistoryToStore")
+            
+            print("history count after \(String(describing: beacon.historyArray.count))")
+            
+            print("Temp min \(beacon.temperatureArray.min() ?? -40) max \(beacon.temperatureArray.max() ?? -40)")
+            print("Humidity min \(beacon.humidityArray.min() ?? 0) max \(beacon.humidityArray.max() ?? 0)")
         }
-        
-        guard let beacon = activeDownload?.beacon else {
-            print("mergeHistoryToStore fetchBeacon error")
-            return
-        }
-
-        
-        let log = OSLog(
-            subsystem: "com.anerd.myTherm",
-            category: "download"
-        )
-        os_signpost(.begin, log: log, name: "mergeHistoryToStore")
-
-        var dateLastHistoryEntry = Date.init(timeIntervalSince1970: 0)
-        let historySorted = beacon.historyArray
-        print("history count before \(String(describing: historySorted.count))")
-
-        if historySorted.count > 0 {
-            dateLastHistoryEntry = historySorted.last!.wrappedTimeStamp
-        }
-
-        let downloadHistoryFiltered = activeDownload!.history.filter { dataPoint in
-            return dataPoint.timestamp > dateLastHistoryEntry
-        }
-        print("download history count \(String(describing: activeDownload!.history.count))")
-        print("download history filtered count \(String(describing: downloadHistoryFiltered.count))")
-
-        for data in downloadHistoryFiltered {
-            let newPoint = BeaconHistoryDataPoint(context: self.moc)
-            newPoint.humidity = data.humidity
-            newPoint.temperature = data.temperature
-            newPoint.timestamp = data.timestamp
-            beacon.addToHistory(newPoint)
-        }
-        PersistenceController.shared.saveBackgroundContext(backgroundContext: self.moc)
-        beacon.copyHistoryArrayToLocalArray()
-        
-        os_signpost(.end, log: log, name: "mergeHistoryToStore")
-
-        print("history count after \(String(describing: beacon.historyArray.count))")
-        
-        print("Temp min \(beacon.temperatureArray.min() ?? -40) max \(beacon.temperatureArray.max() ?? -40)")
-        print("Humidity min \(beacon.humidityArray.min() ?? 0) max \(beacon.humidityArray.max() ?? 0)")
     }
 }
-

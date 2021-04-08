@@ -57,7 +57,7 @@ struct BeaconDownloadViewEntry_Previews_Container : View {
     var beacon: Beacon = PersistenceController.preview.container.viewContext.registeredObjects.first(where: { $0 is Beacon }) as! Beacon
     
     var body: some View {
-        BeaconDownloadViewEntry(beacon: beacon, download: Download(uuid: beacon.uuid!, beacon: beacon, delegate: beacon))
+        BeaconDownloadViewEntry(beacon: beacon, download: Download(uuid: beacon.uuid!, beacon: beacon)) //, delegate: beacon))
      }
     
 }

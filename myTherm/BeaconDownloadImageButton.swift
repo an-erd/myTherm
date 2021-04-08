@@ -14,7 +14,7 @@ struct BeaconDownloadImageButton: View {
 
     var body: some View {
         Button(action: {
-            MyBluetoothManager.shared.downloadManager.addBeaconToDownloadQueue(beacon: beacon)
+            MyBluetoothManager.shared.downloadManager.addBeaconToDownloadQueue(uuid: beacon.uuid!)
         }) {
             if activeDownload != nil {
                 switch beacon.localDownloadStatus {
