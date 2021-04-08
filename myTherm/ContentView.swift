@@ -29,7 +29,7 @@ struct ContentView: View {
         }
 
         .onAppear {
-            MyBluetoothManager.shared.setMoc(moc: viewContext)
+//            MyBluetoothManager.shared.setMoc(moc: viewContext)
         }
         .onChange(of: scenePhase) { phase in
             switch phase {

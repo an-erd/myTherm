@@ -35,6 +35,7 @@ extension Beacon {
     @NSManaged public var localHistoryTimestamp: [Date]?
     @NSManaged public var localDownloadProgress: Float
     @NSManaged public var localDownloadStatusValue: Int32
+    @NSManaged public var localAdv: BeaconAdv?
     
     public var localDownloadStatus: DownloadStatus {
         get {

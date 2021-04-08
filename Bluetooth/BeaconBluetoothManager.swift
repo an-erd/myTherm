@@ -4,26 +4,13 @@ import CoreLocation
 import CoreData
 import os
 
-/// This manages a bluetooth peripheral. This is intended as a starting point
-/// for you to customise from.
-/// Read http://www.splinter.com.au/2019/05/18/ios-swift-bluetooth-le for a
-/// background in how to set this all up.
 class MyBluetoothManager {
-    static let shared = MyBluetoothManager()
-//    var queue: DispatchQueue
-    var central: CBCentralManager
-    
-    private init() {
-        print("MyBluetoothmanager init called")
-//        queue = DispatchQueue(label: "CentralManager")
-        central = CBCentralManager(delegate: MyCentralManagerDelegate.shared, queue: nil)
-    }
 
-    func setMoc(moc: NSManagedObjectContext){
-        MyCentralManagerDelegate.shared.setMoc(moc: moc)
-        downloadManager.setMoc(moc: moc)
-    }
-    
+    static let shared = MyBluetoothManager()
+    var queue: DispatchQueue
+    var central: CBCentralManager
+    var localMoc: NSManagedObjectContext
+
     var downloadManager = DownloadManager()
     
     // current device
@@ -34,15 +21,24 @@ class MyBluetoothManager {
     var racpControlPointNotifying: Bool = false
     var racpMeasurementValueNotifying: Bool = false
     var connectTimer: Timer?
+
+    private init() {
+        print("MyBluetoothmanager init called")
+        queue = DispatchQueue(label: "CentralManager")
+        central = CBCentralManager(delegate: MyCentralManagerDelegate.shared, queue: queue)
+        localMoc = PersistenceController.shared.container.newBackgroundContext()
+        MyCentralManagerDelegate.shared.setMoc(moc: localMoc)
+        downloadManager.setMoc(moc: localMoc)   // TODO
+    }
+    
 }
 
 class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     static let shared = MyCentralManagerDelegate()
-    private var moc: NSManagedObjectContext!
+    private var localMoc: NSManagedObjectContext!
     private var lm = LocationManager()
     private var model = BeaconModel.shared
     private var doUpdateAdv: Bool = true
-//    private var advQueue = DispatchQueue(label: "adv_queue")
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
@@ -59,9 +55,11 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
             print("central.state is .poweredOff")
         case .poweredOn:
             print("central.state is .poweredOn")
-            model.isBluetoothAuthorization = true
-//            stopScanAndLocationService()
-            startScanAndLocationService()
+            DispatchQueue.main.async {
+                self.model.isBluetoothAuthorization = true
+            }
+            stopScanAndLocationService()
+//            startScanAndLocationService()
         @unknown default:
             print("central.state is @unknown default")
         }
@@ -91,10 +89,10 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
 extension MyCentralManagerDelegate {
     
     func setMoc(moc: NSManagedObjectContext){
-        if (self.moc == nil) {
+        if (self.localMoc == nil) {
             print("MyCentralManagerDelegate moc not set yet")
         }
-        self.moc = moc
+        self.localMoc = moc
         print("MyCentralManagerDelegate moc set")
     }
     
@@ -104,7 +102,7 @@ extension MyCentralManagerDelegate {
         
         // Perform the fetch with the predicate
         do {
-            let beacons: [Beacon] = try MyCentralManagerDelegate.shared.moc.fetch(fetchRequest)
+            let beacons: [Beacon] = try MyCentralManagerDelegate.shared.localMoc.fetch(fetchRequest)
             return beacons.first
         } catch {
             let fetchError = error as NSError
@@ -117,7 +115,7 @@ extension MyCentralManagerDelegate {
     func fetchAllBeacons() -> [Beacon] {
         let fetchRequest: NSFetchRequest<Beacon> = Beacon.fetchRequest()
         do {
-            let beacons: [Beacon] = try MyCentralManagerDelegate.shared.moc.fetch(fetchRequest)
+            let beacons: [Beacon] = try MyCentralManagerDelegate.shared.localMoc.fetch(fetchRequest)
             return beacons
         } catch {
             let fetchError = error as NSError
@@ -257,12 +255,12 @@ extension MyCentralManagerDelegate {
             return
         }
 
-        DispatchQueue.main.async {
+        localMoc.performAndWait {
             var beaconFind: Beacon?
             if let alreadyAvailableBeacon = self.fetchBeacon(with: peripheral.identifier) {
                 beaconFind = alreadyAvailableBeacon
             } else {
-                beaconFind = Beacon(context: MyCentralManagerDelegate.shared.moc)
+                beaconFind = Beacon(context: MyCentralManagerDelegate.shared.localMoc)
                 if let beacon = beaconFind {
                     beacon.uuid = peripheral.identifier
                     beacon.company_id = extractBeacon.company_id
@@ -279,7 +277,6 @@ extension MyCentralManagerDelegate {
                     print("inverse \(newadv.beacon?.name ?? "inverse beacon not set")")
                 }
             }
-            
             beaconFind?.localTimestamp = Date()
             if !self.doUpdateAdv {
                 return
@@ -290,7 +287,7 @@ extension MyCentralManagerDelegate {
                     if beacon.adv != nil {
                         // nothing
                     } else {
-                        beacon.adv = BeaconAdv(context: MyCentralManagerDelegate.shared.moc)
+                        beacon.adv = BeaconAdv(context: MyCentralManagerDelegate.shared.localMoc)
                     }
                 }
             }
@@ -311,18 +308,29 @@ extension MyCentralManagerDelegate {
             if let location = self.lm.location {
                 //            print(location)
                 if let _ = beacon.location { } else {
-                    beacon.location = BeaconLocation(context: MyCentralManagerDelegate.shared.moc)
+                    beacon.location = BeaconLocation(context: MyCentralManagerDelegate.shared.localMoc)
                 }
                 guard let beaconloc = beacon.location else { return }
                 beaconloc.latitude = location.latitude
                 beaconloc.longitude = location.longitude
                 beaconloc.timestamp = Date()
             }
+            
+            if localMoc.hasChanges {
+                PersistenceController.shared.persistentContainerQueue.addOperation(){
+                    self.localMoc.performAndWait{
+                        do {
+                            //update core data
+                            try self.localMoc.save()
+                        } catch let error as NSError  {
+                            print("Could not save \(error), \(error.userInfo)")
+                        }
+                    }
+                    
+                }
+            }
         }
         os_signpost(.end, log: log, name: "didDiscover Peripheral")
-
-        //        PersistenceController.shared.saveBackgroundContext(backgroundContext: MyCentralManagerDelegate.shared.moc)
-        // PROFIL
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
@@ -344,7 +352,9 @@ extension MyCentralManagerDelegate {
         
         MyBluetoothManager.shared.connectTimer = nil
         if let downloadHistory =  MyBluetoothManager.shared.downloadManager.activeDownload {
-            downloadHistory.status = .downloading_num
+            DispatchQueue.main.async {
+                downloadHistory.status = .downloading_num
+            }
         }
         peripheral.discoverServices([BeaconPeripheral.beaconRemoteServiceUUID])
     }
