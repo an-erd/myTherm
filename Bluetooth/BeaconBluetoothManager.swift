@@ -581,7 +581,7 @@ extension MyCentralManagerDelegate {
             if let download = downloadManager.activeDownload {
                 download.history.append(dataPoint)
                 download.numEntriesReceived += 1
-                let interval = Int(download.numEntriesAll / 40)
+                let interval = Int(download.numEntriesAll / 50)
                 if Int(download.numEntriesReceived) % interval == 0 {
                     let moc = PersistenceController.shared.container.viewContext
                     self.updateBeaconDownloadProgress(context: moc, with: download.uuid,

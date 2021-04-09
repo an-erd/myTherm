@@ -27,6 +27,18 @@ extension BeaconAdv {
     @NSManaged public var timestamp: Date?
     @NSManaged public var beacon: Beacon?
 
+    public func copyContent(from: BeaconAdv) {
+        self.accel_x = from.accel_x
+        self.accel_y = from.accel_y
+        self.accel_z = from.accel_z
+        self.battery = from.battery
+        self.humidity = from.humidity
+        self.rawdata = from.rawdata
+        self.rssi = from.rssi
+        self.temperature = from.temperature
+        self.timestamp = from.timestamp
+        self.beacon = from.beacon
+    }
 }
 
 extension BeaconAdv : Identifiable {

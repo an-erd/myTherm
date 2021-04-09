@@ -70,13 +70,15 @@ struct BeaconGroupBoxList: View {
                 )
                 let slot1 = SwipeCellSlot(slots: [button_flag], slotStyle: .delay)
 
-                BeaconGroupBoxListEntry(beacon: beacon,
-                                        nowDate: nowDate,
-                                        displaySteps: $displaySteps)
-                    .listRowInsets(EdgeInsets())
-                    .swipeCell(cellPosition: .left, leftSlot: slot1, rightSlot: nil)
-                    .cornerRadius(10)
-                    .padding(10)
+                withAnimation {
+                    BeaconGroupBoxListEntry(beacon: beacon,
+                                            nowDate: nowDate,
+                                            displaySteps: $displaySteps)
+                        .listRowInsets(EdgeInsets())
+                        .swipeCell(cellPosition: .left, leftSlot: slot1, rightSlot: nil)
+                        .cornerRadius(10)
+                        .padding(10)
+                }
             }
 //            .navigationTitle("Beacons")
         }

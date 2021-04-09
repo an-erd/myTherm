@@ -179,7 +179,7 @@ extension Beacon {
 
 extension Beacon : Identifiable {
     public func copyHistoryArrayToLocalArray() {
-        print("copyHistoryArrayToLocalArray \(self.wrappedDeviceName)")
+//        print("copyHistoryArrayToLocalArray \(self.wrappedDeviceName)")
         self.localHistoryTemperature = self.temperatureArray
         self.localHistoryHumidity = self.humidityArray
         self.localHistoryTimestamp = self.dateArray

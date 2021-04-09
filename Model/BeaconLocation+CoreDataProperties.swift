@@ -21,6 +21,13 @@ extension BeaconLocation {
     @NSManaged public var timestamp: Date?
     @NSManaged public var beacon: Beacon?
 
+    public func copyContent(from: BeaconLocation) {
+        self.latitude = from.latitude
+        self.longitude = from.longitude
+        self.timestamp = from.timestamp
+        self.beacon = from.beacon
+    }
+
 }
 
 extension BeaconLocation : Identifiable {

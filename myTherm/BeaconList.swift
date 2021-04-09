@@ -164,7 +164,14 @@ struct BeaconList: View {
         .onAppear(perform: {
             self.onAppear()
             DispatchQueue.main.async {
+                copyStoreToLocalBeacons()               
                 copyBeaconHistoryOnce()
+            }
+        })
+        .onDisappear(perform: {
+            self.onDisappear()
+            DispatchQueue.main.async {
+                copyLocalBeaconsToStore()
             }
         })
         .toolbar {
@@ -209,7 +216,12 @@ struct BeaconList: View {
                 Spacer()
                 Button(action: {
                     // show debug settings dialog
-                        printBeaconListHistoryCount()
+//                    printBeaconListHistoryCount()
+                    DispatchQueue.main.async {
+//                        copyStoreToLocalBeacons()
+                        copyLocalBeaconsToStore()
+//                        copyBeaconHistoryOnce()
+                    }
                 }
                 ) {
                     Image(systemName: "tortoise")
@@ -256,9 +268,66 @@ struct BeaconList: View {
         print("onAppear")
     }
     
+    public func onDisappear() {
+        print("onDisappear")
+    }
+    
+    public func copyStoreToLocalBeacons() {
+        print("copyStoreToLocalBeacons")
+        let moc = PersistenceController.shared.container.viewContext
+        moc.perform {
+            for beacon in beacons {
+                if let adv = beacon.adv {
+                    if beacon.localAdv != nil { } else {
+                        beacon.localAdv = BeaconAdv(context: moc)
+                    }
+                    if let localAdv = beacon.localAdv {
+                        localAdv.copyContent(from: adv)
+                    }
+                }
+                
+                if let location = beacon.location {
+                    if beacon.localLocation != nil { } else {
+                        beacon.localLocation = BeaconLocation(context: moc)
+                    }
+                    if let localLocation = beacon.localLocation {
+                        localLocation.copyContent(from: location)
+                    }
+                }
+            }
+        }
+    }
+    
+    public func copyLocalBeaconsToStore() {
+        print("copyLocalBeaconsToStore")
+        let moc = PersistenceController.shared.container.viewContext
+        moc.perform {
+            for beacon in beacons {
+                if let localAdv = beacon.localAdv {
+                    if beacon.adv != nil { } else {
+                        beacon.adv = BeaconAdv(context: moc)
+                    }
+                    if let adv = beacon.adv {
+                        adv.copyContent(from: localAdv)
+                    }
+                }
+                
+                if let localLocation = beacon.localLocation {
+                    if beacon.location != nil { } else {
+                        beacon.location = BeaconLocation(context: moc)
+                    }
+                    if let location = beacon.location {
+                        location.copyContent(from: localLocation)
+                    }
+                }
+            }
+        }
+    }
+    
     public func copyBeaconHistoryOnce() {
+        print("copyBeaconHistoryOnce")
         for beacon in beacons {
-            print("copyBeaconHistoryOnce \(beacon.wrappedName)")
+//            print("copyBeaconHistoryOnce \(beacon.wrappedName)")
             beacon.copyHistoryArrayToLocalArray()
         }
     }

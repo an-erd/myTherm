@@ -20,16 +20,6 @@ struct ContentView: View {
             }
             .navigationTitle("Beacons")
             .navigationViewStyle(StackNavigationViewStyle())
-//            .navigationBarTitleDisplayMode(.inline)
-//            .navigationBarTitle("Beacons")
-//            .toolbar(content: {
-//                 ToolbarItem(placement: .principal, content: {
-//                 Text("Beacons")
-//              })})
-        }
-
-        .onAppear {
-//            MyBluetoothManager.shared.setMoc(moc: viewContext)
         }
         .onChange(of: scenePhase) { phase in
             switch phase {

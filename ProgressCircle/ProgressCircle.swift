@@ -39,11 +39,10 @@ struct ProgressCircle: View {
         }
     }
     
-    struct ForegroundCircle: View {
+    struct ForegroundCircleBusy: View {
         @State private var isLoading = false
-        var progress: CGFloat = 0
+        var progress: CGFloat = 0.7
         var rotation: CGFloat = -90
-        var animation: Bool
         
         var body: some View {
             Circle()
@@ -52,10 +51,22 @@ struct ProgressCircle: View {
                 .rotationEffect(.degrees(Double(rotation)))
                 .rotationEffect(Angle(degrees: isLoading ? 360 : 0))
                 .animation(Animation.linear(duration: 1).repeatForever(autoreverses: false))
-                .onAppear() { self.isLoading = animation}
+                .onAppear() { self.isLoading = true}
         }
     }
     
+    struct ForegroundCircleProgress: View {
+        var progress: CGFloat = 0.7
+        var rotation: CGFloat = -90
+        
+        var body: some View {
+            Circle()
+                .trim(from: 0, to: progress)
+                .stroke(Color.blue, lineWidth: 2)
+                .rotationEffect(.degrees(Double(rotation)))
+        }
+    }
+
     var body: some View {
         VStack {
             ZStack {
@@ -67,11 +78,11 @@ struct ProgressCircle: View {
                 case .busy:
                     BackgroundCircle()
                     BackgroundSquare()
-                    ForegroundCircle(progress: 0.7, animation: true)
+                    ForegroundCircleBusy()
                 case .progress:
                     BackgroundCircle()
                     BackgroundSquare()
-                    ForegroundCircle(progress: progress, animation: false)
+                    ForegroundCircleProgress(progress: progress)
                 }
             }
             .frame(width: 20, height: 20)
