@@ -359,6 +359,22 @@ extension MyCentralManagerDelegate {
                         localLocation.longitude = location.longitude
                         localLocation.timestamp = Date()
                     }
+                    
+                    if alreadyAvailableBeacon.adv != nil { } else {
+                        alreadyAvailableBeacon.adv = BeaconAdv(context: moc)
+                    }
+                    if let adv = alreadyAvailableBeacon.adv {
+                        adv.rssi = RSSI.int64Value
+                        adv.timestamp = Date()
+                        adv.temperature = extractBeaconAdv.temperature
+                        adv.humidity = extractBeaconAdv.humidity
+                        adv.battery = extractBeaconAdv.battery
+                        adv.accel_x = extractBeaconAdv.accel_x
+                        adv.accel_y = extractBeaconAdv.accel_y
+                        adv.accel_z = extractBeaconAdv.accel_z
+                        adv.rawdata = extractBeaconAdv.rawdata
+                    }
+
                 }
             } else {
                 print("beacon not found in PersistenceController.shared.container.viewContext.perform")
