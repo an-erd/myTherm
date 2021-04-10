@@ -24,10 +24,10 @@ struct MotherView : View {
     }
 }
 
-struct MotherView_Previews: PreviewProvider {
-    static var previews: some View {
-        MotherView()
-            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-            .environmentObject(ViewRouter())
-        }
-}
+//struct MotherView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        MotherView()
+//            .environment(\.managedObjectContext_View, PersistenceController.preview.container.viewContext)
+//            .environmentObject(ViewRouter())
+//        }
+//}

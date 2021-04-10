@@ -17,12 +17,14 @@ enum DownloadManagerStatus{
 
 class DownloadManager: NSObject, ObservableObject {
     private var localMoc: NSManagedObjectContext!
+    private var viewMoc: NSManagedObjectContext!
     var activeDownloads: [Download] = []
     var activeDownload: Download?
     var status: DownloadManagerStatus = .idle
     
-    func setMoc(moc: NSManagedObjectContext) {
-        self.localMoc = moc
+    func setMoc(localMoc: NSManagedObjectContext, viewMoc: NSManagedObjectContext) {
+        self.localMoc = localMoc
+        self.viewMoc = viewMoc
     }
 
     func addBeaconToDownloadQueue(uuid: UUID){
@@ -186,11 +188,11 @@ class DownloadManager: NSObject, ObservableObject {
                 beacon.addToHistory(newPoint)
             }
             
-            PersistenceController.shared.saveBackgroundContext(backgroundContext: self.localMoc)
+            PersistenceController.shared.saveContext(context: self.localMoc)
+            
             if let uuid = beacon.uuid {
                 DispatchQueue.main.async {
-                    let moc = PersistenceController.shared.container.viewContext
-                    MyCentralManagerDelegate.shared.copyHistoryArrayToLocalArray(context: moc, uuid: uuid)
+                    MyCentralManagerDelegate.shared.copyHistoryArrayToLocalArray(context: viewMoc, uuid: uuid)
                 }
             } else {
                     print("MyCentralManagerDelegate.shared.copyHistoryArrayToLocalArray uuid nil")

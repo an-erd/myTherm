@@ -61,6 +61,8 @@ struct PersistenceController {
 
     let container: NSPersistentCloudKitContainer
     let persistentContainerQueue = OperationQueue()
+    let viewContext: NSManagedObjectContext
+    let writeContext: NSManagedObjectContext
 
     init(inMemory: Bool = false) {
         container = NSPersistentCloudKitContainer(name: "myTherm")
@@ -81,6 +83,7 @@ struct PersistenceController {
         })
         
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+//        container.viewContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
         container.viewContext.undoManager = nil
 //        container.viewContext.shouldDeleteInaccessibleFaults = true
         container.viewContext.transactionAuthor = appTransactionAuthorName
@@ -90,6 +93,12 @@ struct PersistenceController {
         } catch {
             fatalError("###\(#function): Failed to pin viewContext to the current generation:\(error)")
         }
+        
+        viewContext = container.viewContext
+        
+        writeContext = container.newBackgroundContext()
+        writeContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
+        writeContext.undoManager = nil
     }
 
     /**
@@ -105,23 +114,14 @@ struct PersistenceController {
         return taskContext
     }
     
-    
-    func saveBackgroundContext(backgroundContext: NSManagedObjectContext) {
-        print("saveBackgroundContext")
-        if backgroundContext.hasChanges {
-            //            persistentContainerQueue.addOperation(){
-            //                backgroundContext.performAndWait{
+    func saveContext(context: NSManagedObjectContext) {
+        print("saveContext")
+        if context.hasChanges {
             do {
-                //update core data
-                try backgroundContext.save()
+                try context.save()
             } catch let error as NSError  {
                 print("Could not save \(error), \(error.userInfo)")
             }
         }
-        //            }
-        //        }
     }
- 
-    
-    
 }

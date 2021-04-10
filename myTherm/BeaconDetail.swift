@@ -35,8 +35,8 @@ struct BeaconDetail: View {
                 }
                 
                 DisclosureGroup("PAYLOAD", isExpanded: $isExpandedPayload) {
-                    if let localAdv = beacon.localAdv {
-                        buildViewAdv(beaconadv: localAdv)
+                    if let adv = beacon.adv {
+                        buildViewAdv(beaconadv: adv)
                     } else {
                         Text("No data available")
                             .foregroundColor(.gray)
@@ -44,7 +44,7 @@ struct BeaconDetail: View {
                 }
 
                 DisclosureGroup("LAST LOCATION", isExpanded: $isExpandedLocation) {
-                    if let location = beacon.localLocation {
+                    if let location = beacon.location {
                         buildViewLocation(beaconlocation: location)
 //                            .frame(width: 200, height: 200)
                     } else {

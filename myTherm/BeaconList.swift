@@ -11,9 +11,8 @@ import SwiftUI
 struct BeaconList: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var lm: LocationManager
-
     //    @EnvironmentObject var beaconModel: BeaconModel
-    @StateObject var beaconModel = BeaconModel.shared
+    @StateObject var beaconModel = BeaconModel.shared   // TODO
     
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Beacon.name, ascending: true)],
@@ -80,7 +79,7 @@ struct BeaconList: View {
             if let predicateFlaggedFilter = predicateFlaggedFilter {
                 compound.append(predicateFlaggedFilter)
             }
-
+            
         }
         withAnimation {
             compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: compound)
@@ -88,7 +87,7 @@ struct BeaconList: View {
     }
     
     func printBeaconListHistoryCount() {
-        let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons(context: PersistenceController.shared.container.viewContext)
+        let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons(context: viewContext)
         for beacon in beacons.sorted(by: { $0.wrappedDeviceName < $1.wrappedDeviceName }) {
             print("\(beacon.wrappedDeviceName) historyCount \(beacon.wrappedLocalHistoryTemperature.count) overallCount \(beacon.historyCount) distance \(beacon.localDistanceFromPosition)")
         }
@@ -114,18 +113,18 @@ struct BeaconList: View {
                                          foregroundColor: .white,
                                          backgroundColor: Color("alertYellow"))
                 }
-//                
-//                BeaconListAlertEntry(title: "No data yet",
-//                                     image: "questionmark.circle.fill",
-//                                     text: "Sensors available? Placed too far away?",
-//                                     foregroundColor: .white,
-//                                     backgroundColor: Color("alertGreen"))
-//                BeaconListAlertEntry(title: "No data yet 2",
-//                                     image: "questionmark.circle.fill",
-//                                     text: "Sensors available? Placed too far away?",
-//                                     foregroundColor: .white,
-//                                     backgroundColor: Color("alertBlue"))
-//                
+                //
+                //                BeaconListAlertEntry(title: "No data yet",
+                //                                     image: "questionmark.circle.fill",
+                //                                     text: "Sensors available? Placed too far away?",
+                //                                     foregroundColor: .white,
+                //                                     backgroundColor: Color("alertGreen"))
+                //                BeaconListAlertEntry(title: "No data yet 2",
+                //                                     image: "questionmark.circle.fill",
+                //                                     text: "Sensors available? Placed too far away?",
+                //                                     foregroundColor: .white,
+                //                                     backgroundColor: Color("alertBlue"))
+                //
                 HStack {
                     Toggle("Scan", isOn: $doScan)
                         .onChange(of: doScan, perform: { value in
@@ -151,7 +150,7 @@ struct BeaconList: View {
                     }) {
                         Image(systemName: "icloud.and.arrow.down")
                     }
-
+                    
                 }
             }
             withAnimation {
@@ -160,19 +159,19 @@ struct BeaconList: View {
             //                BeaconBottomBarStatusFilterButton(filterActive: doFilter, filterByTime: $filterByTime, filterByLocation: $filterByLocation, filterByFlag: $filterByFlag)
             //            }
         }
-
+        
         .onAppear(perform: {
             self.onAppear()
             DispatchQueue.main.async {
-                copyStoreToLocalBeacons()               
+                //                copyStoreToLocalBeacons()
                 copyBeaconHistoryOnce()
             }
         })
         .onDisappear(perform: {
             self.onDisappear()
-            DispatchQueue.main.async {
-                copyLocalBeaconsToStore()
-            }
+//            DispatchQueue.main.async {
+//                copyLocalBeaconsToStore()
+//            }
         })
         .toolbar {
             ToolbarItemGroup (placement: .bottomBar) {
@@ -199,7 +198,7 @@ struct BeaconList: View {
                     .padding()
                     //                    .border(Color.white)
                 }
-
+                
                 Spacer()
                 ZStack {
                     BeaconBottomBarStatusFilterButton(
@@ -215,12 +214,15 @@ struct BeaconList: View {
                 }
                 Spacer()
                 Button(action: {
-                    // show debug settings dialog
-//                    printBeaconListHistoryCount()
                     DispatchQueue.main.async {
-//                        copyStoreToLocalBeacons()
-                        copyLocalBeaconsToStore()
-//                        copyBeaconHistoryOnce()
+                        print("Tortoise start -------")
+                        listBeaconChanges()
+                        copyLocalBeaconsToWriteContext()
+                        PersistenceController.shared.writeContext.performAndWait {
+                            PersistenceController.shared.saveContext(context: PersistenceController.shared.writeContext)
+                        }
+                        listBeaconChanges()
+                        print("Tortoise end -------")
                     }
                 }
                 ) {
@@ -272,63 +274,117 @@ struct BeaconList: View {
         print("onDisappear")
     }
     
-    public func copyStoreToLocalBeacons() {
-        print("copyStoreToLocalBeacons")
-        let moc = PersistenceController.shared.container.viewContext
-        moc.perform {
-            for beacon in beacons {
-                if let adv = beacon.adv {
-                    if beacon.localAdv != nil { } else {
-                        beacon.localAdv = BeaconAdv(context: moc)
-                    }
-                    if let localAdv = beacon.localAdv {
-                        localAdv.copyContent(from: adv)
-                    }
-                }
-                
-                if let location = beacon.location {
-                    if beacon.localLocation != nil { } else {
-                        beacon.localLocation = BeaconLocation(context: moc)
-                    }
-                    if let localLocation = beacon.localLocation {
-                        localLocation.copyContent(from: location)
-                    }
-                }
-            }
-        }
-    }
+    //    public func copyStoreToLocalBeacons() {
+    //        print("copyStoreToLocalBeacons")
+    //        let moc = PersistenceController.shared.container.viewContext
+    //        moc.perform {
+    //            for beacon in beacons {
+    //                if let adv = beacon.adv {
+    //                    if beacon.adv != nil { } else {
+    //                        beacon.adv = BeaconAdv(context: moc)
+    //                    }
+    //                    if let localAdv = beacon.adv {
+    //                        localAdv.copyContent(from: adv)
+    //                    }
+    //                }
+    //
+    //                if let location = beacon.location {
+    //                    if beacon.location != nil { } else {
+    //                        beacon.localLocation = BeaconLocation(context: moc)
+    //                    }
+    //                    if let localLocation = beacon.localLocation {
+    //                        localLocation.copyContent(from: location)
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
     
-    public func copyLocalBeaconsToStore() {
+    public func copyLocalBeaconsToWriteContext() {
         print("copyLocalBeaconsToStore")
-        let moc = PersistenceController.shared.container.viewContext
-        moc.perform {
-            for beacon in beacons {
-                if let localAdv = beacon.localAdv {
-                    if beacon.adv != nil { } else {
-                        beacon.adv = BeaconAdv(context: moc)
-                    }
-                    if let adv = beacon.adv {
-                        adv.copyContent(from: localAdv)
+        print("\(Thread.current)")  // must be on main!
+        
+        let viewMoc = PersistenceController.shared.viewContext
+        let writeMoc = PersistenceController.shared.writeContext
+        
+        var toBeacon: Beacon!
+        
+        viewMoc.performAndWait {
+            let fromBeacons = MyCentralManagerDelegate.shared.fetchAllBeacons(context: viewMoc)
+            for fromBeacon in fromBeacons {
+                writeMoc.performAndWait {
+                    toBeacon = MyCentralManagerDelegate.shared.fetchBeacon(context: writeMoc, with: fromBeacon.uuid!)
+                }
+                if fromBeacon.changedValues().count > 0 {
+                    print("copy     \(fromBeacon.wrappedDeviceName)")
+                    let changes = fromBeacon.changedValues()
+                    writeMoc.performAndWait {
+                        if let toBeacon = toBeacon {
+                            toBeacon.setValuesForKeys(changes)
+                        } else {
+                            print("toBeacon not found")
+                        }
                     }
                 }
-                
-                if let localLocation = beacon.localLocation {
-                    if beacon.location != nil { } else {
-                        beacon.location = BeaconLocation(context: moc)
+                if let fromAdv = fromBeacon.adv {
+                    if fromAdv.changedValues().count > 0 {
+                        print("copy adv \(fromBeacon.wrappedDeviceName)")
+                        let changes = fromAdv.changedValues()
+                        writeMoc.performAndWait {
+                            if toBeacon.adv != nil { } else {
+                                toBeacon.adv = BeaconAdv(context: writeMoc)
+                            }
+                            if let toAdv = toBeacon.adv {
+                                print("writeMoc changes \(toBeacon.wrappedDeviceName) > \(toAdv.changedValues().count)")
+                                toAdv.setValuesForKeys(changes)
+                                print("writeMoc changes \(toBeacon.wrappedDeviceName) < \(toAdv.changedValues().count)")
+                            }
+                        }
                     }
-                    if let location = beacon.location {
-                        location.copyContent(from: localLocation)
+                }
+                if let fromLocation = fromBeacon.location {
+                    if fromLocation.changedValues().count > 0 {
+                        print("copy loc \(fromBeacon.wrappedDeviceName)")
+                        let changes = fromLocation.changedValues()
+                        writeMoc.performAndWait {
+                            if toBeacon.location != nil { } else {
+                                toBeacon.location = BeaconLocation(context: writeMoc)
+                            }
+                            if let toLocation = toBeacon.location {
+                                toLocation.setValuesForKeys(changes)
+                            }
+                        }
                     }
                 }
             }
         }
     }
-    
+
     public func copyBeaconHistoryOnce() {
         print("copyBeaconHistoryOnce")
         for beacon in beacons {
-//            print("copyBeaconHistoryOnce \(beacon.wrappedName)")
+            //            print("copyBeaconHistoryOnce \(beacon.wrappedName)")
             beacon.copyHistoryArrayToLocalArray()
+        }
+    }
+    
+    public func listBeaconChanges() {
+        print("listBeaconChanges")
+        for beacon in beacons {
+            var changes = beacon.changedValues()
+            print("\(beacon.wrappedDeviceName) has \(changes.count) changes:")
+            if changes.count > 0 { dump(changes) }
+            
+            if let adv = beacon.adv {
+                changes = adv.changedValues()
+                print("\(beacon.wrappedDeviceName) adv has \(changes.count) changes:")
+                if changes.count > 0 { dump(changes) }
+            }
+            if let location = beacon.location {
+                changes = location.changedValues()
+                print("\(beacon.wrappedDeviceName) location has \(changes.count) changes:")
+                if changes.count > 0 { dump(changes) }
+            }
         }
     }
 }

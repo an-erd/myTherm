@@ -78,6 +78,7 @@ class Download : ObservableObject {
         let moc = PersistenceController.shared.container.viewContext
         moc.perform { 
             MyCentralManagerDelegate.shared.updateBeaconDownloadProgress(context: moc, with: newUuid, progress: 0.0)
+            MyCentralManagerDelegate.shared.updateBeaconDownloadStatus(context: moc, with: newUuid, status: .waiting)
         }
     }
     

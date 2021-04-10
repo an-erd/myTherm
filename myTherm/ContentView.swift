@@ -2,15 +2,10 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.scenePhase) private var scenePhase
-    
-    let persistenceController = PersistenceController.shared
     @StateObject var lm = LocationManager()
-    @StateObject var model = BeaconModel.shared
+    let persistenceController = PersistenceController.shared
 
-    let locationManager = CLLocationManager()
-    
     var body: some View {
         NavigationView {
             VStack {
@@ -25,12 +20,14 @@ struct ContentView: View {
             switch phase {
             case .background:
                 print("PHASECHANGE: View entered background")
-                PersistenceController.shared.saveBackgroundContext(backgroundContext: viewContext)
+                // TODO bring update to writeContext first
+//                PersistenceController.shared.saveContext(context: persistenceController.writeContext)
             case .active:
                 print("PHASECHANGE: View entered active")
             case .inactive:
                 print("PHASECHANGE: View entered inactive")
-                PersistenceController.shared.saveBackgroundContext(backgroundContext: viewContext)
+                // TODO bring update to writeContext first
+//                PersistenceController.shared.saveContext(context: persistenceController.writeContext)
             @unknown default:
                 print("PHASECHANGE: View entered unknown phase.")
             }

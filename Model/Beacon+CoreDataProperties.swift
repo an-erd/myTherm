@@ -35,8 +35,6 @@ extension Beacon {
     @NSManaged public var localHistoryTimestamp: [Date]?
     @NSManaged public var localDownloadProgress: Float
     @NSManaged public var localDownloadStatusValue: Int32
-    @NSManaged public var localAdv: BeaconAdv?
-    @NSManaged public var localLocation: BeaconLocation?
     
     public var localDownloadStatus: DownloadStatus {
         get {
@@ -130,15 +128,27 @@ extension Beacon {
         return getDateInterpretationString(date: date, nowDate: nowDate)
     }
     
-    public func wrappedLocalAdvDateInterpretation(nowDate: Date) -> String {
-        guard let beaconadv = self.localAdv else { return "never" }
-        guard let date = beaconadv.timestamp else { return "not available" }
-        return getDateInterpretationString(date: date, nowDate: nowDate)
-    }
+//    public func wrappedLocalAdvDateInterpretation(nowDate: Date) -> String {
+//        guard let beaconadv = self.localAdv else { return "never" }
+//        guard let date = beaconadv.timestamp else { return "not available" }
+//        return getDateInterpretationString(date: date, nowDate: nowDate)
+//    }
 
     public var historyCount: Int {
         guard let history = self.history else { return 0 }
         return history.count
+    }
+    
+    public func copyContent(from: Beacon) {
+        self.beacon_version = from.beacon_version
+        self.company_id = from.company_id
+        self.descr = from.descr
+        self.device_name = from.device_name
+        self.id_maj = from.id_maj
+        self.id_min = from.id_min
+        self.name = from.name
+        self.uuid = from.uuid
+        self.flag = from.flag
     }
 }
 

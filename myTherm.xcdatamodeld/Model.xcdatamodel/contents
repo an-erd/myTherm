@@ -8,14 +8,12 @@
         <attribute name="flag" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="id_maj" optional="YES" attributeType="String"/>
         <attribute name="id_min" optional="YES" attributeType="String"/>
-        <attribute name="localAdv" optional="YES" transient="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="BeaconAdv"/>
         <attribute name="localDistanceFromPosition" optional="YES" transient="YES" attributeType="Double" usesScalarValueType="YES"/>
         <attribute name="localDownloadProgress" optional="YES" transient="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="localDownloadStatusValue" optional="YES" transient="YES" attributeType="Integer 32" valueTransformerName="NSSecureUnarchiveFromDataTransformer" defaultValueString="0" usesScalarValueType="YES" customClassName="DownloadStatus"/>
         <attribute name="localHistoryHumidity" optional="YES" transient="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[Double]"/>
         <attribute name="localHistoryTemperature" optional="YES" transient="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[Double]"/>
         <attribute name="localHistoryTimestamp" optional="YES" transient="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[Date]"/>
-        <attribute name="localLocation" optional="YES" transient="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="BeaconLocation"/>
         <attribute name="localTimestamp" optional="YES" transient="YES" attributeType="Date" defaultDateTimeInterval="-978307200" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="uuid" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
@@ -48,7 +46,7 @@
         <relationship name="beacon" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Beacon" inverseName="location" inverseEntity="Beacon"/>
     </entity>
     <elements>
-        <element name="Beacon" positionX="-223.1812133789062" positionY="-285.9000091552734" width="128" height="344"/>
+        <element name="Beacon" positionX="-223.1812133789062" positionY="-285.9000091552734" width="128" height="314"/>
         <element name="BeaconAdv" positionX="68.5216064453125" positionY="-408.4564971923828" width="128" height="193"/>
         <element name="BeaconHistoryDataPoint" positionX="79.50518798828125" positionY="-213.89697265625" width="128" height="103"/>
         <element name="BeaconLocation" positionX="84.72802734375" positionY="-71.25010681152344" width="128" height="89"/>
