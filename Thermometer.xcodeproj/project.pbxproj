@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		800F07E925FE481200D9F515 /* BeaconGroupBoxList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800F07E825FE481200D9F515 /* BeaconGroupBoxList.swift */; };
 		800F07EB25FE503F00D9F515 /* BeaconSimpleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800F07EA25FE503F00D9F515 /* BeaconSimpleListView.swift */; };
+		801DD7972622CBAA003ECA6D /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 801DD7962622CBAA003ECA6D /* UserSettings.swift */; };
 		804DF8672620594900004F2F /* myTherm.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 804DF8652620594900004F2F /* myTherm.xcdatamodeld */; };
 		806313FF260F9685002394FB /* BeaconDownloadImageButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806313FE260F9685002394FB /* BeaconDownloadImageButton.swift */; };
 		8068F56626052B85007D9E2E /* BeaconDownloadViewEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8068F56526052B85007D9E2E /* BeaconDownloadViewEntry.swift */; };
@@ -69,6 +70,7 @@
 /* Begin PBXFileReference section */
 		800F07E825FE481200D9F515 /* BeaconGroupBoxList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconGroupBoxList.swift; sourceTree = "<group>"; };
 		800F07EA25FE503F00D9F515 /* BeaconSimpleListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconSimpleListView.swift; sourceTree = "<group>"; };
+		801DD7962622CBAA003ECA6D /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
 		804DF8662620594900004F2F /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		806313FE260F9685002394FB /* BeaconDownloadImageButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDownloadImageButton.swift; sourceTree = "<group>"; };
 		8068F56526052B85007D9E2E /* BeaconDownloadViewEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDownloadViewEntry.swift; sourceTree = "<group>"; };
@@ -142,6 +144,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		801DD7952622CB8E003ECA6D /* UserSettings */ = {
+			isa = PBXGroup;
+			children = (
+				801DD7962622CBAA003ECA6D /* UserSettings.swift */,
+			);
+			path = UserSettings;
+			sourceTree = "<group>";
+		};
 		806AF07226164F5F00DE0BD6 /* SlideMenu */ = {
 			isa = PBXGroup;
 			children = (
@@ -152,6 +162,7 @@
 		807838DE25DCEB0E009FF0E9 = {
 			isa = PBXGroup;
 			children = (
+				801DD7952622CB8E003ECA6D /* UserSettings */,
 				806E2EAB26175A0000AFA883 /* SwipeCell */,
 				806AF07226164F5F00DE0BD6 /* SlideMenu */,
 				80ECC8FF260B5094006AA4AE /* ViewRouter */,
@@ -430,6 +441,7 @@
 				808E67EC25E030B800D37C51 /* Beacon+CoreDataProperties.swift in Sources */,
 				80C6FD0B25ED16A5006985D5 /* Line.swift in Sources */,
 				80ECC8FE260B4FB9006AA4AE /* MotherView.swift in Sources */,
+				801DD7972622CBAA003ECA6D /* UserSettings.swift in Sources */,
 				808E67F625E0ED2100D37C51 /* BeaconLocation+CoreDataProperties.swift in Sources */,
 				800F07EB25FE503F00D9F515 /* BeaconSimpleListView.swift in Sources */,
 				8080270925DD952B000C377D /* BeaconValueView.swift in Sources */,

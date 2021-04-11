@@ -310,7 +310,6 @@ extension MyCentralManagerDelegate {
                     print("inverse \(newadv.beacon?.name ?? "inverse beacon not set")")
                 }
             }
-            beaconFind?.localTimestamp = Date()
             
             if localMoc.hasChanges {
                 PersistenceController.shared.persistentContainerQueue.addOperation(){
@@ -334,6 +333,8 @@ extension MyCentralManagerDelegate {
                 if alreadyAvailableBeacon.adv != nil { } else {
                     alreadyAvailableBeacon.adv = BeaconAdv(context: self.viewMoc)
                 }
+                alreadyAvailableBeacon.localTimestamp = Date()
+
                 if let adv = alreadyAvailableBeacon.adv {
                     adv.rssi = RSSI.int64Value
                     adv.timestamp = Date()

@@ -24,6 +24,8 @@ struct BeaconListAlertEntry: View {
     var text: String
     var foregroundColor: Color
     var backgroundColor: Color
+    var allowDismiss: Bool
+    @Binding var dismiss: Bool
     
     var body: some View {
         
@@ -35,7 +37,16 @@ struct BeaconListAlertEntry: View {
                             .fontWeight(.bold)
                             .padding(.bottom, 15)
                             .foregroundColor(foregroundColor)
-                        
+                        Spacer()
+                        if allowDismiss {
+                            Button(action: {
+                                dismiss.toggle()
+                            }) {
+                                Image(systemName: "multiply").foregroundColor(.primary)
+                                    .imageScale(.large)
+                                    .padding(.trailing, 0)
+                            }
+                        }
                     } icon: {
                         Image(systemName: image)
                             .foregroundColor(foregroundColor)
@@ -67,6 +78,8 @@ struct BeaconListAlertEntry_Previews: PreviewProvider {
                              image: "tortoise",
                              text: "Text",
                              foregroundColor: .white,
-                             backgroundColor: Color("alertRed"))
+                             backgroundColor: Color("alertRed"),
+                             allowDismiss: false,
+                             dismiss: .constant(false))
     }
 }

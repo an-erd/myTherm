@@ -80,7 +80,6 @@ struct BeaconGroupBoxList: View {
                         .padding(10)
                 }
             }
-//            .navigationTitle("Beacons")
         }
         .edgesIgnoringSafeArea(.bottom)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

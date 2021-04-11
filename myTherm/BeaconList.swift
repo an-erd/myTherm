@@ -7,11 +7,12 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 struct BeaconList: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var lm: LocationManager
-    //    @EnvironmentObject var beaconModel: BeaconModel
+    @EnvironmentObject var userSettings: UserSettings
     @StateObject var beaconModel = BeaconModel.shared   // TODO
     
     @FetchRequest(
@@ -33,7 +34,7 @@ struct BeaconList: View {
     @State var filterByTime: Bool = true
     @State var filterByLocation: Bool = false
     @State var filterByFlag: Bool = false
-    let filterPredicateTimeinterval: Double = 30
+    let filterPredicateTimeinterval: Double = 180
     let filterPredicateDistanceMeter: Double = 50
     
     @State var sort: Int = 0
@@ -103,15 +104,20 @@ struct BeaconList: View {
                                          image: "exclamationmark.triangle.fill",
                                          text: "Sensors communicate by Bluetooth. On your phone, please go to Settings > Thermometer and turn on Bluetooth.",
                                          foregroundColor: .white,
-                                         backgroundColor: Color("alertRed"))
+                                         backgroundColor: Color("alertRed"),
+                                         allowDismiss: false,
+                                         dismiss: .constant(false))
                 }
-                
-                if (lm.status == .restricted) || (lm.status == .denied) {
-                    BeaconListAlertEntry(title: "Location permission preferable",
-                                         image: "questionmark.circle.fill",
-                                         text: "If you want to store sensor location, you should allow location services. On your phone, please go to Settings > Thermometer and turn on Location services.",
-                                         foregroundColor: .white,
-                                         backgroundColor: Color("alertYellow"))
+                if (userSettings.showRequestLocationAlert) {
+                    if (lm.status == .restricted) || (lm.status == .denied) {
+                        BeaconListAlertEntry(title: "Location permission preferable",
+                                             image: "questionmark.circle.fill",
+                                             text: "To store sensor location, please allow location services. On your phone, please go to Settings > Thermometer and turn on Location services.",
+                                             foregroundColor: .white,
+                                             backgroundColor: Color("alertYellow"),
+                                             allowDismiss: true,
+                                             dismiss: $userSettings.showRequestLocationAlert)
+                    }
                 }
                 //
                 //                BeaconListAlertEntry(title: "No data yet",
@@ -244,9 +250,9 @@ struct BeaconList: View {
                         }
                     }) {
                         if doScan {
-                            Text("Stop Scan")
+                            Text("Stop Update")
                         } else {
-                            Text("Scan")
+                            Text("Update")
                         }
                     }
                     .padding(10)

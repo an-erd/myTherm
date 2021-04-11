@@ -13,7 +13,7 @@ struct ContentView: View {
                     .listStyle(GroupedListStyle())
                     .environmentObject(lm)
             }
-            .navigationTitle("Beacons")
+            .navigationTitle("Sensors")
             .navigationViewStyle(StackNavigationViewStyle())
         }
         .onChange(of: scenePhase) { phase in
