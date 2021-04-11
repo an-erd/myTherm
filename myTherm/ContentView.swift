@@ -3,7 +3,6 @@ import CoreData
 
 struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
-    @StateObject var lm = LocationManager()
     let persistenceController = PersistenceController.shared
 
     var body: some View {
@@ -11,7 +10,6 @@ struct ContentView: View {
             VStack {
                 BeaconList()
                     .listStyle(GroupedListStyle())
-                    .environmentObject(lm)
             }
             .navigationTitle("Sensors")
             .navigationViewStyle(StackNavigationViewStyle())

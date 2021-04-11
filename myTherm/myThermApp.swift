@@ -14,6 +14,7 @@ struct myThermApp: App {
     @StateObject var model = BeaconModel()
     @StateObject var viewRouter = ViewRouter()
     @StateObject var userSettings = UserSettings()
+    @StateObject var networkManager = NetworkManager()
 
     func setViewRouterPage(page: String) -> AnyView {
         viewRouter.currentPage = page
@@ -30,6 +31,7 @@ struct myThermApp: App {
                 .environmentObject(model)
                 .environmentObject(viewRouter)
                 .environmentObject(userSettings)
+                .environmentObject(networkManager)
         }
     }
 }

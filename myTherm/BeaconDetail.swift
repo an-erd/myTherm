@@ -3,6 +3,7 @@ import MapKit
 import Combine
 
 struct BeaconDetail: View {
+    @EnvironmentObject var lm: LocationManager
     @ObservedObject var beacon: Beacon
     
     @State private var isExpandedBeaconInfo: Bool = false
@@ -44,6 +45,7 @@ struct BeaconDetail: View {
                 }
 
                 DisclosureGroup("LAST LOCATION", isExpanded: $isExpandedLocation) {
+                    
                     if let location = beacon.location {
                         buildViewLocation(beaconlocation: location)
 //                            .frame(width: 200, height: 200)
@@ -51,6 +53,16 @@ struct BeaconDetail: View {
                         Text("No data available")
                             .foregroundColor(.gray)
                     }
+                    if (lm.status == .restricted) || (lm.status == .denied) {
+                        Button(action: {
+                            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                        }) {
+                            VStack {
+                                Text("Location services are currently not allowed. To store and update sensor location, allow location services. On your phone, please go to Settings > Thermometer and turn on Location services")
+                            }
+                        }
+                    }
+
                 }
             }
         }

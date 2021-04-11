@@ -9,7 +9,8 @@ import SwiftUI
 import SwipeCell
 
 struct BeaconGroupBoxList: View {
-    
+    @EnvironmentObject var lm: LocationManager
+
     var fetchRequest: FetchRequest<Beacon>
     init(predicate: NSPredicate?) {
         fetchRequest = FetchRequest<Beacon>(entity: Beacon.entity(),
@@ -74,6 +75,7 @@ struct BeaconGroupBoxList: View {
                     BeaconGroupBoxListEntry(beacon: beacon,
                                             nowDate: nowDate,
                                             displaySteps: $displaySteps)
+                        .environmentObject(lm)
                         .listRowInsets(EdgeInsets())
                         .swipeCell(cellPosition: .left, leftSlot: slot1, rightSlot: nil)
                         .cornerRadius(10)

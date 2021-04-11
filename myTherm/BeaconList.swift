@@ -11,9 +11,12 @@ import CoreLocation
 
 struct BeaconList: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @EnvironmentObject var lm: LocationManager
+//    @EnvironmentObject var lm: LocationManager
     @EnvironmentObject var userSettings: UserSettings
+    @EnvironmentObject var networkManager: NetworkManager
     @StateObject var beaconModel = BeaconModel.shared   // TODO
+    @StateObject var lm = LocationManager()
+
     
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Beacon.name, ascending: true)],
@@ -119,7 +122,15 @@ struct BeaconList: View {
                                              dismiss: $userSettings.showRequestLocationAlert)
                     }
                 }
-                //
+                if (!networkManager.isConnected) {
+                    BeaconListAlertEntry(title: "Internet connection preferable",
+                                         image: "questionmark.circle.fill",
+                                         text: "To upload your data to iCloud, please provide internet access.",
+                                         foregroundColor: .white,
+                                         backgroundColor: Color("alertYellow"),
+                                         allowDismiss: true,
+                                         dismiss: $userSettings.showRequestInternetAlert)
+                }
                 //                BeaconListAlertEntry(title: "No data yet",
                 //                                     image: "questionmark.circle.fill",
                 //                                     text: "Sensors available? Placed too far away?",
@@ -161,6 +172,7 @@ struct BeaconList: View {
             }
             withAnimation {
                 BeaconGroupBoxList(predicate: compoundPredicate)
+                    .environmentObject(lm)
             }
             //                BeaconBottomBarStatusFilterButton(filterActive: doFilter, filterByTime: $filterByTime, filterByLocation: $filterByLocation, filterByFlag: $filterByFlag)
             //            }

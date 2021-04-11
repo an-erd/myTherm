@@ -10,6 +10,7 @@ import SwiftUI
 struct BeaconGroupBoxListEntry: View {
     
     @StateObject var model = BeaconModel.shared
+    @EnvironmentObject var lm: LocationManager
 
     @ObservedObject var beacon: Beacon
     var nowDate: Date
@@ -38,7 +39,7 @@ struct BeaconGroupBoxListEntry: View {
                         .isHidden(!beacon.flag)
                         BeaconDownloadImageButton(beacon: beacon, activeDownload: getDownload(beacon: beacon))
                         Spacer().frame(width: 10)
-                        NavigationLink(destination: BeaconDetail(beacon: beacon)) {
+                        NavigationLink(destination: BeaconDetail(beacon: beacon).environmentObject(lm)) {
                             Image(systemName: "chevron.right").foregroundColor(.secondary) //.imageScale(.small)
                         }
                     }
