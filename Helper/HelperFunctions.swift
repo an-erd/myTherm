@@ -148,13 +148,20 @@ func getDateInterpretationString(date: Date, nowDate: Date ) -> String {
 func getDateString(date: Date? ) -> String {
     let formatter2 = DateFormatter()
     formatter2.dateFormat = "yyyy/MM/dd HH:mm:ss"
-    formatter2.timeZone = TimeZone(secondsFromGMT: 0)
+    formatter2.timeZone = TimeZone(secondsFromGMT: 7200)
     
     if let date = date {
         return formatter2.string(from: date)
     } else {
         return "never"
     }
+}
+
+func seenRecently(date: Date, nowDate: Date, timeInterval: Double) -> Bool {
+    let _ = nowDate
+    let secs = date.timeIntervalSinceNow
+    
+    return secs > -timeInterval
 }
 
 func UInt16_decode(msb: UInt8, lsb: UInt8) -> UInt16 {

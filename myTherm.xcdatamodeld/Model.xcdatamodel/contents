@@ -6,9 +6,10 @@
         <attribute name="descr" optional="YES" attributeType="String"/>
         <attribute name="device_name" optional="YES" attributeType="String"/>
         <attribute name="flag" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="hidden" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="id_maj" optional="YES" attributeType="String"/>
         <attribute name="id_min" optional="YES" attributeType="String"/>
-        <attribute name="localDistanceFromPosition" optional="YES" transient="YES" attributeType="Double" usesScalarValueType="YES"/>
+        <attribute name="localDistanceFromPosition" optional="YES" transient="YES" attributeType="Double" defaultValueString="-1" usesScalarValueType="YES"/>
         <attribute name="localDownloadProgress" optional="YES" transient="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="localDownloadStatusValue" optional="YES" transient="YES" attributeType="Integer 32" valueTransformerName="NSSecureUnarchiveFromDataTransformer" defaultValueString="0" usesScalarValueType="YES" customClassName="DownloadStatus"/>
         <attribute name="localHistoryHumidity" optional="YES" transient="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[Double]"/>
@@ -40,15 +41,16 @@
         <relationship name="beacon" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Beacon" inverseName="history" inverseEntity="Beacon"/>
     </entity>
     <entity name="BeaconLocation" representedClassName="BeaconLocation" syncable="YES">
+        <attribute name="address" optional="YES" attributeType="String"/>
         <attribute name="latitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="longitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="beacon" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Beacon" inverseName="location" inverseEntity="Beacon"/>
     </entity>
     <elements>
-        <element name="Beacon" positionX="-223.1812133789062" positionY="-285.9000091552734" width="128" height="314"/>
+        <element name="Beacon" positionX="-223.1812133789062" positionY="-285.9000091552734" width="128" height="329"/>
         <element name="BeaconAdv" positionX="68.5216064453125" positionY="-408.4564971923828" width="128" height="193"/>
         <element name="BeaconHistoryDataPoint" positionX="79.50518798828125" positionY="-213.89697265625" width="128" height="103"/>
-        <element name="BeaconLocation" positionX="84.72802734375" positionY="-71.25010681152344" width="128" height="89"/>
+        <element name="BeaconLocation" positionX="84.72802734375" positionY="-71.25010681152344" width="128" height="104"/>
     </elements>
 </model>

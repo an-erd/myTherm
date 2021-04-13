@@ -10,19 +10,19 @@ import SwiftUI
 struct BeaconBottomBarStatusFilterButton: View {
     
     var filterActive: Bool
-    var filterString: String
     @Binding var filterByTime: Bool
     @Binding var filterByLocation: Bool
     @Binding var filterByFlag: Bool
+    @Binding var filterByHidden: Bool
+    var predicate: NSPredicate?
     
     func buildFilterString() -> String {
         var firstEntry: Bool = true
         var filterString: String = ""
         
         if filterByTime {
-            filterString.append("Seen recently")
+            filterString.append("Recently")
             firstEntry = false
-            print("filter last seen")
         }
         if filterByLocation {
             if !firstEntry {
@@ -30,7 +30,6 @@ struct BeaconBottomBarStatusFilterButton: View {
                 firstEntry = false
             }
             filterString.append("Nearby")
-            print("filter nearby")
         }
         if filterByFlag {
             if !firstEntry {
@@ -38,9 +37,15 @@ struct BeaconBottomBarStatusFilterButton: View {
                 firstEntry = false
             }
             filterString.append("Flagged")
-            print("filter flag")
         }
-        
+        if filterByHidden {
+            if !firstEntry {
+                filterString.append(", ")
+                firstEntry = false
+            }
+            filterString.append("Hidden")
+        }
+
         return filterString
     }
     
@@ -55,8 +60,7 @@ struct BeaconBottomBarStatusFilterButton: View {
             }
             .padding(10)
         } else{
-            Text(filterString)
-                .font(.subheadline)
+            BeaconFilterCountView(predicate: predicate)
         }
     }
 }
@@ -65,8 +69,9 @@ struct BeaconBottomBarStatusFilterButton_Previews: PreviewProvider {
     
     static var previews: some View {
         Group {
-            BeaconBottomBarStatusFilterButton(filterActive: true, filterString: "Filter String", filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true))
-            BeaconBottomBarStatusFilterButton(filterActive: false, filterString: "Filter String", filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true))
+            BeaconBottomBarStatusFilterButton(filterActive: true, filterByTime: .constant(true), filterByLocation: .constant(false),
+                                              filterByFlag: .constant(true), filterByHidden: .constant(false), predicate: nil)
+            BeaconBottomBarStatusFilterButton(filterActive: false, filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true), filterByHidden: .constant(false), predicate: nil)
         }
         .previewLayout(.fixed(width: 300, height: 70))
     }

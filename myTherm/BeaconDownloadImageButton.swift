@@ -11,6 +11,7 @@ struct BeaconDownloadImageButton: View {
     
     @ObservedObject var beacon: Beacon
     var activeDownload: Download?
+    var nowDate: Date
 
     var body: some View {
         Button(action: {
@@ -27,18 +28,29 @@ struct BeaconDownloadImageButton: View {
                 case .downloading_finished:
 //                    ProgressCircle(mode: .idle)
                     Image(systemName: "checkmark")
-
                 case .alldone:
                     Image(systemName: "checkmark")
                 case .cancelled:
                     Image(systemName: "xmark")
                 case .error:
                     Image(systemName: "exclamationmark.triangle")
+                        .foregroundColor(.red)
                 case .none:
                     Image(systemName: "scribble")
                 }
             } else {
-                Image(systemName: "icloud.and.arrow.down")
+                if let adv = beacon.adv, let timestamp = adv.timestamp {
+                    if seenRecently(date: timestamp, nowDate: nowDate, timeInterval: 180) {
+                        Image(systemName: "icloud.and.arrow.down")
+                            .foregroundColor(.primary)
+                    } else {
+                        Image(systemName: "icloud.and.arrow.down")
+                            .foregroundColor(.gray)
+                    }
+                } else {
+                    Image(systemName: "icloud.and.arrow.down")
+                        .foregroundColor(.gray)
+                }
             }
         }
     }

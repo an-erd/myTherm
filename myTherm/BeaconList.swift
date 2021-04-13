@@ -16,7 +16,7 @@ struct BeaconList: View {
     @EnvironmentObject var networkManager: NetworkManager
     @StateObject var beaconModel = BeaconModel.shared   // TODO
     @StateObject var lm = LocationManager()
-
+    @State var filteredListEntriesShown: Int = 0
     
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Beacon.name, ascending: true)],
@@ -32,14 +32,13 @@ struct BeaconList: View {
     @State var predicateTimeFilter: NSPredicate?
     @State var predicateLocationFilter: NSPredicate?
     @State var predicateFlaggedFilter: NSPredicate?
+    @State var predicateHiddenFilter: NSPredicate?
     @State var compoundPredicate: NSCompoundPredicate?
     @State var filterPredicateUpdateTimer: Timer?
-    @State var filterByTime: Bool = true
-    @State var filterByLocation: Bool = false
-    @State var filterByFlag: Bool = false
     let filterPredicateTimeinterval: Double = 180
-    let filterPredicateDistanceMeter: Double = 50
+    let filterPredicateDistanceMeter: Double = 500
     
+
     @State var sort: Int = 0
     
     func startFilterUpdate() {
@@ -57,13 +56,16 @@ struct BeaconList: View {
         predicateTimeFilter = nil
         predicateLocationFilter = nil
         predicateFlaggedFilter = nil
-        compoundPredicate = nil
+        withAnimation {
+            compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates:
+                                                        [NSPredicate(format: "hidden == NO or hidden == nil")])
+        }
     }
     
     func filterUpdatePredicate() {
         var compound: [NSPredicate] = []
         
-        if filterByTime {
+        if userSettings.filterByTime {
             let comparison = Date(timeIntervalSinceNow: -filterPredicateTimeinterval)
             predicateTimeFilter = NSPredicate(format: "localTimestamp >= %@", comparison as NSDate)
             if let predicateTimeFilter = predicateTimeFilter {
@@ -71,19 +73,25 @@ struct BeaconList: View {
             }
         }
         
-        if filterByLocation {
+        if userSettings.filterByLocation {
             predicateLocationFilter = NSPredicate(format: "localDistanceFromPosition <= %@", filterPredicateDistanceMeter as NSNumber)
             if let predicateLocationFilter = predicateLocationFilter {
                 compound.append(predicateLocationFilter)
             }
         }
         
-        if filterByFlag {
+        if userSettings.filterByFlag {
             predicateFlaggedFilter = NSPredicate(format: "flag == true")
             if let predicateFlaggedFilter = predicateFlaggedFilter {
                 compound.append(predicateFlaggedFilter)
             }
             
+        }
+        if userSettings.filterByHidden {
+            predicateHiddenFilter = NSPredicate(format: "hidden == true")
+            if let predicateHiddenFilter = predicateHiddenFilter {
+                compound.append(predicateHiddenFilter)
+            }
         }
         withAnimation {
             compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: compound)
@@ -183,6 +191,7 @@ struct BeaconList: View {
             DispatchQueue.main.async {
                 //                copyStoreToLocalBeacons()
                 copyBeaconHistoryOnce()
+                stopFilterUpdate()
             }
         })
         .onDisappear(perform: {
@@ -214,14 +223,17 @@ struct BeaconList: View {
                         }
                     }
                     .padding()
-                    //                    .border(Color.white)
                 }
                 
                 Spacer()
                 ZStack {
                     BeaconBottomBarStatusFilterButton(
-                        filterActive: doFilter, filterString: "\(beacons.count) sensors found",
-                        filterByTime: $filterByTime, filterByLocation: $filterByLocation, filterByFlag: $filterByFlag)
+                        filterActive: doFilter,
+                        filterByTime: $userSettings.filterByTime,
+                        filterByLocation: $userSettings.filterByLocation,
+                        filterByFlag: $userSettings.filterByFlag,
+                        filterByHidden: $userSettings.filterByHidden,
+                        predicate: compoundPredicate)
                     if doFilter {
                         Button(action: { beaconModel.isPresentingSettingsView.toggle() } ) {
                             HStack { }
@@ -275,9 +287,10 @@ struct BeaconList: View {
             isPresented: $beaconModel.isPresentingSettingsView,
             onDismiss: { beaconModel.isPresentingSettingsView = false },
             content: {
-                BeaconFilterSheet(filterByTime: $filterByTime,
-                                  filterByLocation: $filterByLocation,
-                                  filterByFlag: $filterByFlag)
+                BeaconFilterSheet(filterByTime: $userSettings.filterByTime,
+                                  filterByLocation: $userSettings.filterByLocation,
+                                  filterByFlag: $userSettings.filterByFlag,
+                                  filterByHidden: $userSettings.filterByHidden)
                     .environmentObject(beaconModel)
             }
         )
@@ -385,24 +398,29 @@ struct BeaconList: View {
             beacon.copyHistoryArrayToLocalArray()
         }
     }
+
+    public func resetDistanceBeaconOnce() {
+        print("resetDistanceBeaconOnce")
+        for beacon in beacons {
+            beacon.localDistanceFromPosition = -1
+        }
+    }
     
     public func listBeaconChanges() {
+        var changesBeacon: [String : Any ] = [:]
+        var changesBeaconAdv: [ String : Any ] = [:]
+        var changesBeaconLocation: [ String : Any ] = [:]
+        
         print("listBeaconChanges")
         for beacon in beacons {
-            var changes = beacon.changedValues()
-            print("\(beacon.wrappedDeviceName) has \(changes.count) changes:")
-            if changes.count > 0 { dump(changes) }
-            
+            changesBeacon = beacon.changedValues()
             if let adv = beacon.adv {
-                changes = adv.changedValues()
-                print("\(beacon.wrappedDeviceName) adv has \(changes.count) changes:")
-                if changes.count > 0 { dump(changes) }
+                changesBeaconAdv = adv.changedValues()
             }
             if let location = beacon.location {
-                changes = location.changedValues()
-                print("\(beacon.wrappedDeviceName) location has \(changes.count) changes:")
-                if changes.count > 0 { dump(changes) }
+                changesBeaconLocation = location.changedValues()
             }
+            print("\(beacon.wrappedDeviceName) Changes: Beacon \(changesBeacon.count), adv \(changesBeaconAdv.count), location \(changesBeaconLocation.count) Distance \(beacon.localDistanceFromPosition)")
         }
     }
 }

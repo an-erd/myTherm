@@ -32,12 +32,21 @@ struct BeaconGroupBoxListEntry: View {
                     Group {
                         Label(beacon.wrappedName, systemImage: "thermometer").foregroundColor(Color.blue)
                         Spacer()
-                        HStack {
-                            Image(systemName: "flag.fill").foregroundColor(.orange).imageScale(.small)
-                            Spacer().frame(width: 10)
+                        if beacon.flag {
+                            HStack {
+                                Image(systemName: "flag.fill").foregroundColor(.orange).imageScale(.small)
+                                Spacer().frame(width: 10)
+                            }
                         }
-                        .isHidden(!beacon.flag)
-                        BeaconDownloadImageButton(beacon: beacon, activeDownload: getDownload(beacon: beacon))
+                        if beacon.hidden {
+                            HStack {
+                                Image(systemName: "eye.slash").foregroundColor(.gray).imageScale(.small)
+                                Spacer().frame(width: 10)
+                            }
+                        }
+                        BeaconDownloadImageButton(beacon: beacon,
+                                                  activeDownload: getDownload(beacon: beacon),
+                                                  nowDate: nowDate)
                         Spacer().frame(width: 10)
                         NavigationLink(destination: BeaconDetail(beacon: beacon).environmentObject(lm)) {
                             Image(systemName: "chevron.right").foregroundColor(.secondary) //.imageScale(.small)
@@ -54,6 +63,7 @@ struct BeaconGroupBoxListEntry: View {
                                         .frame(width: 165)
                                     Spacer()
                                     BeaconLineView(beacon: beacon, localValue: localValue, displaySteps: displaySteps)
+//                                    Text("dist \(beacon.localDistanceFromPosition)")
                                 }.frame(height: 55)
                             }
                         }

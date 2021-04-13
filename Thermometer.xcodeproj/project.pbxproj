@@ -11,9 +11,10 @@
 		800F07EB25FE503F00D9F515 /* BeaconSimpleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800F07EA25FE503F00D9F515 /* BeaconSimpleListView.swift */; };
 		801DD7972622CBAA003ECA6D /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 801DD7962622CBAA003ECA6D /* UserSettings.swift */; };
 		801DD79A2622FBE4003ECA6D /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 801DD7992622FBE4003ECA6D /* NetworkManager.swift */; };
+		801E46882624797A00C8FDEB /* BeaconFilterCountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 801E46872624797A00C8FDEB /* BeaconFilterCountView.swift */; };
+		801E468A2624A97000C8FDEB /* HelperFunctionsLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 801E46892624A97000C8FDEB /* HelperFunctionsLocation.swift */; };
 		804DF8672620594900004F2F /* myTherm.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 804DF8652620594900004F2F /* myTherm.xcdatamodeld */; };
 		806313FF260F9685002394FB /* BeaconDownloadImageButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806313FE260F9685002394FB /* BeaconDownloadImageButton.swift */; };
-		8068F56626052B85007D9E2E /* BeaconDownloadViewEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8068F56526052B85007D9E2E /* BeaconDownloadViewEntry.swift */; };
 		806A52BA25FA813300298441 /* BeaconLocationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806A52B725FA813300298441 /* BeaconLocationExtension.swift */; };
 		806A52BB25FA813300298441 /* BeaconExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806A52B825FA813300298441 /* BeaconExtension.swift */; };
 		806A52BC25FA813300298441 /* BeaconStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806A52B925FA813300298441 /* BeaconStruct.swift */; };
@@ -52,7 +53,6 @@
 		809A419126049A8C00180AAA /* BeaconLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 809A419026049A8C00180AAA /* BeaconLaunchScreen.storyboard */; };
 		80A56E042607BC3800C1DFD3 /* BeaconFilterSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80A56E032607BC3800C1DFD3 /* BeaconFilterSheet.swift */; };
 		80A56E062607C57000C1DFD3 /* BeaconFilterSheetEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80A56E052607C57000C1DFD3 /* BeaconFilterSheetEntry.swift */; };
-		80ACFC9025FA869500CAA3DD /* BeaconDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80ACFC8F25FA849E00CAA3DD /* BeaconDownloadView.swift */; };
 		80C6FD0925ED12E6006985D5 /* LineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C6FD0825ED12E6006985D5 /* LineView.swift */; };
 		80C6FD0B25ED16A5006985D5 /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C6FD0A25ED16A5006985D5 /* Line.swift */; };
 		80C6FD0D25ED182B006985D5 /* Path.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C6FD0C25ED182B006985D5 /* Path.swift */; };
@@ -73,9 +73,10 @@
 		800F07EA25FE503F00D9F515 /* BeaconSimpleListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconSimpleListView.swift; sourceTree = "<group>"; };
 		801DD7962622CBAA003ECA6D /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
 		801DD7992622FBE4003ECA6D /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
+		801E46872624797A00C8FDEB /* BeaconFilterCountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconFilterCountView.swift; sourceTree = "<group>"; };
+		801E46892624A97000C8FDEB /* HelperFunctionsLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperFunctionsLocation.swift; sourceTree = "<group>"; };
 		804DF8662620594900004F2F /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		806313FE260F9685002394FB /* BeaconDownloadImageButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDownloadImageButton.swift; sourceTree = "<group>"; };
-		8068F56526052B85007D9E2E /* BeaconDownloadViewEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDownloadViewEntry.swift; sourceTree = "<group>"; };
 		806A52B725FA813300298441 /* BeaconLocationExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BeaconLocationExtension.swift; path = Model/BeaconLocationExtension.swift; sourceTree = "<group>"; };
 		806A52B825FA813300298441 /* BeaconExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BeaconExtension.swift; path = Model/BeaconExtension.swift; sourceTree = "<group>"; };
 		806A52B925FA813300298441 /* BeaconStruct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BeaconStruct.swift; path = Model/BeaconStruct.swift; sourceTree = "<group>"; };
@@ -116,7 +117,6 @@
 		809A419026049A8C00180AAA /* BeaconLaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = BeaconLaunchScreen.storyboard; sourceTree = "<group>"; };
 		80A56E032607BC3800C1DFD3 /* BeaconFilterSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconFilterSheet.swift; sourceTree = "<group>"; };
 		80A56E052607C57000C1DFD3 /* BeaconFilterSheetEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconFilterSheetEntry.swift; sourceTree = "<group>"; };
-		80ACFC8F25FA849E00CAA3DD /* BeaconDownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDownloadView.swift; sourceTree = "<group>"; };
 		80C6FD0825ED12E6006985D5 /* LineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineView.swift; sourceTree = "<group>"; };
 		80C6FD0A25ED16A5006985D5 /* Line.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
 		80C6FD0C25ED182B006985D5 /* Path.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Path.swift; sourceTree = "<group>"; };
@@ -213,7 +213,6 @@
 				8080270A25DD954E000C377D /* BeaconDetail.swift */,
 				8080270825DD952B000C377D /* BeaconValueView.swift */,
 				807838F325DCEB10009FF0E9 /* Persistence.swift */,
-				80ACFC8F25FA849E00CAA3DD /* BeaconDownloadView.swift */,
 				80D0C26725FCA4B700D69392 /* BeaconLineView.swift */,
 				800F07E825FE481200D9F515 /* BeaconGroupBoxList.swift */,
 				80711BD926013E010022E4C0 /* BeaconGroupBoxListEntry.swift */,
@@ -221,12 +220,12 @@
 				8080271625DEA78C000C377D /* myTherm.entitlements */,
 				807838F825DCEB10009FF0E9 /* Info.plist */,
 				807838F025DCEB10009FF0E9 /* Preview Content */,
-				8068F56526052B85007D9E2E /* BeaconDownloadViewEntry.swift */,
 				80A56E032607BC3800C1DFD3 /* BeaconFilterSheet.swift */,
 				80A56E052607C57000C1DFD3 /* BeaconFilterSheetEntry.swift */,
 				80ECC8F22607D6D2006AA4AE /* BeaconBottomBarStatusFilterButton.swift */,
 				80ECC902260BBDD6006AA4AE /* BeaconListAlertEntry.swift */,
 				806313FE260F9685002394FB /* BeaconDownloadImageButton.swift */,
+				801E46872624797A00C8FDEB /* BeaconFilterCountView.swift */,
 			);
 			path = myTherm;
 			sourceTree = "<group>";
@@ -273,6 +272,7 @@
 				808026E225DD5431000C377D /* HelperFunctions.swift */,
 				8072C81B25FC023A00DDAD02 /* HelperFunctionsSwiftUI.swift */,
 				80E1C43925FD01B00017AD20 /* HelperFunctionsCoreData.swift */,
+				801E46892624A97000C8FDEB /* HelperFunctionsLocation.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -436,7 +436,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				80D0C26825FCA4B700D69392 /* BeaconLineView.swift in Sources */,
-				80ACFC9025FA869500CAA3DD /* BeaconDownloadView.swift in Sources */,
 				80ECC8F32607D6D2006AA4AE /* BeaconBottomBarStatusFilterButton.swift in Sources */,
 				806A52BB25FA813300298441 /* BeaconExtension.swift in Sources */,
 				8072C81C25FC023A00DDAD02 /* HelperFunctionsSwiftUI.swift in Sources */,
@@ -466,13 +465,13 @@
 				806E50A925E6A961001218D5 /* BeaconPeripheral.swift in Sources */,
 				804DF8672620594900004F2F /* myTherm.xcdatamodeld in Sources */,
 				80E1C43A25FD01B00017AD20 /* HelperFunctionsCoreData.swift in Sources */,
-				8068F56626052B85007D9E2E /* BeaconDownloadViewEntry.swift in Sources */,
 				8080270425DD6E86000C377D /* BeaconHistoryDataPoint+CoreDataClass.swift in Sources */,
 				80ECC8FC260A50C5006AA4AE /* OnboardingCard.swift in Sources */,
 				801DD79A2622FBE4003ECA6D /* NetworkManager.swift in Sources */,
 				807838ED25DCEB0E009FF0E9 /* ContentView.swift in Sources */,
 				808026E525DD60EE000C377D /* BeaconList.swift in Sources */,
 				808E67FA25E126DD00D37C51 /* ProgressCircle.swift in Sources */,
+				801E46882624797A00C8FDEB /* BeaconFilterCountView.swift in Sources */,
 				806A52BA25FA813300298441 /* BeaconLocationExtension.swift in Sources */,
 				808E67F025E0E88900D37C51 /* MapView.swift in Sources */,
 				8080270525DD6E86000C377D /* BeaconHistoryDataPoint+CoreDataProperties.swift in Sources */,
@@ -486,6 +485,7 @@
 				8080270025DD6E86000C377D /* BeaconAdv+CoreDataClass.swift in Sources */,
 				806E50A725E6A2FB001218D5 /* DownloadManager.swift in Sources */,
 				800F07E925FE481200D9F515 /* BeaconGroupBoxList.swift in Sources */,
+				801E468A2624A97000C8FDEB /* HelperFunctionsLocation.swift in Sources */,
 				806E50AB25E6AC57001218D5 /* Download.swift in Sources */,
 				8080271025DD959C000C377D /* TextShow.swift in Sources */,
 			);
@@ -630,7 +630,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.anerd.myTherm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -654,7 +654,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.anerd.myTherm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

@@ -46,7 +46,6 @@ struct TextEdit : View {
             } else {
                 self.name = self.editName
             }
-            PersistenceController.shared.saveContext(context: viewContext)
         }
     }
 }

@@ -10,6 +10,7 @@ import SwipeCell
 
 struct BeaconGroupBoxList: View {
     @EnvironmentObject var lm: LocationManager
+    @State private var showAlertForHidden = false
 
     var fetchRequest: FetchRequest<Beacon>
     init(predicate: NSPredicate?) {
@@ -70,6 +71,48 @@ struct BeaconGroupBoxList: View {
                     feedback: true
                 )
                 let slot1 = SwipeCellSlot(slots: [button_flag], slotStyle: .delay)
+                
+                let button_hide = SwipeCellButton(
+                    buttonStyle: .view,
+                    title: "",
+                    systemImage: "",
+                    titleColor: .white,
+                    imageColor: .white,
+                    view: {
+                        AnyView(
+                            Group {
+                                if !beacon.hidden {
+                                    VStack {
+                                        Image(systemName: "eye.slash")
+                                            .font(.title2)
+                                            .padding(.bottom, 5)
+                                        Text("Hide")
+                                            .font(.headline)
+                                    }
+                                    .foregroundColor(.white)
+                                } else {
+                                    VStack {
+                                        Image(systemName: "eye")
+                                            .font(.title2)
+                                            .padding(.bottom, 5)
+                                        Text("Show")
+                                            .font(.headline)
+                                    }
+                                    .foregroundColor(.white)
+                                }
+                            }
+                        )
+                    },
+                    backgroundColor: .gray,
+                    action: {
+                        if !beacon.hidden {
+                            showAlertForHidden = true
+                        }
+                        beacon.hidden.toggle()
+                    },
+                    feedback: true
+                )
+                let slot2 = SwipeCellSlot(slots: [button_hide], slotStyle: .delay)
 
                 withAnimation {
                     BeaconGroupBoxListEntry(beacon: beacon,
@@ -77,7 +120,7 @@ struct BeaconGroupBoxList: View {
                                             displaySteps: $displaySteps)
                         .environmentObject(lm)
                         .listRowInsets(EdgeInsets())
-                        .swipeCell(cellPosition: .left, leftSlot: slot1, rightSlot: nil)
+                        .swipeCell(cellPosition: .both, leftSlot: slot1, rightSlot: slot2)
                         .cornerRadius(10)
                         .padding(10)
                 }
@@ -88,6 +131,14 @@ struct BeaconGroupBoxList: View {
         .onAppear(perform: {
             _ = self.timer
         })
+        .alert(isPresented: $showAlertForHidden) {
+            Alert(
+                title: Text("Hide sensor"),
+                message: Text("Sensor will be marked as hidden. Find it again using sensor filter."),
+                dismissButton: .default(Text("Got it!")
+            )
+        )}
+
     }
 }
 

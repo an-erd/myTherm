@@ -23,12 +23,12 @@ class NetworkManager: ObservableObject {
         monitor.pathUpdateHandler = { path in
             if path.status == .satisfied {
                 DispatchQueue.main.async {
-                    print("We're connected!")
+                    print("NetworkManager Internet connected")
                     self.isConnected = true
                 }
             } else {
                 DispatchQueue.main.async {
-                    print("No connection.")
+                    print("NetworkManager Internet not connected")
                     self.isConnected = false
                 }
             }

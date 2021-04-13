@@ -16,22 +16,20 @@ struct BeaconDetail: View {
     var body: some View {
         VStack {
             List {
-                NavigationLink(destination: TextEdit(fieldName: "Name", name:
-                                                        Binding($beacon.name)!, allowEmpty: false)
+                NavigationLink(destination: TextEdit(fieldName: "Name", name: Binding($beacon.name)!,
+                                                     allowEmpty: false)
                 ) {
                     BeaconDetailListEntry(title: "Name", text: beacon.name ?? "default value" )
                 }
 
-                NavigationLink(destination: TextEdit(fieldName: "Description", name:
-                                                        $beacon.descrNonOptional, allowEmpty: true)
+                NavigationLink(destination: TextEdit(fieldName: "Description",
+                                                     name: $beacon.descrNonOptional, allowEmpty: true)
                 ) {
-                    BeaconDetailListEntry(title: "Description", text:
-                                            beacon.descr ?? "")
+                    BeaconDetailListEntry(title: "Description", text: beacon.descr ?? "")
                 }
 
                 DisclosureGroup("BEACON INFORMATION", isExpanded: $isExpandedBeaconInfo) {
-                    BeaconDetailListEntry(title: "Device Name",
-                                          text: beacon.wrappedDeviceName)
+                    BeaconDetailListEntry(title: "Device Name", text: beacon.wrappedDeviceName)
                     buildViewBeacon(beacon: beacon)
                 }
                 
@@ -49,6 +47,7 @@ struct BeaconDetail: View {
                     if let location = beacon.location {
                         buildViewLocation(beaconlocation: location)
 //                            .frame(width: 200, height: 200)
+                        Text(location.address)
                     } else {
                         Text("No data available")
                             .foregroundColor(.gray)
@@ -62,12 +61,12 @@ struct BeaconDetail: View {
                             }
                         }
                     }
-
                 }
             }
+            .padding(.bottom, 20)
+
         }
         .navigationTitle(beacon.name!)
-//        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             Button(action: {
                 MyBluetoothManager.shared.downloadManager.addBeaconToDownloadQueue(uuid: beacon.uuid!)

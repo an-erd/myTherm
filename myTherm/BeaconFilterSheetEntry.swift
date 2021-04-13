@@ -17,6 +17,7 @@ struct BeaconFilterSheetEntry: View {
         Button(action: {option.toggle()}) {
             HStack {
                 Image(systemName: imageName)
+                    .frame(width: 30)
                     .foregroundColor(color)
                     .padding(.trailing, 10)
                 Text(title)

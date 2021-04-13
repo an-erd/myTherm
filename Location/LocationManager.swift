@@ -9,15 +9,27 @@ class LocationManager: NSObject, ObservableObject {
     @Published var status: CLAuthorizationStatus?
     @Published var location: CLLocation?
     @Published var placemark: CLPlacemark?
+    @Published var address: String = ""
     
     private func geocode() {
         guard let location = self.location else { return }
         geocoder.reverseGeocodeLocation(location, completionHandler: { (places, error) in
-          if error == nil {
-            self.placemark = places?[0]
-          } else {
-            self.placemark = nil
-          }
+            if error == nil {
+                self.placemark = places?.first
+                guard let placemark = places?.first else { return }
+                guard let streetName = placemark.thoroughfare else { return }
+                guard let streetNumber = placemark.subThoroughfare else { return }
+                guard let zipCode = placemark.postalCode else { return }
+                guard let city = placemark.locality else { return }
+
+                DispatchQueue.main.async {
+                    self.address = "\(streetName) \(streetNumber) \n \(zipCode) \(city)"
+                    print("\(self.address)")
+                }
+            } else {
+                self.placemark = nil
+                print("geocode placemark = nil")
+            }
         })
     }
 
@@ -36,7 +48,6 @@ class LocationManager: NSObject, ObservableObject {
         }
         self.locationManager.stopMonitoringSignificantLocationChanges()
     }
-    
 
     override init() {
         super.init()
@@ -63,15 +74,17 @@ extension LocationManager: CLLocationManagerDelegate {
         self.geocode()
         
         print("locationManager didUpdateLocations")
-        
-//        let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons()
-//        for beacon in beacons {
-//            if let beaconLocation = beacon.location {
-//                let distance = location.distance(from: beaconLocation.clLocation)
-//                print("distance \(beacon.wrappedName) = \(distance)")
-//                beacon.localDistanceFromPosition = distance
-//            }
-//        }
+        if placemark != nil {
+            print("\(placemark!)")
+        }
+        let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons(context: PersistenceController.shared.viewContext)
+        for beacon in beacons {
+            if let beaconLocation = beacon.location {
+                let distance = location.distance(from: beaconLocation.clLocation)
+                print("distance \(beacon.wrappedName) = \(distance)")
+                beacon.localDistanceFromPosition = distance
+            }
+        }
     }
 }
 

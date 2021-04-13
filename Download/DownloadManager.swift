@@ -103,7 +103,9 @@ class DownloadManager: NSObject, ObservableObject {
     @objc
     private func connectTimerFire() {
         print("connectTimerFire")
-        cancelDownload()
+        localMoc.perform {
+            self.cancelDownload()
+        }
     }
     
     private func startDownload(download: Download) {
@@ -120,11 +122,13 @@ class DownloadManager: NSObject, ObservableObject {
         MyBluetoothManager.shared.connectedPeripheral = foundPeripherals.first
         if let connectto = MyBluetoothManager.shared.connectedPeripheral {
             MyBluetoothManager.shared.central.connect(connectto, options: nil)
-            MyBluetoothManager.shared.connectTimer =
-                Timer.scheduledTimer(timeInterval: 10,
-                                     target: self,
-                                     selector: #selector(connectTimerFire),
-                                     userInfo: nil, repeats: false)
+            DispatchQueue.main.async {
+                MyBluetoothManager.shared.connectTimer =
+                    Timer.scheduledTimer(timeInterval: 10,
+                                         target: self,
+                                         selector: #selector(self.connectTimerFire),
+                                         userInfo: nil, repeats: false)
+            }
         } else {
             print("no peripheral")
             download.status = .error
@@ -140,6 +144,7 @@ class DownloadManager: NSObject, ObservableObject {
             MyBluetoothManager.shared.central.cancelPeripheralConnection(connectedPeripheral)
             MyBluetoothManager.shared.connectedPeripheral = nil
             if let download = activeDownload {
+                MyCentralManagerDelegate.shared.updateBeaconDownloadStatus(context: viewMoc, with: download.uuid, status: .error)
                 download.status = .error
             }
             activeDownload = nil

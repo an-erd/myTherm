@@ -25,6 +25,27 @@ class UserSettings: ObservableObject {
             UserDefaults.standard.set(showRequestInternetAlert, forKey: "showRequestInternetAlert")
         }
     }
+    
+    @Published var filterByTime: Bool {
+        didSet {
+            UserDefaults.standard.set(filterByTime, forKey: "filterByTime")
+        }
+    }
+    @Published var filterByLocation: Bool {
+        didSet {
+            UserDefaults.standard.set(filterByLocation, forKey: "filterByLocation")
+        }
+    }
+    @Published var filterByFlag: Bool {
+        didSet {
+            UserDefaults.standard.set(filterByFlag, forKey: "filterByFlag")
+        }
+    }
+    @Published var filterByHidden: Bool {
+        didSet {
+            UserDefaults.standard.set(filterByHidden, forKey: "filterByHidden")
+        }
+    }
 
     init() {
         self.didLaunchBefore = (UserDefaults.standard.object(forKey: "didLaunchBefore") == nil ? false :
@@ -33,5 +54,14 @@ class UserSettings: ObservableObject {
                                             UserDefaults.standard.object(forKey: "showRequestLocationAlert") as! Bool)
         self.showRequestInternetAlert = (UserDefaults.standard.object(forKey: "showRequestInternetAlert") == nil ? true :
                                             UserDefaults.standard.object(forKey: "showRequestInternetAlert") as! Bool)
+        
+        self.filterByTime = (UserDefaults.standard.object(forKey: "filterByTime") == nil ? true :
+                                            UserDefaults.standard.object(forKey: "filterByTime") as! Bool)
+        self.filterByLocation = (UserDefaults.standard.object(forKey: "filterByLocation") == nil ? false :
+                                            UserDefaults.standard.object(forKey: "filterByLocation") as! Bool)
+        self.filterByFlag = (UserDefaults.standard.object(forKey: "filterByFlag") == nil ? false :
+                                            UserDefaults.standard.object(forKey: "filterByFlag") as! Bool)
+        self.filterByHidden = (UserDefaults.standard.object(forKey: "filterByHidden") == nil ? false :
+                                            UserDefaults.standard.object(forKey: "filterByHidden") as! Bool)
     }
 }

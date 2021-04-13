@@ -356,7 +356,12 @@ extension MyCentralManagerDelegate {
                         localLocation.latitude = location.latitude
                         localLocation.longitude = location.longitude
                         localLocation.timestamp = Date()
+                        let distance = distanceFromPosition(location: location, beacon: alreadyAvailableBeacon)
+                        alreadyAvailableBeacon.localDistanceFromPosition = distance
+                        localLocation.address = self.lm.address
+                        print("update \(alreadyAvailableBeacon.wrappedDeviceName): distanceFromPostion \(distance)")
                     }
+                    
                 }
             } else {
                 print("beacon not found in PersistenceController.shared.container.viewContext.perform")
@@ -578,7 +583,7 @@ extension MyCentralManagerDelegate {
             if let download = downloadManager.activeDownload {
                 download.history.append(dataPoint)
                 download.numEntriesReceived += 1
-                let interval = Int(download.numEntriesAll / 50)
+                let interval = max(Int(download.numEntriesAll / 50), 1)
                 if Int(download.numEntriesReceived) % interval == 0 {
                     self.updateBeaconDownloadProgress(context: viewMoc, with: download.uuid,
                                                       progress: Float(download.numEntriesReceived) / Float(download.numEntriesAll) )

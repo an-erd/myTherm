@@ -25,6 +25,7 @@ extension Beacon {
     @NSManaged public var name: String?
     @NSManaged public var uuid: UUID?
     @NSManaged public var flag: Bool
+    @NSManaged public var hidden: Bool
     @NSManaged public var adv: BeaconAdv?
     @NSManaged public var history: NSSet?
     @NSManaged public var location: BeaconLocation?

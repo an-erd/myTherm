@@ -13,22 +13,26 @@ struct BeaconFilterSheet: View {
     @Binding var filterByTime: Bool
     @Binding var filterByLocation: Bool
     @Binding var filterByFlag: Bool
+    @Binding var filterByHidden: Bool
     
     var body: some View {
         NavigationView {
             List {
-                BeaconFilterSheetEntry(imageName: "timer", title: "Seen recently", option: $filterByTime)
-                BeaconFilterSheetEntry(imageName: "location", title: "Nearby", option: $filterByLocation)
-                BeaconFilterSheetEntry(imageName: "flag.fill", color: .orange, title: "Flagged", option: $filterByFlag)
+                Section(header: Text("Include:"),
+                        footer: Text("Select one or more filter to apply simultaneously to the sensor list.")) {
+                    BeaconFilterSheetEntry(imageName: "timer", title: "Seen recently", option: $filterByTime)
+                    BeaconFilterSheetEntry(imageName: "location", title: "Nearby", option: $filterByLocation)
+                    BeaconFilterSheetEntry(imageName: "flag.fill", color: .orange, title: "Flagged", option: $filterByFlag)
+                    BeaconFilterSheetEntry(imageName: "eye.slash", color: .secondary, title: "Hidden", option: $filterByHidden)
+                }
             }
             .navigationBarTitle(Text("Filter"), displayMode: .inline)
             .navigationBarItems(trailing: Button(action: {
-                print("Dismissing sheet view... \(filterByTime) \(filterByLocation) \(filterByFlag)")
+                print("Dismissing sheet view: time \(filterByTime), loc \(filterByLocation), flag \(filterByFlag), hidden \(filterByHidden)")
                 presentationMode.wrappedValue.dismiss()
             }) {
                 Text("Done").bold()
                     .padding(10)
-                //                    .border(Color.white)
             })
         }
     }
@@ -37,8 +41,10 @@ struct BeaconFilterSheet: View {
 struct BeaconFilterSheet_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            BeaconFilterSheet(filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true))
-            BeaconFilterSheet(filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true))
+            BeaconFilterSheet(filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true),
+                              filterByHidden: .constant(false))
+            BeaconFilterSheet(filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true),
+                              filterByHidden: .constant(false))
         }
         .previewLayout(.fixed(width: 300, height: 70))
     }
