@@ -14,7 +14,8 @@ struct BeaconFilterSheet: View {
     @Binding var filterByLocation: Bool
     @Binding var filterByFlag: Bool
     @Binding var filterByHidden: Bool
-    
+    @Binding var filterByShown: Bool
+
     var body: some View {
         NavigationView {
             List {
@@ -24,11 +25,12 @@ struct BeaconFilterSheet: View {
                     BeaconFilterSheetEntry(imageName: "location", title: "Nearby", option: $filterByLocation)
                     BeaconFilterSheetEntry(imageName: "flag.fill", color: .orange, title: "Flagged", option: $filterByFlag)
                     BeaconFilterSheetEntry(imageName: "eye.slash", color: .secondary, title: "Hidden", option: $filterByHidden)
+                    BeaconFilterSheetEntry(imageName: "eye", title: "Shown", option: $filterByShown)
                 }
             }
             .navigationBarTitle(Text("Filter"), displayMode: .inline)
             .navigationBarItems(trailing: Button(action: {
-                print("Dismissing sheet view: time \(filterByTime), loc \(filterByLocation), flag \(filterByFlag), hidden \(filterByHidden)")
+                print("Dismissing sheet view: time \(filterByTime), loc \(filterByLocation), flag \(filterByFlag), hidden \(filterByHidden), hidden \(filterByShown)")
                 presentationMode.wrappedValue.dismiss()
             }) {
                 Text("Done").bold()
@@ -42,9 +44,9 @@ struct BeaconFilterSheet_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             BeaconFilterSheet(filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true),
-                              filterByHidden: .constant(false))
+                              filterByHidden: .constant(false), filterByShown: .constant(false))
             BeaconFilterSheet(filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true),
-                              filterByHidden: .constant(false))
+                              filterByHidden: .constant(false), filterByShown: .constant(false))
         }
         .previewLayout(.fixed(width: 300, height: 70))
     }

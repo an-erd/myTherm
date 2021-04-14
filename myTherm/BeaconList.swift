@@ -33,6 +33,7 @@ struct BeaconList: View {
     @State var predicateLocationFilter: NSPredicate?
     @State var predicateFlaggedFilter: NSPredicate?
     @State var predicateHiddenFilter: NSPredicate?
+    @State var predicateShownFilter: NSPredicate?
     @State var compoundPredicate: NSCompoundPredicate?
     @State var filterPredicateUpdateTimer: Timer?
     let filterPredicateTimeinterval: Double = 180
@@ -93,6 +94,13 @@ struct BeaconList: View {
                 compound.append(predicateHiddenFilter)
             }
         }
+        if userSettings.filterByShown {
+            predicateShownFilter = NSPredicate(format: "hidden == false")
+            if let predicateShownFilter = predicateShownFilter {
+                compound.append(predicateShownFilter)
+            }
+        }
+
         withAnimation {
             compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: compound)
         }
@@ -281,16 +289,32 @@ struct BeaconList: View {
                     }
                     .padding(10)
                     //                    .border(Color.white)
+                    Button("...") {
+                        print("Button pressed!")
+                    }
+                    .foregroundColor(Color.primary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 2)
+                    .background(Color.secondary)
+                    .clipShape(Capsule())
+                    
                 }
         )
         .sheet(
             isPresented: $beaconModel.isPresentingSettingsView,
-            onDismiss: { beaconModel.isPresentingSettingsView = false },
+            onDismiss: {
+                beaconModel.isPresentingSettingsView = false
+                if !( userSettings.filterByTime || userSettings.filterByFlag || userSettings.filterByLocation
+                        || userSettings.filterByHidden || userSettings.filterByShown ) {
+                    userSettings.filterByTime = true
+                }
+            },
             content: {
                 BeaconFilterSheet(filterByTime: $userSettings.filterByTime,
                                   filterByLocation: $userSettings.filterByLocation,
                                   filterByFlag: $userSettings.filterByFlag,
-                                  filterByHidden: $userSettings.filterByHidden)
+                                  filterByHidden: $userSettings.filterByHidden,
+                                  filterByShown: $userSettings.filterByShown)
                     .environmentObject(beaconModel)
             }
         )

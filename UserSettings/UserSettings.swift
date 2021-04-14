@@ -46,6 +46,11 @@ class UserSettings: ObservableObject {
             UserDefaults.standard.set(filterByHidden, forKey: "filterByHidden")
         }
     }
+    @Published var filterByShown: Bool {
+        didSet {
+            UserDefaults.standard.set(filterByHidden, forKey: "filterByShown")
+        }
+    }
 
     init() {
         self.didLaunchBefore = (UserDefaults.standard.object(forKey: "didLaunchBefore") == nil ? false :
@@ -63,5 +68,7 @@ class UserSettings: ObservableObject {
                                             UserDefaults.standard.object(forKey: "filterByFlag") as! Bool)
         self.filterByHidden = (UserDefaults.standard.object(forKey: "filterByHidden") == nil ? false :
                                             UserDefaults.standard.object(forKey: "filterByHidden") as! Bool)
+        self.filterByShown = (UserDefaults.standard.object(forKey: "filterByShown") == nil ? false :
+                                            UserDefaults.standard.object(forKey: "filterByShown") as! Bool)
     }
 }

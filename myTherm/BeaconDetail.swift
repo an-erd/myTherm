@@ -110,7 +110,7 @@ func buildViewAdv(beaconadv: BeaconAdv) -> AnyView {
     return AnyView (
         Group {
             BeaconDetailListEntry(title: "Last data",
-                                  text: getDateString(date: beaconadv.timestamp))
+                                  text: getDateString(date: beaconadv.timestamp, offsetGMT: 7200))
             BeaconDetailListEntry(title: "Temperature",
                                   text: String(format:"%.2f °C", beaconadv.temperature))
             BeaconDetailListEntry(title: "Humidity",
@@ -135,7 +135,7 @@ func buildViewLocation(beaconlocation: BeaconLocation) -> AnyView {
     return AnyView (
         Group {
             BeaconDetailListEntry(title: "Last location",
-                                  text: getDateString(date: beaconlocation.timestamp))
+                                  text: getDateString(date: beaconlocation.timestamp, offsetGMT: 7200))
             ZStack {
                 MapView(centerCoordinate: beaconlocation.location)
                     .frame(width: 300, height: 200)   // TODO

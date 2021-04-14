@@ -44,7 +44,7 @@ struct BeaconValueView: View {
                     Spacer()
                 }
                 if let date = localValue.timestamp {
-                    Text(getDateString(date: date))
+                    Text(getDateString(date: date, offsetGMT: 0))
                         .font(.footnote).foregroundColor(.secondary) //.padding(.trailing, 4)
                 } else {
                     Text("no date")
