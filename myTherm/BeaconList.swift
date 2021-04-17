@@ -17,11 +17,20 @@ enum ActiveSheet: Identifiable {
     }
 }
 
+enum ActiveAlert: Identifiable {
+    case downloadError
+    
+    var id: Int {
+        hashValue
+    }
+}
+
 struct BeaconList: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var userSettings: UserSettings
     @EnvironmentObject var networkManager: NetworkManager
     @StateObject var beaconModel = BeaconModel.shared   // TODO
+    @StateObject var downloadManager = DownloadManager.shared
     @StateObject var lm = LocationManager()
     @State var filteredListEntriesShown: Int = 0
     
@@ -48,8 +57,9 @@ struct BeaconList: View {
     let filterPredicateTimeinterval: Double = 180
     let filterPredicateDistanceMeter: Double = 500
     
-    @State private var doMessageDownload: Bool = false
-
+    @State private var doErrorMessageDownload: Bool = false
+    @State var activeAlert: ActiveAlert?
+    
     @State var sort: Int = 0
     
     func startFilterUpdate() {
@@ -260,17 +270,27 @@ struct BeaconList: View {
                         filterByFlag: $userSettings.filterByFlag,
                         filterByHidden: $userSettings.filterByHidden,
                         predicate: compoundPredicate)
-                        .opacity(doFilter ? 1 : 0)
-                    Rectangle()
-                        .fill(Color.blue)
-                        .opacity(doFilter ? 0 : 1)
-                    if doFilter {
-                        Button(action: {
+                        .opacity(!(beaconModel.isDownloadStatusError || beaconModel.isDownloading) ? 1 : 0)
+                    
+                    BeaconBottomBarStatusDownloadButton(
+                        textLine1: beaconModel.textDownloadStatusErrorLine1, colorLine1: .primary,
+                        textLine2: beaconModel.textDownloadStatusErrorLine2, colorLine2: .blue)
+                        .opacity(beaconModel.isDownloadStatusError ? 1 : 0)
+                    
+                    BeaconBottomBarStatusDownloadButton(
+                        textLine1: beaconModel.textDownloadingStatusLine1, colorLine1: .primary,
+                        textLine2: beaconModel.textDownloadingStatusLine2, colorLine2: .primary)
+                        .opacity(beaconModel.isDownloading ? 1 : 0)
+                    
+                    Button(action: {
+                        if beaconModel.isDownloadStatusError {
+                            activeAlert = .downloadError
+                        } else if doFilter {
                             activeSheet = .filter
-                        } ) {
-                            HStack { }
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                         }
+                    }) {
+                        HStack { }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                     }
                 }
                 Spacer()
@@ -334,6 +354,17 @@ struct BeaconList: View {
                     .environmentObject(beaconModel)
             case .settings:
                 BeaconConfigSettingsSheet()
+            }
+        }
+        .alert(item: $activeAlert) { item in
+            switch item {
+            case .downloadError:
+                return Alert(
+                    title: Text("Download errors"),
+                    message: Text("Download sensor data is complete. Retrieval did not succeed for the following sensors:\n\(downloadManager.buildDownloadErrorDeviceList())"),
+                    dismissButton: .default(Text("OK"),
+                                            action: { downloadManager.clearDownloadErrorAndResume() })
+                )
             }
         }
     }

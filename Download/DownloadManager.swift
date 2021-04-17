@@ -25,6 +25,8 @@ class DownloadManager: NSObject, ObservableObject {
     var activeDownload: Download?
     var status: DownloadManagerStatus = .idle
     
+    static var shared = DownloadManager()
+
     func setMoc(localMoc: NSManagedObjectContext, viewMoc: NSManagedObjectContext) {
         self.localMoc = localMoc
         self.viewMoc = viewMoc
@@ -89,6 +91,51 @@ class DownloadManager: NSObject, ObservableObject {
         }
     }
     
+    private func buildDownloadErrorStatus() -> (String, String, Int) {
+        let count = getDownloads(with: .error).count
+        let text1: String = "Download done"
+        var text2: String = ""
+        if count == 0 {
+            text2 = "no errors"
+        } else if count == 1 {
+            text2 = "1 error"
+        } else {
+            text2 = "\(count) errors)"
+        }
+        return (text1, text2, count)
+    }
+    
+    func buildDownloadErrorDeviceList() -> String {
+        var text: String = ""
+        localMoc.performAndWait {
+            let downloadsError = getDownloads(with: .error)
+            var counter = downloadsError.count
+            for download in downloadsError {
+                counter -= 1
+                if let beacon = download.beacon {
+                    text.append("\(beacon.wrappedDeviceName) - \(beacon.wrappedName)")
+                    if counter > 0 {
+                        text.append("\n")
+                    }
+                }
+            }
+        }
+        return text
+    }
+        
+    func clearDownloadErrorAndResume() {
+        DispatchQueue.main.async {
+            BeaconModel.shared.isDownloadStatusError = false
+        }
+        localMoc.performAndWait {
+            for download in self.downloads {
+                download.status = .alldone
+            }
+            self.status = .done
+            resume()
+        }
+    }
+    
     func resume() {
         localMoc.perform { [self] in
             print("DownloadManager resume() > status \(status)")
@@ -108,6 +155,13 @@ class DownloadManager: NSObject, ObservableObject {
                 return
             case .error:
                 print("resume .error")
+                let (text1, text2, _) = buildDownloadErrorStatus()
+                DispatchQueue.main.async {
+                    let model = BeaconModel.shared
+                    model.isDownloadStatusError = true
+                    model.textDownloadStatusErrorLine1 = text1
+                    model.textDownloadStatusErrorLine2 = text2
+                }
                 return
             case .done:
                 cleanupDownloadQueue()

@@ -41,9 +41,8 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
     private var viewMoc: NSManagedObjectContext!
     private var lm = LocationManager()
     private var doUpdateAdv: Bool = true
-    var downloadManager = DownloadManager()
+    var downloadManager = DownloadManager.shared
 
-    
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
         case .unknown:
