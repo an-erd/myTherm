@@ -19,7 +19,7 @@ struct BeaconGroupBoxListEntry: View {
     @StateObject var localValue: BeaconLocalValueView = BeaconLocalValueView()
     
     func getDownload(beacon: Beacon) -> Download? {
-        let activeDownloadsFiltered = MyBluetoothManager.shared.downloadManager.activeDownloads.filter() { download in
+        let activeDownloadsFiltered = MyCentralManagerDelegate.shared.downloadManager.downloads.filter() { download in
             return download.uuid == beacon.uuid
         }
         return activeDownloadsFiltered.first

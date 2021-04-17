@@ -6,34 +6,54 @@
 //
 
 import Foundation
-
-//protocol DownloadDelegate: AnyObject {
-//    func downloadProgressUpdated(for progress: Float, for uuid: UUID)
-//    func downloadStatusUpdated(for status: DownloadStatus, for uuid: UUID)
-//}
+import CoreData
 
 public enum DownloadStatus: Int32 {
-    case waiting = 0
-    case connecting = 1
-    case downloading_num = 2
-    case downloading_data = 3
-    case downloading_finished = 4
-    case alldone = 5
-    case cancelled = 6
-    case error = 7
-    case none = 8
+    case waiting = 0                // in queue and waiting for next action: download
+    case connecting = 1             // in progress of connecting to device
+    case downloading_num = 2        // in progress of getting overall number of entries to download
+    case downloading_data = 3       // in progress of retrievin data
+    case downloading_finished = 4   // downloading has been finished
+    case alldone = 5                // TODO what is alldone, should be removed
+    case cancelled = 6              // download has been canceled by the user
+    case error = 7                  // error connecting to or retrieving data from device
+    case none = 8                   // TODO should be removed
 }
 
 class Download : ObservableObject {
-
-//    weak var delegate: DownloadDelegate?
-    
     var uuid: UUID
     var beacon: Beacon?
+    var viewContext: NSManagedObjectContext
     var status: DownloadStatus = .waiting
 //    {
-//        didSet {
-//            updateStatus()
+//        get {
+////            var newStatus: DownloadStatus = .none
+////            viewContext.performAndWait {
+//                return DownloadStatus(rawValue: beacon!.localDownloadStatus.rawValue)!
+////            }
+////            return newStatus
+//        }
+//        set {
+////            var newStatusRaw = newValue.rawValue
+////            viewContext.performAndWait {
+//            beacon!.localDownloadStatusValue = newValue.rawValue
+////            }
+//        }
+//    }
+
+    var progress: Float = 0.0
+//    {
+//        get {
+//            var newProgress: Float = 0.0
+//            viewContext.performAndWait {
+//                newProgress = beacon!.localDownloadProgress
+//            }
+//            return newProgress
+//        }
+//        set {
+//            viewContext.performAndWait {
+//                beacon!.localDownloadProgress = newValue
+//            }
 //        }
 //    }
 
@@ -41,42 +61,17 @@ class Download : ObservableObject {
     var numEntriesReceived: Int = 0
     var history: [BeaconHistoryDataPointLocal] = []
         
-    var progress: Float = 0.0
-//    {
-//        didSet {
-//            updateProgress()
-//        }
-//     }
-//    
-//    private func updateProgress() {
-//        DispatchQueue.main.async {
-//
-//            if self.delegate != nil {
-//                self.delegate?.downloadProgressUpdated(for: self.progress, for: self.uuid)
-//        } else {
-//            print("updateProgress() delegate is nil")
-//        }
-//        }
-//    }
-//
-//    private func updateStatus() {
-//        if delegate != nil {
-//        delegate?.downloadStatusUpdated(for: status, for: uuid)
-//        } else {
-//            print("updateStatus() delegate is nil")
-//        }
-//    }
 
-    init(uuid: UUID, beacon: Beacon) { //}, delegate: DownloadDelegate ){
+    init(uuid: UUID, beacon: Beacon) {
         self.uuid = uuid
         self.beacon = beacon
-//        self.delegate = delegate
+        self.viewContext = PersistenceController.shared.container.viewContext
     }
     
     deinit {
         let newUuid = self.uuid
         let moc = PersistenceController.shared.container.viewContext
-        moc.perform { 
+        moc.perform {
             MyCentralManagerDelegate.shared.updateBeaconDownloadProgress(context: moc, with: newUuid, progress: 0.0)
             MyCentralManagerDelegate.shared.updateBeaconDownloadStatus(context: moc, with: newUuid, status: .waiting)
         }
@@ -87,11 +82,5 @@ class Download : ObservableObject {
             $0.timestamp < $1.timestamp
         }
     }
-
-}
-
-extension Download {
-    func getDownloadUUID() -> UUID {
-        return uuid
-    }
+        
 }

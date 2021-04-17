@@ -15,7 +15,26 @@ struct BeaconDownloadImageButton: View {
 
     var body: some View {
         Button(action: {
-            MyBluetoothManager.shared.downloadManager.addBeaconToDownloadQueue(uuid: beacon.uuid!)
+            if activeDownload == nil {
+                print("button addBeaconToDownloadQueue")
+                MyCentralManagerDelegate.shared.downloadManager.addBeaconToDownloadQueue(uuid: beacon.uuid!)
+            } else {
+                switch beacon.localDownloadStatus {
+                case .waiting, .connecting, .downloading_num, .downloading_data:
+                    print("button .waiting, .connecting, .downloading_num, .downloading_data")
+                    MyCentralManagerDelegate.shared.downloadManager.cancelDownloadForUuid(uuid: beacon.uuid!)
+                case .alldone:
+                    print("button .alldone")
+                case .cancelled:
+                    print("button .cancelled")
+                case .error:
+                    print("button .error")
+                case .none:
+                    print("button .none")
+                default:
+                    print("button default")
+                }
+            }
         }) {
             if activeDownload != nil {
                 switch beacon.localDownloadStatus {

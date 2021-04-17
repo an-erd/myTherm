@@ -69,7 +69,7 @@ struct BeaconDetail: View {
         .navigationTitle(beacon.name!)
         .toolbar {
             Button(action: {
-                MyBluetoothManager.shared.downloadManager.addBeaconToDownloadQueue(uuid: beacon.uuid!)
+                MyCentralManagerDelegate.shared.downloadManager.addBeaconToDownloadQueue(uuid: beacon.uuid!)
             }) {
                 Image(systemName: "icloud.and.arrow.down")
 //                Image(systemName: "arrow.triangle.2.circlepath")

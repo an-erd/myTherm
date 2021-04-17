@@ -9,9 +9,16 @@
 import SwiftUI
 import CoreLocation
 
+enum ActiveSheet: Identifiable {
+    case filter, settings
+    
+    var id: Int {
+        hashValue
+    }
+}
+
 struct BeaconList: View {
     @Environment(\.managedObjectContext) private var viewContext
-//    @EnvironmentObject var lm: LocationManager
     @EnvironmentObject var userSettings: UserSettings
     @EnvironmentObject var networkManager: NetworkManager
     @StateObject var beaconModel = BeaconModel.shared   // TODO
@@ -29,6 +36,8 @@ struct BeaconList: View {
     @State private var doUpdateAdv: Bool = false
     
     @State private var doFilter: Bool = false
+    @State var activeSheet: ActiveSheet?
+    @State var activeSheetDismiss: ActiveSheet?
     @State var predicateTimeFilter: NSPredicate?
     @State var predicateLocationFilter: NSPredicate?
     @State var predicateFlaggedFilter: NSPredicate?
@@ -39,6 +48,7 @@ struct BeaconList: View {
     let filterPredicateTimeinterval: Double = 180
     let filterPredicateDistanceMeter: Double = 500
     
+    @State private var doMessageDownload: Bool = false
 
     @State var sort: Int = 0
     
@@ -113,78 +123,85 @@ struct BeaconList: View {
         }
     }
     
+    fileprivate func buildViewBluetoothAutorization() -> some View {
+        return BeaconListAlertEntry(title: "Bluetooth permission required",
+                                    image: "exclamationmark.triangle.fill",
+                                    text: "Sensors communicate by Bluetooth. On your phone, please go to Settings > Thermometer and turn on Bluetooth.",
+                                    foregroundColor: .white,
+                                    backgroundColor: Color("alertRed"),
+                                    allowDismiss: false,
+                                    dismiss: .constant(false))
+    }
+    
+    fileprivate func buildViewLocationServices() -> some View {
+        return BeaconListAlertEntry(title: "Location permission preferable",
+                                    image: "questionmark.circle.fill",
+                                    text: "To store sensor location, please allow location services. On your phone, please go to Settings > Thermometer and turn on Location services.",
+                                    foregroundColor: .white,
+                                    backgroundColor: Color("alertYellow"),
+                                    allowDismiss: true,
+                                    dismiss: $userSettings.showRequestLocationAlert)
+    }
+    
+    fileprivate func buildViewInternet() -> some View {
+        return BeaconListAlertEntry(title: "Internet connection preferable",
+                                    image: "questionmark.circle.fill",
+                                    text: "To upload your data to iCloud, please provide internet access.",
+                                    foregroundColor: .white,
+                                    backgroundColor: Color("alertYellow"),
+                                    allowDismiss: true,
+                                    dismiss: $userSettings.showRequestInternetAlert)
+    }
+    
+    fileprivate func buildViewDebugTogglesScanAdv() -> some View {
+        return VStack {
+            Toggle("Scan", isOn: $doScan)
+                .onChange(of: doScan, perform: { value in
+                    if value == true {
+                        MyCentralManagerDelegate.shared.startScanAndLocationService()
+                    } else {
+                        MyCentralManagerDelegate.shared.stopScanAndLocationService()
+                    }
+                    print("toggle update adv \(value)")
+                })
+            Toggle("Adv", isOn: $doUpdateAdv)
+                .onChange(of: doUpdateAdv, perform: { value in
+                    if value == true {
+                        MyCentralManagerDelegate.shared.startUpdateAdv()
+                    } else {
+                        MyCentralManagerDelegate.shared.stopUpdateAdv()
+                    }
+                    print("toggle update adv \(value)")
+                })
+        }
+        .padding()
+    }
+    
     var body: some View {
         
         ScrollView {
             VStack(spacing: 8) {
                 
                 if !beaconModel.isBluetoothAuthorization {
-                    BeaconListAlertEntry(title: "Bluetooth permission required",
-                                         image: "exclamationmark.triangle.fill",
-                                         text: "Sensors communicate by Bluetooth. On your phone, please go to Settings > Thermometer and turn on Bluetooth.",
-                                         foregroundColor: .white,
-                                         backgroundColor: Color("alertRed"),
-                                         allowDismiss: false,
-                                         dismiss: .constant(false))
+                    buildViewBluetoothAutorization()
                 }
+                
                 if (userSettings.showRequestLocationAlert) {
                     if (lm.status == .restricted) || (lm.status == .denied) {
-                        BeaconListAlertEntry(title: "Location permission preferable",
-                                             image: "questionmark.circle.fill",
-                                             text: "To store sensor location, please allow location services. On your phone, please go to Settings > Thermometer and turn on Location services.",
-                                             foregroundColor: .white,
-                                             backgroundColor: Color("alertYellow"),
-                                             allowDismiss: true,
-                                             dismiss: $userSettings.showRequestLocationAlert)
+                        buildViewLocationServices()
                     }
                 }
                 if (!networkManager.isConnected) {
-                    BeaconListAlertEntry(title: "Internet connection preferable",
-                                         image: "questionmark.circle.fill",
-                                         text: "To upload your data to iCloud, please provide internet access.",
-                                         foregroundColor: .white,
-                                         backgroundColor: Color("alertYellow"),
-                                         allowDismiss: true,
-                                         dismiss: $userSettings.showRequestInternetAlert)
+                    buildViewInternet()
                 }
-                //                BeaconListAlertEntry(title: "No data yet",
-                //                                     image: "questionmark.circle.fill",
-                //                                     text: "Sensors available? Placed too far away?",
-                //                                     foregroundColor: .white,
-                //                                     backgroundColor: Color("alertGreen"))
-                //                BeaconListAlertEntry(title: "No data yet 2",
-                //                                     image: "questionmark.circle.fill",
-                //                                     text: "Sensors available? Placed too far away?",
-                //                                     foregroundColor: .white,
-                //                                     backgroundColor: Color("alertBlue"))
-                //
-                HStack {
-                    Toggle("Scan", isOn: $doScan)
-                        .onChange(of: doScan, perform: { value in
-                            if value == true {
-                                MyCentralManagerDelegate.shared.startScanAndLocationService()
-                            } else {
-                                MyCentralManagerDelegate.shared.stopScanAndLocationService()
-                            }
-                            print("toggle update adv \(value)")
-                        })
-                    Spacer()
-                    Toggle("Adv", isOn: $doUpdateAdv)
-                        .onChange(of: doUpdateAdv, perform: { value in
-                            if value == true {
-                                MyCentralManagerDelegate.shared.startUpdateAdv()
-                            } else {
-                                MyCentralManagerDelegate.shared.stopUpdateAdv()
-                            }
-                            print("toggle update adv \(value)")
-                        })
-                    Button(action: {
-                        MyBluetoothManager.shared.downloadManager.addAllBeaconsToDownloadQueue()
-                    }) {
-                        Image(systemName: "icloud.and.arrow.down")
-                    }
-                    
-                }
+#if DEBUG_ADV
+                buildViewDebugTogglesScanAdv()
+#endif
+                //                    Button(action: {
+                //                        MyBluetoothManager.shared.downloadManager.addAllBeaconsToDownloadQueue()
+                //                    }) {
+                //                        Image(systemName: "icloud.and.arrow.down")
+                //                    }
             }
             withAnimation {
                 BeaconGroupBoxList(predicate: compoundPredicate)
@@ -200,6 +217,7 @@ struct BeaconList: View {
                 //                copyStoreToLocalBeacons()
                 copyBeaconHistoryOnce()
                 stopFilterUpdate()
+                MyCentralManagerDelegate.shared.stopScanAndLocationService()
             }
         })
         .onDisappear(perform: {
@@ -242,11 +260,16 @@ struct BeaconList: View {
                         filterByFlag: $userSettings.filterByFlag,
                         filterByHidden: $userSettings.filterByHidden,
                         predicate: compoundPredicate)
+                        .opacity(doFilter ? 1 : 0)
+                    Rectangle()
+                        .fill(Color.blue)
+                        .opacity(doFilter ? 0 : 1)
                     if doFilter {
-                        Button(action: { beaconModel.isPresentingSettingsView.toggle() } ) {
+                        Button(action: {
+                            activeSheet = .filter
+                        } ) {
                             HStack { }
                                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-                            //                                .border(Color.white)
                         }
                     }
                 }
@@ -288,37 +311,31 @@ struct BeaconList: View {
                         }
                     }
                     .padding(10)
-                    //                    .border(Color.white)
+                    .border(Color.red)
+                    
                     Button("...") {
-                        print("Button pressed!")
+                        activeSheet = .settings
                     }
-                    .foregroundColor(Color.primary)
+                    .foregroundColor(Color.white)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 2)
-                    .background(Color.secondary)
+                    .background(Color.blue)
                     .clipShape(Capsule())
-                    
                 }
         )
-        .sheet(
-            isPresented: $beaconModel.isPresentingSettingsView,
-            onDismiss: {
-                beaconModel.isPresentingSettingsView = false
-                if !( userSettings.filterByTime || userSettings.filterByFlag || userSettings.filterByLocation
-                        || userSettings.filterByHidden || userSettings.filterByShown ) {
-                    userSettings.filterByTime = true
-                }
-            },
-            content: {
-                BeaconFilterSheet(filterByTime: $userSettings.filterByTime,
-                                  filterByLocation: $userSettings.filterByLocation,
-                                  filterByFlag: $userSettings.filterByFlag,
-                                  filterByHidden: $userSettings.filterByHidden,
-                                  filterByShown: $userSettings.filterByShown)
+        .sheet(item: $activeSheet) { item in
+            switch item {
+            case .filter:
+                BeaconFilterSettingsSheet(filterByTime: $userSettings.filterByTime,
+                                          filterByLocation: $userSettings.filterByLocation,
+                                          filterByFlag: $userSettings.filterByFlag,
+                                          filterByHidden: $userSettings.filterByHidden,
+                                          filterByShown: $userSettings.filterByShown)
                     .environmentObject(beaconModel)
+            case .settings:
+                BeaconConfigSettingsSheet()
             }
-        )
-        
+        }
     }
     
     public func onAppear() {

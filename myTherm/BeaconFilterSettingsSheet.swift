@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct BeaconFilterSheet: View {
+struct BeaconFilterSettingsSheet: View {
     @Environment(\.presentationMode) var presentationMode
     
     @Binding var filterByTime: Bool
@@ -37,15 +37,20 @@ struct BeaconFilterSheet: View {
                     .padding(10)
             })
         }
+        .onDisappear {
+            if !( filterByTime || filterByFlag || filterByLocation || filterByHidden || filterByShown ) {
+                filterByTime = true
+            }
+        }
     }
 }
 
 struct BeaconFilterSheet_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            BeaconFilterSheet(filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true),
+            BeaconFilterSettingsSheet(filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true),
                               filterByHidden: .constant(false), filterByShown: .constant(false))
-            BeaconFilterSheet(filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true),
+            BeaconFilterSettingsSheet(filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true),
                               filterByHidden: .constant(false), filterByShown: .constant(false))
         }
         .previewLayout(.fixed(width: 300, height: 70))

@@ -12,13 +12,16 @@ import SwiftUI
 import os.signpost
 
 enum DownloadManagerStatus{
-    case idle, processing, done
+    case idle       // either no download upcoming or previous download completed and next one to start
+    case processing // current download ongoing
+    case error      // all downloads completed (no .waiting) but some with errors (-> handle/show message next)
+    case done       // all downloads processed, possibly errors handled/shown, now cleanup and then back to .idle next
 }
 
 class DownloadManager: NSObject, ObservableObject {
     private var localMoc: NSManagedObjectContext!
     private var viewMoc: NSManagedObjectContext!
-    var activeDownloads: [Download] = []
+    var downloads: [Download] = []
     var activeDownload: Download?
     var status: DownloadManagerStatus = .idle
     
@@ -27,20 +30,38 @@ class DownloadManager: NSObject, ObservableObject {
         self.viewMoc = viewMoc
     }
 
+    func getDownload(with uuid: UUID) -> Download? {
+        let downloadsFiltered = downloads.filter() {download in
+            return download.uuid == uuid
+        }
+        if downloadsFiltered.count > 0 {
+            return downloadsFiltered.first
+        }
+        return nil
+    }
+    
+    func getDownloads(with status: DownloadStatus) -> [Download] {
+        let downloadsFiltered = downloads.filter() {download in
+            return download.status == status
+        }
+        
+        if downloadsFiltered.count > 0 {
+            return downloadsFiltered
+        } else {
+            return []
+        }
+    }
+    
     func addBeaconToDownloadQueue(uuid: UUID){
         localMoc.perform { [self] in
-            print("DownloadManager queue len \(activeDownloads.count)")
-            let activeDownloadsFiltered = activeDownloads.filter() {download in
-                return download.uuid == uuid
-            }
-            if activeDownloadsFiltered.count > 0 {
+            if getDownload(with: uuid) != nil {
                 print("DownloadManager addBeaconToDownloadQueue beacon already in queue")
                 return
             }
             
             if let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: localMoc, with: uuid) {
                 let newDownload = Download(uuid: beacon.uuid!, beacon: beacon) // , delegate: beacon)
-                activeDownloads.append(newDownload)
+                downloads.append(newDownload)
                 
                 resume()
             } else {
@@ -59,38 +80,34 @@ class DownloadManager: NSObject, ObservableObject {
     }
     
     private func cleanupDownloadQueue() {
-        let activeDownloadsFiltered = activeDownloads.filter() {download in
-            return download.status == .waiting
-        }
-        if activeDownloadsFiltered.count == 0 {
+        let downloadsAlldone = getDownloads(with: .alldone)
+        if downloadsAlldone.count == downloads.count {
             print("cleanupDownloadQueue")
-            print("\(Thread.current)")
-            for download in activeDownloads {
-                download.status = DownloadStatus.waiting
-            }
             localMoc.perform {
-                self.activeDownloads.removeAll()
+                self.downloads.removeAll()
             }
         }
     }
     
     func resume() {
         localMoc.perform { [self] in
-            print("DownloadManager resume() status \(status)")
-            print("\(Thread.current)")
+            print("DownloadManager resume() > status \(status)")
+
             switch status {
             case .idle:
-                let activeDownloadsFiltered = activeDownloads.filter() {download in
-                    return download.status == .waiting
-                }
-                print("DownloadManager resume() activeDownload waiting count \(activeDownloadsFiltered.count)")
-                if activeDownloadsFiltered.count > 0 {
-                    startDownload(download: activeDownloadsFiltered.first!)
+                let downloadsWaiting = getDownloads(with: .waiting)
+                print("DownloadManager resume() activeDownload waiting count \(downloadsWaiting.count)")
+                if downloadsWaiting.count > 0 {
+                    startDownload(download: downloadsWaiting.first!)
                 } else {
-                    status = .done
+                    status = getDownloads(with: .error).count > 0 ? .error : .done
                     resume()
                 }
             case .processing:
+                // nothing to do, just let the download continue
+                return
+            case .error:
+                print("resume .error")
                 return
             case .done:
                 cleanupDownloadQueue()
@@ -104,22 +121,23 @@ class DownloadManager: NSObject, ObservableObject {
     private func connectTimerFire() {
         print("connectTimerFire")
         localMoc.perform {
-            self.cancelDownload()
+            self.cancelDownloadActive()
         }
     }
     
     private func startDownload(download: Download) {
-        download.status = .connecting
         activeDownload = download
+        
+        download.status = .connecting
+//        MyCentralManagerDelegate.shared.updateBeaconDownloadStatus(context: viewMoc, with: download.uuid, status: .connecting)
+
         self.status = .processing
         
         print("DownloadManager startDownload beacon \(activeDownload?.beacon?.wrappedName ?? "no beacon")")
        
-        let foundPeripherals =
-            MyBluetoothManager.shared.central.retrievePeripherals(withIdentifiers: [download.uuid])
-//        print("printPeripherals:")
-//        print(foundPeripherals)
+        let foundPeripherals = MyBluetoothManager.shared.central.retrievePeripherals(withIdentifiers: [download.uuid])
         MyBluetoothManager.shared.connectedPeripheral = foundPeripherals.first
+        
         if let connectto = MyBluetoothManager.shared.connectedPeripheral {
             MyBluetoothManager.shared.central.connect(connectto, options: nil)
             DispatchQueue.main.async {
@@ -138,8 +156,8 @@ class DownloadManager: NSObject, ObservableObject {
         }
     }
     
-    private func cancelDownload() {
-        print("cancelDownload")
+    private func cancelDownloadActive() {
+        print("cancelDownloadActive")
         if let connectedPeripheral = MyBluetoothManager.shared.connectedPeripheral{
             MyBluetoothManager.shared.central.cancelPeripheralConnection(connectedPeripheral)
             MyBluetoothManager.shared.connectedPeripheral = nil
@@ -150,6 +168,57 @@ class DownloadManager: NSObject, ObservableObject {
             activeDownload = nil
             self.status = .idle
             resume()
+        }
+    }
+
+//    private func cancelDownloadCancelPressed() {
+//        print("cancelDownloadCancelPressed")
+//        if let connectedPeripheral = MyBluetoothManager.shared.connectedPeripheral{
+//
+//            MyBluetoothManager.shared.central.cancelPeripheralConnection(connectedPeripheral)
+//            MyBluetoothManager.shared.connectedPeripheral = nil
+//            if let download = activeDownload {
+//                MyCentralManagerDelegate.shared.updateBeaconDownloadStatus(context: viewMoc, with: download.uuid, status: .error)
+//                download.status = .cancelled
+//            }
+//            activeDownload = nil
+//            self.status = .idle
+//            resume()
+//        }
+//    }
+
+    
+    
+    func cancelDownloadForUuid(uuid: UUID) {
+        localMoc.perform { [self] in
+            let activeDownloadsFiltered = downloads.filter() {download in
+                return download.uuid == uuid
+            }
+            if activeDownloadsFiltered.count == 0 {
+                print("cancelDownloadForUuid uuid not found")
+                return
+            }
+
+            if let activeDownloadUuid = activeDownloadsFiltered.first {
+                switch activeDownloadUuid.status {
+                case .connecting, .downloading_num, .downloading_data:
+                    if let timer = MyBluetoothManager.shared.connectTimer {
+                        print("stopTimer because cancel active")
+                        timer.invalidate()
+                    }
+                    if activeDownloadUuid.uuid == activeDownload!.uuid {
+                        self.cancelDownloadActive()
+                    } else {
+                        print("cancelDownloadForUuid status mismatch!")
+                    }
+                    return
+                case .waiting:
+                    activeDownloadUuid.status = .cancelled
+                    resume()
+                default:
+                    print("cancelDownloadForUuid default")
+                }
+            }
         }
     }
     

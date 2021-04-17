@@ -9,7 +9,6 @@ import Foundation
 
 final class BeaconModel: ObservableObject {
     
-    @Published var isPresentingSettingsView: Bool = false
     @Published var isBluetoothAuthorization: Bool = true
     @Published var isShownTemperature: Bool = true
     
