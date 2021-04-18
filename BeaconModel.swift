@@ -14,10 +14,12 @@ final class BeaconModel: ObservableObject {
     
     @Published var isDownloading: Bool = false
     @Published var isDownloadStatusError: Bool = false
+    @Published var isDownloadStatusSuccess: Bool = false
     
     @Published var textDownloadingStatusLine1: String = ""
     @Published var textDownloadingStatusLine2: String = ""
 
+    @Published var numDownloadStatusError: Int = 0
     @Published var textDownloadStatusErrorLine1: String = ""
     @Published var textDownloadStatusErrorLine2: String = ""
 

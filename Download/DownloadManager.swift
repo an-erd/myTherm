@@ -82,13 +82,11 @@ class DownloadManager: NSObject, ObservableObject {
     }
     
     private func cleanupDownloadQueue() {
-        let downloadsAlldone = getDownloads(with: .alldone)
-        if downloadsAlldone.count == downloads.count {
-            print("cleanupDownloadQueue")
-            localMoc.perform {
-                self.downloads.removeAll()
-            }
+        print("cleanupDownloadQueue")
+        localMoc.perform {
+            self.downloads.removeAll()
         }
+//        }
     }
     
     private func buildDownloadErrorStatus() -> (String, String, Int) {
@@ -105,6 +103,13 @@ class DownloadManager: NSObject, ObservableObject {
         return (text1, text2, count)
     }
     
+    private func buildDownloadSuccessStatus() -> (String, String) {
+        let text1: String = "Download done just now"
+        let text2: String = ""
+        return (text1, text2)
+    }
+    
+
     func buildDownloadErrorDeviceList() -> String {
         var text: String = ""
         localMoc.performAndWait {
@@ -155,15 +160,34 @@ class DownloadManager: NSObject, ObservableObject {
                 return
             case .error:
                 print("resume .error")
-                let (text1, text2, _) = buildDownloadErrorStatus()
+                let (text1, text2, countError) = buildDownloadErrorStatus()
                 DispatchQueue.main.async {
                     let model = BeaconModel.shared
-                    model.isDownloadStatusError = true
+                    model.numDownloadStatusError = countError
                     model.textDownloadStatusErrorLine1 = text1
                     model.textDownloadStatusErrorLine2 = text2
+                    model.isDownloadStatusError = true
                 }
                 return
             case .done:
+                print("resume .done")
+                DispatchQueue.main.async {
+                    let model = BeaconModel.shared
+                    if model.numDownloadStatusError > 0 {
+                        // do nothing but reset numDownloadStatusError, message already shown
+                        model.numDownloadStatusError = 0
+                    } else {
+                        // show ready message with 5 sec timer
+                        let (text1, text2) = buildDownloadSuccessStatus()
+                        model.textDownloadingStatusLine1 = text1
+                        model.textDownloadingStatusLine2 = text2
+                        model.isDownloadStatusSuccess = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                            print("Timer fired!")
+                            model.isDownloadStatusSuccess = false
+                        }
+                    }
+                }
                 cleanupDownloadQueue()
                 status = .idle
                 return
@@ -183,7 +207,7 @@ class DownloadManager: NSObject, ObservableObject {
         activeDownload = download
         
         download.status = .connecting
-//        MyCentralManagerDelegate.shared.updateBeaconDownloadStatus(context: viewMoc, with: download.uuid, status: .connecting)
+        MyCentralManagerDelegate.shared.updateBeaconDownloadStatus(context: viewMoc, with: download.uuid, status: .connecting)
 
         self.status = .processing
         

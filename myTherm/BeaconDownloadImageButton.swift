@@ -29,8 +29,6 @@ struct BeaconDownloadImageButton: View {
                     print("button .cancelled")
                 case .error:
                     print("button .error")
-                case .none:
-                    print("button .none")
                 default:
                     print("button default")
                 }
@@ -45,7 +43,6 @@ struct BeaconDownloadImageButton: View {
                 case .downloading_num, .downloading_data:
                     ProgressCircle(progress: CGFloat(beacon.localDownloadProgress), mode: .progress)
                 case .downloading_finished:
-//                    ProgressCircle(mode: .idle)
                     Image(systemName: "checkmark")
                 case .alldone:
                     Image(systemName: "checkmark")
@@ -54,8 +51,6 @@ struct BeaconDownloadImageButton: View {
                 case .error:
                     Image(systemName: "exclamationmark.triangle")
                         .foregroundColor(.red)
-                case .none:
-                    Image(systemName: "scribble")
                 }
             } else {
                 if let adv = beacon.adv, let timestamp = adv.timestamp {

@@ -14,10 +14,10 @@ public enum DownloadStatus: Int32 {
     case downloading_num = 2        // in progress of getting overall number of entries to download
     case downloading_data = 3       // in progress of retrievin data
     case downloading_finished = 4   // downloading has been finished
-    case alldone = 5                // TODO what is alldone, should be removed
+    case alldone = 5                // status is all errors had been shown and cleared
     case cancelled = 6              // download has been canceled by the user
     case error = 7                  // error connecting to or retrieving data from device
-    case none = 8                   // TODO should be removed
+//    case none = 8                   // TODO should be removed
 }
 
 class Download : ObservableObject {
