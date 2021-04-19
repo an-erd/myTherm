@@ -8,6 +8,7 @@
 
 import SwiftUI
 import CoreLocation
+import OSLog
 
 enum ActiveSheet: Identifiable {
     case filter, settings
@@ -223,12 +224,19 @@ struct BeaconList: View {
         
         .onAppear(perform: {
             self.onAppear()
-            DispatchQueue.main.async {
-                //                copyStoreToLocalBeacons()
+            PersistenceController.shared.writeContext.perform {
+//                                copyStoreToLocalBeacons()
+                let log = OSLog(
+                    subsystem: "com.anerd.myTherm",
+                    category: "preparation"
+                )
+                os_signpost(.begin, log: log, name: "copyBeaconHistoryOnce")
                 copyBeaconHistoryOnce()
-                stopFilterUpdate()
-                MyCentralManagerDelegate.shared.stopScanAndLocationService()
+                os_signpost(.end, log: log, name: "copyBeaconHistoryOnce")
             }
+            stopFilterUpdate()
+            MyCentralManagerDelegate.shared.stopScanAndLocationService()
+            
         })
         .onDisappear(perform: {
             self.onDisappear()
@@ -270,7 +278,9 @@ struct BeaconList: View {
                         filterByFlag: $userSettings.filterByFlag,
                         filterByHidden: $userSettings.filterByHidden,
                         predicate: compoundPredicate)
-                        .opacity(!(beaconModel.isDownloadStatusError || beaconModel.isDownloading) ? 1 : 0)
+                        .opacity(!(beaconModel.isDownloadStatusError
+                                    || beaconModel.isDownloading
+                                    || beaconModel.isDownloadStatusSuccess) ? 1 : 0)
                     
                     BeaconBottomBarStatusDownloadButton(
                         textLine1: beaconModel.textDownloadStatusErrorLine1, colorLine1: .primary,
@@ -280,7 +290,7 @@ struct BeaconList: View {
                     BeaconBottomBarStatusDownloadButton(
                         textLine1: beaconModel.textDownloadingStatusLine1, colorLine1: .primary,
                         textLine2: beaconModel.textDownloadingStatusLine2, colorLine2: .primary)
-                        .opacity(beaconModel.isDownloading ? 1 : 0)
+                        .opacity(beaconModel.isDownloadStatusSuccess ? 1 : 0)
                     
                     Button(action: {
                         if beaconModel.isDownloadStatusError {
@@ -294,6 +304,7 @@ struct BeaconList: View {
                     }
                 }
                 Spacer()
+
                 Button(action: {
                     DispatchQueue.main.async {
                         print("Tortoise start -------")
@@ -312,6 +323,20 @@ struct BeaconList: View {
             }
         }
         .navigationBarItems(
+            leading:
+                HStack {
+                    Button(action: {
+                        activeSheet = .settings
+                    }) {
+                        Image(systemName: "line.horizontal.3")
+//                          .imageScale(.large)
+                    }
+                    .foregroundColor(.primary)
+//                    .padding(.horizontal, 8)
+//                    .padding(.vertical, 2)
+//                    .background(Color.blue)
+//                    .clipShape(Capsule())
+                },
             trailing:
                 HStack {
                     Spacer()
@@ -324,23 +349,24 @@ struct BeaconList: View {
                             MyCentralManagerDelegate.shared.startScanAndLocationService()
                         }
                     }) {
-                        if doScan {
-                            Text("Stop Update")
-                        } else {
-                            Text("Update")
+                        HStack {
+                            if doScan {
+                                Text("Stop Update")
+                            } else {
+                                Text("Update")
+                            }
                         }
+                        .frame(width: 100, alignment: .trailing)
                     }
-                    .padding(10)
-                    .border(Color.red)
                     
-                    Button("...") {
-                        activeSheet = .settings
-                    }
-                    .foregroundColor(Color.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 2)
-                    .background(Color.blue)
-                    .clipShape(Capsule())
+//                    Button("•••") {
+//                        activeSheet = .settings
+//                    }
+//                    .foregroundColor(Color.white)
+//                    .padding(.horizontal, 12)
+//                    .padding(.vertical, 2)
+//                    .background(Color.blue)
+//                    .clipShape(Capsule())
                 }
         )
         .sheet(item: $activeSheet) { item in
@@ -465,9 +491,23 @@ struct BeaconList: View {
 
     public func copyBeaconHistoryOnce() {
         print("copyBeaconHistoryOnce")
-        for beacon in beacons {
+
+        let writeMoc = PersistenceController.shared.writeContext    // 1) prepare local history
+        let viewMoc = PersistenceController.shared.viewContext      // 2) copy to view context
+
+        let writeBeacons = MyCentralManagerDelegate.shared.fetchAllBeacons(context: writeMoc)
+        for beacon in writeBeacons {
             //            print("copyBeaconHistoryOnce \(beacon.wrappedName)")
-            beacon.copyHistoryArrayToLocalArray()
+            let log = OSLog(
+                subsystem: "com.anerd.myTherm",
+                category: "preparation"
+            )
+            os_signpost(.begin, log: log, name: "copyHistoryArrayToLocalArray")
+            let uuid: UUID = beacon.uuid!
+            MyCentralManagerDelegate.shared.copyHistoryArrayToLocalArray(context: writeMoc, uuid: uuid)
+            MyCentralManagerDelegate.shared.copyLocalHistoryArrayBetweenContext(
+                contextFrom: writeMoc, contextTo: viewMoc, uuid: uuid)
+            os_signpost(.end, log: log, name: "copyHistoryArrayToLocalArray")
         }
     }
 

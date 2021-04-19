@@ -148,7 +148,7 @@ extension MyCentralManagerDelegate {
     }
     
     public func copyHistoryArrayToLocalArray(context: NSManagedObjectContext, uuid: UUID) {
-        context.perform {
+        context.performAndWait {
             if let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: context, with: uuid) {
                 beacon.copyHistoryArrayToLocalArray()
             } else {
@@ -157,6 +157,32 @@ extension MyCentralManagerDelegate {
         }
     }
 
+    public func copyLocalHistoryArrayBetweenContext(
+        contextFrom: NSManagedObjectContext, contextTo: NSManagedObjectContext, uuid: UUID) {
+        
+        var tempHistoryTemperature: [Double]!
+        var tempHistoryHumidity: [Double]!
+        var tempHistoryTimestamp: [Date]!
+        
+        contextFrom.performAndWait {
+            if let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: contextFrom, with: uuid) {
+                tempHistoryTemperature = beacon.localHistoryTemperature
+                tempHistoryHumidity = beacon.localHistoryHumidity
+                tempHistoryTimestamp = beacon.localHistoryTimestamp
+            }
+        }
+        
+        DispatchQueue.main.async {
+            contextTo.performAndWait {
+                if let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: contextTo, with: uuid) {
+                    beacon.localHistoryTemperature = tempHistoryTemperature
+                    beacon.localHistoryHumidity = tempHistoryHumidity
+                    beacon.localHistoryTimestamp = tempHistoryTimestamp
+                }
+            }
+        }
+    }
+        
     func extractBeaconFromAdvertisment(advertisementData: [String : Any]) -> ( ExtractBeacon, ExtractBeaconAdv ) {
         var extractBeacon = ExtractBeacon(beacon_version: 0, company_id: 0, id_maj: "", id_min: "", name: "", descr: "")
         var extractBeaconAdv = ExtractBeaconAdv(temperature: -40.0, humidity: 0, battery: 0, accel_x: 0, accel_y: 0, accel_z: 0, rawdata: "")

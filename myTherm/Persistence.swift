@@ -104,7 +104,7 @@ struct PersistenceController {
     /**
      Creates and configures a private queue context.
     */
-    private func newTaskContext() -> NSManagedObjectContext {
+    func newTaskContext() -> NSManagedObjectContext {
         // Create a private queue context.
         let taskContext = container.newBackgroundContext()
         taskContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
