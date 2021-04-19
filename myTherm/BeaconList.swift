@@ -224,18 +224,7 @@ struct BeaconList: View {
         
         .onAppear(perform: {
             self.onAppear()
-            PersistenceController.shared.writeContext.perform {
-//                                copyStoreToLocalBeacons()
-                let log = OSLog(
-                    subsystem: "com.anerd.myTherm",
-                    category: "preparation"
-                )
-                os_signpost(.begin, log: log, name: "copyBeaconHistoryOnce")
-                copyBeaconHistoryOnce()
-                os_signpost(.end, log: log, name: "copyBeaconHistoryOnce")
-            }
             stopFilterUpdate()
-            MyCentralManagerDelegate.shared.stopScanAndLocationService()
             
         })
         .onDisappear(perform: {
@@ -305,21 +294,10 @@ struct BeaconList: View {
                 }
                 Spacer()
 
-                Button(action: {
-                    DispatchQueue.main.async {
-                        print("Tortoise start -------")
-                        listBeaconChanges()
-                        copyLocalBeaconsToWriteContext()
-                        PersistenceController.shared.writeContext.performAndWait {
-                            PersistenceController.shared.saveContext(context: PersistenceController.shared.writeContext)
-                        }
-                        listBeaconChanges()
-                        print("Tortoise end -------")
-                    }
-                }
-                ) {
-                    Image(systemName: "tortoise")
-                }
+//                Button(action: { }
+//                ) {
+//                    Image(systemName: "tortoise")
+//                }
             }
         }
         .navigationBarItems(
@@ -329,7 +307,8 @@ struct BeaconList: View {
                         activeSheet = .settings
                     }) {
                         Image(systemName: "line.horizontal.3")
-//                          .imageScale(.large)
+                            .foregroundColor(.blue)
+                            .imageScale(.large)
                     }
                     .foregroundColor(.primary)
 //                    .padding(.horizontal, 8)
@@ -429,87 +408,6 @@ struct BeaconList: View {
     //        }
     //    }
     
-    public func copyLocalBeaconsToWriteContext() {
-        print("copyLocalBeaconsToStore")
-        print("\(Thread.current)")  // must be on main!
-        
-        let viewMoc = PersistenceController.shared.viewContext
-        let writeMoc = PersistenceController.shared.writeContext
-        
-        var toBeacon: Beacon!
-        
-        viewMoc.performAndWait {
-            let fromBeacons = MyCentralManagerDelegate.shared.fetchAllBeacons(context: viewMoc)
-            for fromBeacon in fromBeacons {
-                writeMoc.performAndWait {
-                    toBeacon = MyCentralManagerDelegate.shared.fetchBeacon(context: writeMoc, with: fromBeacon.uuid!)
-                }
-                if fromBeacon.changedValues().count > 0 {
-                    print("copy     \(fromBeacon.wrappedDeviceName)")
-                    let changes = fromBeacon.changedValues()
-                    writeMoc.performAndWait {
-                        if let toBeacon = toBeacon {
-                            toBeacon.setValuesForKeys(changes)
-                        } else {
-                            print("toBeacon not found")
-                        }
-                    }
-                }
-                if let fromAdv = fromBeacon.adv {
-                    if fromAdv.changedValues().count > 0 {
-                        print("copy adv \(fromBeacon.wrappedDeviceName)")
-                        let changes = fromAdv.changedValues()
-                        writeMoc.performAndWait {
-                            if toBeacon.adv != nil { } else {
-                                toBeacon.adv = BeaconAdv(context: writeMoc)
-                            }
-                            if let toAdv = toBeacon.adv {
-                                print("writeMoc changes \(toBeacon.wrappedDeviceName) > \(toAdv.changedValues().count)")
-                                toAdv.setValuesForKeys(changes)
-                                print("writeMoc changes \(toBeacon.wrappedDeviceName) < \(toAdv.changedValues().count)")
-                            }
-                        }
-                    }
-                }
-                if let fromLocation = fromBeacon.location {
-                    if fromLocation.changedValues().count > 0 {
-                        print("copy loc \(fromBeacon.wrappedDeviceName)")
-                        let changes = fromLocation.changedValues()
-                        writeMoc.performAndWait {
-                            if toBeacon.location != nil { } else {
-                                toBeacon.location = BeaconLocation(context: writeMoc)
-                            }
-                            if let toLocation = toBeacon.location {
-                                toLocation.setValuesForKeys(changes)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public func copyBeaconHistoryOnce() {
-        print("copyBeaconHistoryOnce")
-
-        let writeMoc = PersistenceController.shared.writeContext    // 1) prepare local history
-        let viewMoc = PersistenceController.shared.viewContext      // 2) copy to view context
-
-        let writeBeacons = MyCentralManagerDelegate.shared.fetchAllBeacons(context: writeMoc)
-        for beacon in writeBeacons {
-            //            print("copyBeaconHistoryOnce \(beacon.wrappedName)")
-            let log = OSLog(
-                subsystem: "com.anerd.myTherm",
-                category: "preparation"
-            )
-            os_signpost(.begin, log: log, name: "copyHistoryArrayToLocalArray")
-            let uuid: UUID = beacon.uuid!
-            MyCentralManagerDelegate.shared.copyHistoryArrayToLocalArray(context: writeMoc, uuid: uuid)
-            MyCentralManagerDelegate.shared.copyLocalHistoryArrayBetweenContext(
-                contextFrom: writeMoc, contextTo: viewMoc, uuid: uuid)
-            os_signpost(.end, log: log, name: "copyHistoryArrayToLocalArray")
-        }
-    }
 
     public func resetDistanceBeaconOnce() {
         print("resetDistanceBeaconOnce")

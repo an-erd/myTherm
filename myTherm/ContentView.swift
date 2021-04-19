@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreData
+import OSLog
 
 struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
@@ -14,18 +15,36 @@ struct ContentView: View {
             .navigationTitle("Sensors")
             .navigationViewStyle(StackNavigationViewStyle())
         }
+        .onAppear(perform: {
+            print("ContentView onAppear")
+            PersistenceController.shared.writeContext.perform {
+                //                                copyStoreToLocalBeacons()
+                let log = OSLog(
+                    subsystem: "com.anerd.myTherm",
+                    category: "preparation"
+                )
+                os_signpost(.begin, log: log, name: "copyBeaconHistoryOnce")
+                MyCentralManagerDelegate.shared.copyBeaconHistoryOnce()
+                os_signpost(.end, log: log, name: "copyBeaconHistoryOnce")
+            }
+            MyCentralManagerDelegate.shared.stopScanAndLocationService()
+
+        })
+
         .onChange(of: scenePhase) { phase in
             switch phase {
             case .background:
                 print("PHASECHANGE: View entered background")
-                // TODO bring update to writeContext first
-//                PersistenceController.shared.saveContext(context: persistenceController.writeContext)
             case .active:
                 print("PHASECHANGE: View entered active")
             case .inactive:
                 print("PHASECHANGE: View entered inactive")
-                // TODO bring update to writeContext first
-//                PersistenceController.shared.saveContext(context: persistenceController.writeContext)
+                DispatchQueue.main.async {
+                    MyCentralManagerDelegate.shared.copyLocalBeaconsToWriteContext()
+                    PersistenceController.shared.writeContext.performAndWait {
+                        PersistenceController.shared.saveContext(context: PersistenceController.shared.writeContext)
+                    }
+                }
             @unknown default:
                 print("PHASECHANGE: View entered unknown phase.")
             }

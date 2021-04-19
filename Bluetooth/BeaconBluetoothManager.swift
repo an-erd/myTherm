@@ -183,6 +183,89 @@ extension MyCentralManagerDelegate {
         }
     }
         
+    public func copyBeaconHistoryOnce() {
+        print("copyBeaconHistoryOnce")
+
+        let writeMoc = PersistenceController.shared.writeContext    // 1) prepare local history
+        let viewMoc = PersistenceController.shared.viewContext      // 2) copy to view context
+
+        let writeBeacons = MyCentralManagerDelegate.shared.fetchAllBeacons(context: writeMoc)
+        for beacon in writeBeacons {
+            //            print("copyBeaconHistoryOnce \(beacon.wrappedName)")
+            let log = OSLog(
+                subsystem: "com.anerd.myTherm",
+                category: "preparation"
+            )
+            os_signpost(.begin, log: log, name: "copyHistoryArrayToLocalArray",
+                        "%{public}s", beacon.wrappedDeviceName)
+            let uuid: UUID = beacon.uuid!
+            MyCentralManagerDelegate.shared.copyHistoryArrayToLocalArray(context: writeMoc, uuid: uuid)
+            MyCentralManagerDelegate.shared.copyLocalHistoryArrayBetweenContext(
+                contextFrom: writeMoc, contextTo: viewMoc, uuid: uuid)
+            os_signpost(.end, log: log, name: "copyHistoryArrayToLocalArray")
+        }
+    }
+
+    public func copyLocalBeaconsToWriteContext() {
+        print("copyLocalBeaconsToStore")
+        print("\(Thread.current)")  // must be on main!
+        
+        let viewMoc = PersistenceController.shared.viewContext
+        let writeMoc = PersistenceController.shared.writeContext
+        
+        var toBeacon: Beacon!
+        
+        viewMoc.performAndWait {
+            let fromBeacons = MyCentralManagerDelegate.shared.fetchAllBeacons(context: viewMoc)
+            for fromBeacon in fromBeacons {
+                writeMoc.performAndWait {
+                    toBeacon = MyCentralManagerDelegate.shared.fetchBeacon(context: writeMoc, with: fromBeacon.uuid!)
+                }
+                if fromBeacon.changedValues().count > 0 {
+//                    print("copy     \(fromBeacon.wrappedDeviceName)")
+                    let changes = fromBeacon.changedValues()
+                    writeMoc.performAndWait {
+                        if let toBeacon = toBeacon {
+                            toBeacon.setValuesForKeys(changes)
+                        } else {
+                            print("toBeacon not found")
+                        }
+                    }
+                }
+                if let fromAdv = fromBeacon.adv {
+                    if fromAdv.changedValues().count > 0 {
+//                        print("copy adv \(fromBeacon.wrappedDeviceName)")
+                        let changes = fromAdv.changedValues()
+                        writeMoc.performAndWait {
+                            if toBeacon.adv != nil { } else {
+                                toBeacon.adv = BeaconAdv(context: writeMoc)
+                            }
+                            if let toAdv = toBeacon.adv {
+//                                print("writeMoc changes \(toBeacon.wrappedDeviceName) > \(toAdv.changedValues().count)")
+                                toAdv.setValuesForKeys(changes)
+//                                print("writeMoc changes \(toBeacon.wrappedDeviceName) < \(toAdv.changedValues().count)")
+                            }
+                        }
+                    }
+                }
+                if let fromLocation = fromBeacon.location {
+                    if fromLocation.changedValues().count > 0 {
+//                        print("copy loc \(fromBeacon.wrappedDeviceName)")
+                        let changes = fromLocation.changedValues()
+                        writeMoc.performAndWait {
+                            if toBeacon.location != nil { } else {
+                                toBeacon.location = BeaconLocation(context: writeMoc)
+                            }
+                            if let toLocation = toBeacon.location {
+                                toLocation.setValuesForKeys(changes)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     func extractBeaconFromAdvertisment(advertisementData: [String : Any]) -> ( ExtractBeacon, ExtractBeaconAdv ) {
         var extractBeacon = ExtractBeacon(beacon_version: 0, company_id: 0, id_maj: "", id_min: "", name: "", descr: "")
         var extractBeaconAdv = ExtractBeaconAdv(temperature: -40.0, humidity: 0, battery: 0, accel_x: 0, accel_y: 0, accel_z: 0, rawdata: "")
@@ -305,11 +388,11 @@ extension MyCentralManagerDelegate {
             subsystem: "com.anerd.myTherm",
             category: "download"
         )
-        os_signpost(.begin, log: log, name: "didDiscover Peripheral")
+//        os_signpost(.begin, log: log, name: "didDiscover Peripheral")
         
         let (extractBeacon, extractBeaconAdv) = extractBeaconFromAdvertisment(advertisementData: advertisementData)
         if(extractBeacon.beacon_version != 4){
-            os_signpost(.end, log: log, name: "didDiscover Peripheral")
+//            os_signpost(.end, log: log, name: "didDiscover Peripheral")
             
             return
         }
@@ -385,15 +468,16 @@ extension MyCentralManagerDelegate {
                         let distance = distanceFromPosition(location: location, beacon: alreadyAvailableBeacon)
                         alreadyAvailableBeacon.localDistanceFromPosition = distance
                         localLocation.address = self.lm.address
-                        print("update \(alreadyAvailableBeacon.wrappedDeviceName): distanceFromPostion \(distance)")
+                        print("update \(alreadyAvailableBeacon.wrappedDeviceName): distanceFromPostion \(distance) address \(localLocation.address)")
                     }
                     
                 }
+                os_signpost(.event, log: log, name: "didDiscover", "%{public}s", alreadyAvailableBeacon.wrappedDeviceName)
             } else {
                 print("beacon not found in PersistenceController.shared.container.viewContext.perform")
             }
         }
-        os_signpost(.end, log: log, name: "didDiscover Peripheral")
+//        os_signpost(.end, log: log, name: "didDiscover Peripheral")
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
@@ -599,7 +683,7 @@ extension MyCentralManagerDelegate {
         )
         
         if characteristic.uuid == BeaconPeripheral.beaconRACPMeasurementValuesCharUUID {
-            os_signpost(.begin, log: log, name: "didUpdateValueFor")
+//            os_signpost(.begin, log: log, name: "didUpdateValueFor")
             //            downloadManager.counterMeasurementValueNotification += 1
             let seqNumber = UInt16_decode(msb: characteristicData[1], lsb: characteristicData[0])
             let epochTime = UInt32_decode(msb1: characteristicData[5],msb0: characteristicData[4], lsb1: characteristicData[3], lsb0: characteristicData[2])
@@ -619,7 +703,7 @@ extension MyCentralManagerDelegate {
                                                       progress: Float(download.numEntriesReceived) / Float(download.numEntriesAll) )
 //                    download.progress = Float(download.numEntriesReceived) / Float(download.numEntriesAll)
                 }
-                os_signpost(.end, log: log, name: "didUpdateValueFor")
+//                os_signpost(.end, log: log, name: "didUpdateValueFor")
                 
             }
         }
