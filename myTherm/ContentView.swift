@@ -27,7 +27,7 @@ struct ContentView: View {
                 MyCentralManagerDelegate.shared.copyBeaconHistoryOnce()
                 os_signpost(.end, log: log, name: "copyBeaconHistoryOnce")
             }
-            MyCentralManagerDelegate.shared.stopScanAndLocationService()
+            MyCentralManagerDelegate.shared.stopScanService()
 
         })
 

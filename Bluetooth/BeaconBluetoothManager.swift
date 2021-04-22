@@ -12,7 +12,6 @@ class MyBluetoothManager {
     var localMoc: NSManagedObjectContext
     var viewMoc: NSManagedObjectContext
     
-    
     // current device
     var connectedPeripheral: CBPeripheral?
     var discoveredPeripheral: CBPeripheral?
@@ -21,6 +20,7 @@ class MyBluetoothManager {
     var racpControlPointNotifying: Bool = false
     var racpMeasurementValueNotifying: Bool = false
     var connectTimer: Timer?
+    var downloadTimer: Timer?
     
     private init() {
         print("MyBluetoothmanager init called")
@@ -32,16 +32,16 @@ class MyBluetoothManager {
         viewMoc = PersistenceController.shared.container.viewContext
         MyCentralManagerDelegate.shared.setMoc(localMoc: localMoc, viewMoc: viewMoc)
     }
-    
 }
 
 class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     static let shared = MyCentralManagerDelegate()
     private var localMoc: NSManagedObjectContext!
     private var viewMoc: NSManagedObjectContext!
-    private var lm = LocationManager()
-    private var doUpdateAdv: Bool = true
+    private var locationManager = LocationManager.shared
+    private var beaconModel = BeaconModel.shared
     var downloadManager = DownloadManager.shared
+    private var downloadWatchdogEntries: Int = 0
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
@@ -54,41 +54,39 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
         case .unauthorized:
             print("central.state is .unauthorized")
             DispatchQueue.main.async {
-                let model = BeaconModel.shared
-                model.isBluetoothAuthorization = false
+                self.beaconModel.isBluetoothAuthorization = false
             }
         case .poweredOff:
             print("central.state is .poweredOff")
         case .poweredOn:
             print("central.state is .poweredOn")
             DispatchQueue.main.async {
-                let model = BeaconModel.shared
-                model.isBluetoothAuthorization = true
+                self.beaconModel.isBluetoothAuthorization = true
             }
-            stopScanAndLocationService()
-        //            startScanAndLocationService()
+            if beaconModel.doScan {
+                startScanService()
+            }
+            
         @unknown default:
             print("central.state is @unknown default")
         }
     }
     
-    func startScanAndLocationService() {
-        lm.startMySignificantLocationChanges()
+    func startScanService() {
         MyBluetoothManager.shared.central.scanForPeripherals(withServices: nil, options: nil)
-        print("startScanAndLocationService")
+        print("startScanService")
     }
     
-    func stopScanAndLocationService() {
-        lm.stopMySignificantLocationChanges()
+    func stopScanService() {
         MyBluetoothManager.shared.central.stopScan()
-        print("stopScanAndLocationService")
+        print("stopScanService")
     }
     
     func startUpdateAdv() {
-        doUpdateAdv = true
+        beaconModel.doUpdateAdv = true
     }
     func stopUpdateAdv() {
-        doUpdateAdv = false
+        beaconModel.doUpdateAdv = false
     }
     
 }
@@ -189,18 +187,17 @@ extension MyCentralManagerDelegate {
         let writeMoc = PersistenceController.shared.writeContext    // 1) prepare local history
         let viewMoc = PersistenceController.shared.viewContext      // 2) copy to view context
 
-        let writeBeacons = MyCentralManagerDelegate.shared.fetchAllBeacons(context: writeMoc)
+        let writeBeacons = fetchAllBeacons(context: writeMoc)
         for beacon in writeBeacons {
             //            print("copyBeaconHistoryOnce \(beacon.wrappedName)")
             let log = OSLog(
                 subsystem: "com.anerd.myTherm",
                 category: "preparation"
             )
-            os_signpost(.begin, log: log, name: "copyHistoryArrayToLocalArray",
-                        "%{public}s", beacon.wrappedDeviceName)
+            os_signpost(.begin, log: log, name: "copyHistoryArrayToLocalArray", "%{public}s", beacon.wrappedDeviceName)
             let uuid: UUID = beacon.uuid!
-            MyCentralManagerDelegate.shared.copyHistoryArrayToLocalArray(context: writeMoc, uuid: uuid)
-            MyCentralManagerDelegate.shared.copyLocalHistoryArrayBetweenContext(
+            copyHistoryArrayToLocalArray(context: writeMoc, uuid: uuid)
+            copyLocalHistoryArrayBetweenContext(
                 contextFrom: writeMoc, contextTo: viewMoc, uuid: uuid)
             os_signpost(.end, log: log, name: "copyHistoryArrayToLocalArray")
         }
@@ -216,10 +213,10 @@ extension MyCentralManagerDelegate {
         var toBeacon: Beacon!
         
         viewMoc.performAndWait {
-            let fromBeacons = MyCentralManagerDelegate.shared.fetchAllBeacons(context: viewMoc)
+            let fromBeacons = fetchAllBeacons(context: viewMoc)
             for fromBeacon in fromBeacons {
                 writeMoc.performAndWait {
-                    toBeacon = MyCentralManagerDelegate.shared.fetchBeacon(context: writeMoc, with: fromBeacon.uuid!)
+                    toBeacon = fetchBeacon(context: writeMoc, with: fromBeacon.uuid!)
                 }
                 if fromBeacon.changedValues().count > 0 {
 //                    print("copy     \(fromBeacon.wrappedDeviceName)")
@@ -265,6 +262,41 @@ extension MyCentralManagerDelegate {
             }
         }
     }
+    
+    fileprivate func startDownloadTimer() {
+        DispatchQueue.main.async {
+            MyBluetoothManager.shared.downloadTimer =
+                Timer.scheduledTimer(timeInterval: 10,  // should see a progress every 10 secs
+                                     target: self,
+                                     selector: #selector(self.downloadTimerFire),
+                                     userInfo: nil, repeats: true)
+        }
+        downloadWatchdogEntries = 0
+    }
+    
+    fileprivate func stopDownloadTimer() {
+        DispatchQueue.main.async {
+            if let timer = MyBluetoothManager.shared.downloadTimer {
+                timer.invalidate()
+            }
+            MyBluetoothManager.shared.downloadTimer = nil
+        }
+    }
+
+    @objc
+    private func downloadTimerFire() {
+        print("downloadTimerFire")
+        
+        if let download = downloadManager.activeDownload {
+            if download.numEntriesReceived == downloadWatchdogEntries {
+                print("downloadTimerFire no progress -> cancel")
+                stopDownloadTimer()
+                downloadManager.cancelDownloadActive()
+            } else {
+                downloadWatchdogEntries = download.numEntriesReceived
+            }
+        }
+    }
 
     func extractBeaconFromAdvertisment(advertisementData: [String : Any]) -> ( ExtractBeacon, ExtractBeaconAdv ) {
         var extractBeacon = ExtractBeacon(beacon_version: 0, company_id: 0, id_maj: "", id_min: "", name: "", descr: "")
@@ -280,10 +312,10 @@ extension MyCentralManagerDelegate {
             return ( extractBeacon, extractBeaconAdv )
         }
         
-        let companyId = Int16(UInt16_decode(msb: manufacturerData[1], lsb: manufacturerData[0]))
+        let companyId = UInt16(UInt16_decode(msb: manufacturerData[1], lsb: manufacturerData[0]))    // TODO
         
         if companyId == 0x0059 {
-            extractBeacon.company_id = companyId
+            extractBeacon.company_id = Int16(companyId)
         } else {
             print("beac wrong companyId: \(companyId)")
             return ( extractBeacon, extractBeaconAdv )
@@ -433,7 +465,7 @@ extension MyCentralManagerDelegate {
             }
         }
         
-        if !self.doUpdateAdv {
+        if !beaconModel.doUpdateAdv {
             return
         }
         
@@ -456,7 +488,7 @@ extension MyCentralManagerDelegate {
                     adv.rawdata = extractBeaconAdv.rawdata
                 }
 
-                if let location = self.lm.location {
+                if let location = self.locationManager.location {
                     //            print(location)
                     if alreadyAvailableBeacon.location != nil { } else {
                         alreadyAvailableBeacon.location = BeaconLocation(context: self.viewMoc)
@@ -467,8 +499,8 @@ extension MyCentralManagerDelegate {
                         localLocation.timestamp = Date()
                         let distance = distanceFromPosition(location: location, beacon: alreadyAvailableBeacon)
                         alreadyAvailableBeacon.localDistanceFromPosition = distance
-                        localLocation.address = self.lm.address
-                        print("update \(alreadyAvailableBeacon.wrappedDeviceName): distanceFromPostion \(distance) address \(localLocation.address)")
+                        localLocation.address = self.locationManager.address
+//                        print("update \(alreadyAvailableBeacon.wrappedDeviceName): distanceFromPostion \(distance) address \(localLocation.address)")
                     }
                     
                 }
@@ -490,18 +522,23 @@ extension MyCentralManagerDelegate {
         
         peripheral.delegate = self
         MyBluetoothManager.shared.discoveredPeripheral = peripheral
-        central.stopScan()
+        if beaconModel.doScan {
+            DispatchQueue.main.async { [self] in
+                beaconModel.scanStatusBeforeDownload = beaconModel.doScan
+                beaconModel.doScan = false
+                beaconModel.scanUpdateTemporaryStopped = true
+            }
+            stopScanService()        }
         
         if let timer = MyBluetoothManager.shared.connectTimer {
             print("stopTimer because connected")
             timer.invalidate()
         }
-        
         MyBluetoothManager.shared.connectTimer = nil
-//        viewMoc.performAndWait {
-//            downloadManager.activeDownload?.status = .downloading_num
-//        }
-        if let downloadHistory =  MyCentralManagerDelegate.shared.downloadManager.activeDownload {
+
+        startDownloadTimer()
+
+        if let downloadHistory =  downloadManager.activeDownload {
             self.updateBeaconDownloadStatus(context: viewMoc, with: downloadHistory.uuid, status: .downloading_num)
             downloadHistory.status = .downloading_num
         }
@@ -519,7 +556,14 @@ extension MyCentralManagerDelegate {
         
         peripheral.delegate = nil
         MyBluetoothManager.shared.discoveredPeripheral = nil
-        //        central.scanForPeripherals(withServices: nil, options: nil)
+        
+        if beaconModel.scanStatusBeforeDownload {
+            DispatchQueue.main.async { [self] in
+                beaconModel.doScan = true
+                beaconModel.scanUpdateTemporaryStopped = false
+            }
+            startScanService()
+        }
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -600,6 +644,7 @@ extension MyCentralManagerDelegate {
         
         // If we've gotten this far, we're connected, but we're not subscribed, so we just disconnect
         MyBluetoothManager.shared.central.cancelPeripheralConnection(discoveredPeripheral)
+        stopDownloadTimer()
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
@@ -690,21 +735,23 @@ extension MyCentralManagerDelegate {
             let temperature = getSHT3temperatureValue(msb: characteristicData[6], lsb: characteristicData[7])
             let humidity = getSHT3humidityValue(msb: characteristicData[8], lsb: characteristicData[9])
             
-            let dataPoint = BeaconHistoryDataPointLocal(
-                sequenceNumber: seqNumber, humidity: humidity, temperature: temperature,
-                timestamp: NSDate(timeIntervalSince1970: TimeInterval(epochTime)) as Date)
-            
-            if let download = downloadManager.activeDownload {
-                download.history.append(dataPoint)
-                download.numEntriesReceived += 1
-                let interval = max(Int(download.numEntriesAll / 50), 1)
-                if Int(download.numEntriesReceived) % interval == 0 {
-                    self.updateBeaconDownloadProgress(context: viewMoc, with: download.uuid,
-                                                      progress: Float(download.numEntriesReceived) / Float(download.numEntriesAll) )
-//                    download.progress = Float(download.numEntriesReceived) / Float(download.numEntriesAll)
-                }
-//                os_signpost(.end, log: log, name: "didUpdateValueFor")
+            if temperature != -45 { // ignore non-valid sensor values
+                let dataPoint = BeaconHistoryDataPointLocal(
+                    sequenceNumber: seqNumber, humidity: humidity, temperature: temperature,
+                    timestamp: NSDate(timeIntervalSince1970: TimeInterval(epochTime)) as Date)
                 
+                if let download = downloadManager.activeDownload {
+                    download.history.append(dataPoint)
+                    download.numEntriesReceived += 1
+                    let interval = max(Int(download.numEntriesAll / 50), 1)
+                    if Int(download.numEntriesReceived) % interval == 0 {
+                        self.updateBeaconDownloadProgress(context: viewMoc, with: download.uuid,
+                                                          progress: Float(download.numEntriesReceived) / Float(download.numEntriesAll) )
+                        //                    download.progress = Float(download.numEntriesReceived) / Float(download.numEntriesAll)
+                    }
+                    //                os_signpost(.end, log: log, name: "didUpdateValueFor")
+                    
+                }
             }
         }
         

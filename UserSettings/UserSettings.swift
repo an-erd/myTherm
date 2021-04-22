@@ -55,10 +55,15 @@ class UserSettings: ObservableObject {
     init() {
         self.didLaunchBefore = (UserDefaults.standard.object(forKey: "didLaunchBefore") == nil ? false :
                                     UserDefaults.standard.object(forKey: "didLaunchBefore") as! Bool)
+        
+//        UserDefaults.standard.set(true, forKey: "showRequestLocationAlert")
+//        UserDefaults.standard.set(true, forKey: "showRequestInternetAlert")
+        
         self.showRequestLocationAlert = (UserDefaults.standard.object(forKey: "showRequestLocationAlert") == nil ? true :
                                             UserDefaults.standard.object(forKey: "showRequestLocationAlert") as! Bool)
         self.showRequestInternetAlert = (UserDefaults.standard.object(forKey: "showRequestInternetAlert") == nil ? true :
                                             UserDefaults.standard.object(forKey: "showRequestInternetAlert") as! Bool)
+  
         
         self.filterByTime = (UserDefaults.standard.object(forKey: "filterByTime") == nil ? true :
                                             UserDefaults.standard.object(forKey: "filterByTime") as! Bool)

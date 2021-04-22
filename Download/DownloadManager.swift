@@ -183,7 +183,6 @@ class DownloadManager: NSObject, ObservableObject {
                         model.textDownloadingStatusLine2 = text2
                         model.isDownloadStatusSuccess = true
                         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                            print("Timer fired!")
                             model.isDownloadStatusSuccess = false
                         }
                     }
@@ -234,7 +233,7 @@ class DownloadManager: NSObject, ObservableObject {
         }
     }
     
-    private func cancelDownloadActive() {
+    func cancelDownloadActive() {
         print("cancelDownloadActive")
         if let connectedPeripheral = MyBluetoothManager.shared.connectedPeripheral{
             MyBluetoothManager.shared.central.cancelPeripheralConnection(connectedPeripheral)

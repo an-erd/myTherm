@@ -17,7 +17,8 @@ struct BeaconGroupBoxListEntry: View {
     @Binding var displaySteps: Int
     
     @StateObject var localValue: BeaconLocalValueView = BeaconLocalValueView()
-    
+    @State private var selection: String? = nil
+
     func getDownload(beacon: Beacon) -> Download? {
         let activeDownloadsFiltered = MyCentralManagerDelegate.shared.downloadManager.downloads.filter() { download in
             return download.uuid == beacon.uuid
@@ -30,7 +31,15 @@ struct BeaconGroupBoxListEntry: View {
             label:
                 HStack {
                     Group {
-                        Label(beacon.wrappedName, systemImage: "thermometer").foregroundColor(Color.blue)
+                        NavigationLink(destination: BeaconDetail(beacon: beacon).environmentObject(lm), tag: "Detail",
+                                       selection: $selection) { EmptyView() }
+                            Label(beacon.wrappedName, systemImage: "thermometer").foregroundColor(Color.blue)
+                                .padding(.vertical, 5)
+                                .padding(.trailing, 5)
+//                                .border(Color.red)
+                                .onTapGesture {
+                                    selection = "Detail"
+                                }
                         Spacer()
                         if beacon.flag {
                             HStack {
@@ -41,16 +50,16 @@ struct BeaconGroupBoxListEntry: View {
                         if beacon.hidden {
                             HStack {
                                 Image(systemName: "eye.slash").foregroundColor(.gray).imageScale(.small)
-                                Spacer().frame(width: 10)
+//                                Spacer().frame(width: 10)
                             }
                         }
                         BeaconDownloadImageButton(beacon: beacon,
                                                   activeDownload: getDownload(beacon: beacon),
                                                   nowDate: nowDate)
-                        Spacer().frame(width: 10)
-                        NavigationLink(destination: BeaconDetail(beacon: beacon).environmentObject(lm)) {
-                            Image(systemName: "chevron.right").foregroundColor(.secondary) //.imageScale(.small)
-                        }
+//                        Spacer().frame(width: 10)
+//                        NavigationLink(destination: BeaconDetail(beacon: beacon).environmentObject(lm)) {
+//                            Image(systemName: "chevron.right").foregroundColor(.secondary) //.imageScale(.small)
+//                        }
                     }
                 },
             content: {

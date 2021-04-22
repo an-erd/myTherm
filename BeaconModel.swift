@@ -6,8 +6,14 @@
 //
 
 import Foundation
+protocol BeaconModelDelegate {
+    func changeDoScan(_ status: Bool)
+    func changeDoUpdateAdv(_ status: Bool)
+}
 
 final class BeaconModel: ObservableObject {
+    
+    var delegate: BeaconModelDelegate?
     
     @Published var isBluetoothAuthorization: Bool = true
     @Published var isShownTemperature: Bool = true
@@ -23,7 +29,11 @@ final class BeaconModel: ObservableObject {
     @Published var textDownloadStatusErrorLine1: String = ""
     @Published var textDownloadStatusErrorLine2: String = ""
 
-    @Published var isUpdatingSensor: Bool = false
+    @Published var doScan: Bool = true
+    @Published var doUpdateAdv: Bool = true
+    @Published var scanStatusBeforeDownload: Bool = true
+    @Published var scanUpdateTemporaryStopped: Bool = false
+
     static var shared = BeaconModel()
 
 }

@@ -52,30 +52,32 @@ struct BeaconDetail: View {
                         Text("No data available")
                             .foregroundColor(.gray)
                     }
-                    if (lm.status == .restricted) || (lm.status == .denied) {
+                    if (lm.locationAuthorizationStatus == .restricted) || (lm.locationAuthorizationStatus == .denied) {
                         Button(action: {
                             UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
                         }) {
                             VStack {
-                                Text("Location services are currently not allowed. To store and update sensor location, allow location services. On your phone, please go to Settings > Thermometer and turn on Location services")
+                                Text("Location services are currently not allowed. To store and update sensor location, allow precise location services. On your phone, please go to Settings > Thermometer and turn on Location services")
+                            }
+                        }
+                    } else if (lm.locationAuthorizationStatus == .authorizedWhenInUse)
+                                || (lm.locationAuthorizationStatus == .authorizedAlways) {
+                        if (lm.locationAuthorizationAccuracy != .fullAccuracy) {
+                            Button(action: {
+                                UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                            }) {
+                                VStack {
+                                    Text("Location services are allowed, but currently no precise location is available. To store and update sensor location, allow precise location services. On your phone, please go to Settings > Thermometer and turn on Location services")
+                                }
                             }
                         }
                     }
                 }
             }
-            .padding(.bottom, 20)
+            .padding(.bottom, 30)
 
         }
         .navigationTitle(beacon.name!)
-        .toolbar {
-            Button(action: {
-                MyCentralManagerDelegate.shared.downloadManager.addBeaconToDownloadQueue(uuid: beacon.uuid!)
-            }) {
-                Image(systemName: "icloud.and.arrow.down")
-//                Image(systemName: "arrow.triangle.2.circlepath")
-//                ProgressCircle(rotation: -90, progress: 0.7, handle: true, mode: .timer)
-            }
-        }
         // https://stackoverflow.com/questions/61823392/displaying-progress-from-sessiondownloaddelegate-with-swiftui
     }
 }
@@ -130,7 +132,7 @@ func buildViewAdv(beaconadv: BeaconAdv) -> AnyView {
         }
     )
 }
-    
+
 func buildViewLocation(beaconlocation: BeaconLocation) -> AnyView {
     return AnyView (
         Group {
@@ -150,16 +152,16 @@ func buildViewLocation(beaconlocation: BeaconLocation) -> AnyView {
 
 /*
  func BeaconDetailListEntryWrapper(title: String, location: BeaconLoc?, beacon: Beacon) -> AnyView {
-     if let location = location {
-     return AnyView(
-     NavigationLink(destination: BeaconDetailLocation(beacon: $beacon))
-     ){
-     BeaconDetailListEntry(
-     title: title, text: String(format: "%.4f %.4f", location.latitude, location.longitude))
-     }
-     } else {
-     return AnyView( BeaconDetailListEntry(title: title, text: "none"))
-     }
-     }
-     */
-    
+ if let location = location {
+ return AnyView(
+ NavigationLink(destination: BeaconDetailLocation(beacon: $beacon))
+ ){
+ BeaconDetailListEntry(
+ title: title, text: String(format: "%.4f %.4f", location.latitude, location.longitude))
+ }
+ } else {
+ return AnyView( BeaconDetailListEntry(title: title, text: "none"))
+ }
+ }
+ */
+

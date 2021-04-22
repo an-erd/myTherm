@@ -30,10 +30,9 @@ struct BeaconList: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var userSettings: UserSettings
     @EnvironmentObject var networkManager: NetworkManager
-    @StateObject var beaconModel = BeaconModel.shared   // TODO
+    @StateObject var beaconModel = BeaconModel.shared 
     @StateObject var downloadManager = DownloadManager.shared
-    @StateObject var lm = LocationManager()
-    @State var filteredListEntriesShown: Int = 0
+    @StateObject var locationManager = LocationManager.shared
     
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Beacon.name, ascending: true)],
@@ -42,8 +41,6 @@ struct BeaconList: View {
     
     @State private var editMode: EditMode = .inactive
     
-    @State private var doScan: Bool = false
-    @State private var doUpdateAdv: Bool = false
     
     @State private var doFilter: Bool = false
     @State var activeSheet: ActiveSheet?
@@ -56,7 +53,7 @@ struct BeaconList: View {
     @State var compoundPredicate: NSCompoundPredicate?
     @State var filterPredicateUpdateTimer: Timer?
     let filterPredicateTimeinterval: Double = 180
-    let filterPredicateDistanceMeter: Double = 500
+    let filterPredicateDistanceMeter: Double = 100
     
     @State private var doErrorMessageDownload: Bool = false
     @State var activeAlert: ActiveAlert?
@@ -147,7 +144,7 @@ struct BeaconList: View {
     fileprivate func buildViewLocationServices() -> some View {
         return BeaconListAlertEntry(title: "Location permission preferable",
                                     image: "questionmark.circle.fill",
-                                    text: "To store sensor location, please allow location services. On your phone, please go to Settings > Thermometer and turn on Location services.",
+                                    text: "To store sensor location, please allow precise location services. On your phone, please go to Settings > Thermometer and turn on Location services.",
                                     foregroundColor: .white,
                                     backgroundColor: Color("alertYellow"),
                                     allowDismiss: true,
@@ -166,17 +163,17 @@ struct BeaconList: View {
     
     fileprivate func buildViewDebugTogglesScanAdv() -> some View {
         return VStack {
-            Toggle("Scan", isOn: $doScan)
-                .onChange(of: doScan, perform: { value in
+            Toggle("Scan", isOn: $beaconModel.doScan)
+                .onChange(of: beaconModel.doScan, perform: { value in
                     if value == true {
-                        MyCentralManagerDelegate.shared.startScanAndLocationService()
+                        MyCentralManagerDelegate.shared.startScanService()
                     } else {
-                        MyCentralManagerDelegate.shared.stopScanAndLocationService()
+                        MyCentralManagerDelegate.shared.stopScanService()
                     }
                     print("toggle update adv \(value)")
                 })
-            Toggle("Adv", isOn: $doUpdateAdv)
-                .onChange(of: doUpdateAdv, perform: { value in
+            Toggle("Adv", isOn: $beaconModel.doUpdateAdv)
+                .onChange(of: beaconModel.doUpdateAdv, perform: { value in
                     if value == true {
                         MyCentralManagerDelegate.shared.startUpdateAdv()
                     } else {
@@ -197,11 +194,11 @@ struct BeaconList: View {
                     buildViewBluetoothAutorization()
                 }
                 
-                if (userSettings.showRequestLocationAlert) {
-                    if (lm.status == .restricted) || (lm.status == .denied) {
+//                if (userSettings.showRequestLocationAlert) {
+                    if (locationManager.locationAuthorizationStatus == .restricted) || (locationManager.locationAuthorizationStatus == .denied) {
                         buildViewLocationServices()
                     }
-                }
+//                }
                 if (!networkManager.isConnected) {
                     buildViewInternet()
                 }
@@ -216,10 +213,8 @@ struct BeaconList: View {
             }
             withAnimation {
                 BeaconGroupBoxList(predicate: compoundPredicate)
-                    .environmentObject(lm)
+                    .environmentObject(locationManager)
             }
-            //                BeaconBottomBarStatusFilterButton(filterActive: doFilter, filterByTime: $filterByTime, filterByLocation: $filterByLocation, filterByFlag: $filterByFlag)
-            //            }
         }
         
         .onAppear(perform: {
@@ -293,9 +288,11 @@ struct BeaconList: View {
                     }
                 }
                 Spacer()
-
-//                Button(action: { }
-//                ) {
+//                Button(action: {
+//                    let moc = PersistenceController.shared.container.viewContext
+//                    BeaconHistoryCleanupSpikes(context: moc)
+//                    PersistenceController.shared.saveContext(context: moc)
+//                }) {
 //                    Image(systemName: "tortoise")
 //                }
             }
@@ -319,33 +316,35 @@ struct BeaconList: View {
             trailing:
                 HStack {
                     Spacer()
-                    Button(action: {
-                        if doScan {
-                            doScan = false
-                            MyCentralManagerDelegate.shared.stopScanAndLocationService()
+                    HStack {
+                        if beaconModel.scanUpdateTemporaryStopped {
+                            Text("Paused")
+                                .foregroundColor(.gray)
+                        } else if !beaconModel.isBluetoothAuthorization {
+                            Text("not available")
+                                .foregroundColor(.gray)
                         } else {
-                            doScan = true
-                            MyCentralManagerDelegate.shared.startScanAndLocationService()
-                        }
-                    }) {
-                        HStack {
-                            if doScan {
-                                Text("Stop Update")
-                            } else {
-                                Text("Update")
+                            Button(action: {
+                                if beaconModel.doScan {
+                                    beaconModel.doScan = false
+                                    MyCentralManagerDelegate.shared.stopScanService()
+                                } else {
+                                    beaconModel.doScan = true
+                                    MyCentralManagerDelegate.shared.startScanService()
+                                }
+                            }) {
+                                HStack {
+                                    if beaconModel.doScan {
+                                        Text("Stop Update")
+                                    } else {
+                                        Text("Update")
+                                    }
+                                }
                             }
+                            
                         }
-                        .frame(width: 100, alignment: .trailing)
                     }
-                    
-//                    Button("•••") {
-//                        activeSheet = .settings
-//                    }
-//                    .foregroundColor(Color.white)
-//                    .padding(.horizontal, 12)
-//                    .padding(.vertical, 2)
-//                    .background(Color.blue)
-//                    .clipShape(Capsule())
+                    .frame(width: 100, alignment: .trailing)
                 }
         )
         .sheet(item: $activeSheet) { item in
