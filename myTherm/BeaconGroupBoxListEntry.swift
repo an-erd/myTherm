@@ -33,13 +33,13 @@ struct BeaconGroupBoxListEntry: View {
                     Group {
                         NavigationLink(destination: BeaconDetail(beacon: beacon).environmentObject(lm), tag: "Detail",
                                        selection: $selection) { EmptyView() }
-                            Label(beacon.wrappedName, systemImage: "thermometer").foregroundColor(Color.blue)
-                                .padding(.vertical, 5)
-                                .padding(.trailing, 5)
-//                                .border(Color.red)
-                                .onTapGesture {
-                                    selection = "Detail"
-                                }
+                        Label(beacon.wrappedName, systemImage: "thermometer").foregroundColor(Color.blue)
+                            .padding(.vertical, 5)
+                            .padding(.trailing, 5)
+                            //                                .border(Color.red)
+                            .onTapGesture {
+                                selection = "Detail"
+                            }
                         Spacer()
                         if beacon.flag {
                             HStack {

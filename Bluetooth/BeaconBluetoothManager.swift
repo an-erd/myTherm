@@ -757,7 +757,7 @@ extension MyCentralManagerDelegate {
         
         if characteristic.uuid == BeaconPeripheral.beaconRACPControlPointCharUUID {
             //            MyBluetoothManager.shared.counterControlPointNotification += 1
-            
+            var deviceName: String = ""
             if (characteristicData[0] == 5) && (characteristicData[1] == 0) {
                 let historyCount = UInt16_decode(msb: characteristicData[3] , lsb: characteristicData[2] )
                 print("number of history points \(historyCount)")
@@ -769,6 +769,7 @@ extension MyCentralManagerDelegate {
                     downloadHistory.status = .downloading_data
                     downloadHistory.numEntriesAll = Int(historyCount)
                     //                    downloadHistory.numEntriesReceived = 0
+                    deviceName = downloadHistory.beacon?.wrappedDeviceName ?? "no dev name"
                 }
                 
                 guard let discoveredPeripheral = MyBluetoothManager.shared.discoveredPeripheral,
@@ -778,8 +779,7 @@ extension MyCentralManagerDelegate {
                 
                 let data = Data(rawPacket)
                 discoveredPeripheral.writeValue(data, for: transferCharacteristic, type: .withResponse)
-                os_signpost(.begin, log: log, name: "getAllHistory")
-                
+                os_signpost(.begin, log: log, name: "getAllHistory", "%{public}s", deviceName)
             } else {
                 
                 if let downloadHistory = downloadManager.activeDownload {
@@ -792,7 +792,7 @@ extension MyCentralManagerDelegate {
                         subsystem: "com.anerd.myTherm",
                         category: "download"
                     )
-                    os_signpost(.end, log: log, name: "getAllHistory")
+                    os_signpost(.end, log: log, name: "getAllHistory", "%{public}s", deviceName)
                     
                     if let connectto = MyBluetoothManager.shared.connectedPeripheral {
                         downloadManager.mergeHistoryToStore(uuid: connectto.identifier)
@@ -811,8 +811,6 @@ extension MyCentralManagerDelegate {
             }
             print ("didWriteValueFor called")
         }
-        
-        
     }
     
 }

@@ -10,14 +10,15 @@ import SwipeCell
 
 struct BeaconGroupBoxList: View {
     @EnvironmentObject var lm: LocationManager
-    @State private var showAlertForHidden = false
-
+    @Binding var activeAlert: ActiveAlert?
+    
     var fetchRequest: FetchRequest<Beacon>
-    init(predicate: NSPredicate?) {
+    init(predicate: NSPredicate?, activeAlert: Binding<ActiveAlert?>) {
         fetchRequest = FetchRequest<Beacon>(entity: Beacon.entity(),
                                             sortDescriptors: [NSSortDescriptor(keyPath: \Beacon.name, ascending: true)],
                                             predicate: predicate,
                                             animation: .default)
+        self._activeAlert = activeAlert
     }
     
     @State var nowDate: Date = Date()
@@ -105,8 +106,8 @@ struct BeaconGroupBoxList: View {
                     },
                     backgroundColor: .gray,
                     action: {
-                        if !beacon.hidden {
-                            showAlertForHidden = true
+                        if !beacon.hidden{
+                            activeAlert = .hiddenAlert
                         }
                         beacon.hidden.toggle()
                     },
@@ -131,14 +132,6 @@ struct BeaconGroupBoxList: View {
         .onAppear(perform: {
             _ = self.timer
         })
-        .alert(isPresented: $showAlertForHidden) {
-            Alert(
-                title: Text("Hide sensor"),
-                message: Text("Sensor will be marked as hidden. Find it again using sensor filter."),
-                dismissButton: .default(Text("Got it!")
-            )
-        )}
-
     }
 }
 

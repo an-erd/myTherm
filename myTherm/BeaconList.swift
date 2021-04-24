@@ -20,6 +20,7 @@ enum ActiveSheet: Identifiable {
 
 enum ActiveAlert: Identifiable {
     case downloadError
+    case hiddenAlert
     
     var id: Int {
         hashValue
@@ -58,6 +59,9 @@ struct BeaconList: View {
     @State private var doErrorMessageDownload: Bool = false
     @State var activeAlert: ActiveAlert?
     
+//    @State private var showAlert = false
+//    @State private var alert: Alert? = nil
+//    
     @State var sort: Int = 0
     
     func startFilterUpdate() {
@@ -113,12 +117,12 @@ struct BeaconList: View {
             }
         }
         if userSettings.filterByShown {
-            predicateShownFilter = NSPredicate(format: "hidden == false")
+            predicateShownFilter = NSPredicate(format: "hidden != true")
             if let predicateShownFilter = predicateShownFilter {
                 compound.append(predicateShownFilter)
             }
         }
-
+        
         withAnimation {
             compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: compound)
         }
@@ -194,17 +198,17 @@ struct BeaconList: View {
                     buildViewBluetoothAutorization()
                 }
                 
-//                if (userSettings.showRequestLocationAlert) {
-                    if (locationManager.locationAuthorizationStatus == .restricted) || (locationManager.locationAuthorizationStatus == .denied) {
-                        buildViewLocationServices()
-                    }
-//                }
+                //                if (userSettings.showRequestLocationAlert) {
+                if (locationManager.locationAuthorizationStatus == .restricted) || (locationManager.locationAuthorizationStatus == .denied) {
+                    buildViewLocationServices()
+                }
+                //                }
                 if (!networkManager.isConnected) {
                     buildViewInternet()
                 }
-#if DEBUG_ADV
+                #if DEBUG_ADV
                 buildViewDebugTogglesScanAdv()
-#endif
+                #endif
                 //                    Button(action: {
                 //                        MyBluetoothManager.shared.downloadManager.addAllBeaconsToDownloadQueue()
                 //                    }) {
@@ -212,7 +216,7 @@ struct BeaconList: View {
                 //                    }
             }
             withAnimation {
-                BeaconGroupBoxList(predicate: compoundPredicate)
+                BeaconGroupBoxList(predicate: compoundPredicate, activeAlert: $activeAlert)
                     .environmentObject(locationManager)
             }
         }
@@ -224,9 +228,9 @@ struct BeaconList: View {
         })
         .onDisappear(perform: {
             self.onDisappear()
-//            DispatchQueue.main.async {
-//                copyLocalBeaconsToStore()
-//            }
+            //            DispatchQueue.main.async {
+            //                copyLocalBeaconsToStore()
+            //            }
         })
         .toolbar {
             ToolbarItemGroup (placement: .bottomBar) {
@@ -261,6 +265,7 @@ struct BeaconList: View {
                         filterByLocation: $userSettings.filterByLocation,
                         filterByFlag: $userSettings.filterByFlag,
                         filterByHidden: $userSettings.filterByHidden,
+                        filterByShown: $userSettings.filterByShown,
                         predicate: compoundPredicate)
                         .opacity(!(beaconModel.isDownloadStatusError
                                     || beaconModel.isDownloading
@@ -278,7 +283,7 @@ struct BeaconList: View {
                     
                     Button(action: {
                         if beaconModel.isDownloadStatusError {
-                            activeAlert = .downloadError
+                            activeAlert = .downloadError    // TODO
                         } else if doFilter {
                             activeSheet = .filter
                         }
@@ -288,30 +293,20 @@ struct BeaconList: View {
                     }
                 }
                 Spacer()
-//                Button(action: {
-//                    let moc = PersistenceController.shared.container.viewContext
-//                    BeaconHistoryCleanupSpikes(context: moc)
-//                    PersistenceController.shared.saveContext(context: moc)
-//                }) {
-//                    Image(systemName: "tortoise")
-//                }
+                
+                Button(action: {
+                    activeSheet = .settings
+                }) {
+                    HStack {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    .padding()
+                }
             }
         }
         .navigationBarItems(
             leading:
                 HStack {
-                    Button(action: {
-                        activeSheet = .settings
-                    }) {
-                        Image(systemName: "line.horizontal.3")
-                            .foregroundColor(.blue)
-                            .imageScale(.large)
-                    }
-                    .foregroundColor(.primary)
-//                    .padding(.horizontal, 8)
-//                    .padding(.vertical, 2)
-//                    .background(Color.blue)
-//                    .clipShape(Capsule())
                 },
             trailing:
                 HStack {
@@ -369,6 +364,12 @@ struct BeaconList: View {
                     dismissButton: .default(Text("OK"),
                                             action: { downloadManager.clearDownloadErrorAndResume() })
                 )
+            case .hiddenAlert:
+                return Alert(
+                    title: Text("Hide sensor"),
+                    message: Text("Sensor will be marked as hidden. Find it again using sensor filter."),
+                    dismissButton: .default(Text("Got it!"))
+                )
             }
         }
     }
@@ -407,7 +408,7 @@ struct BeaconList: View {
     //        }
     //    }
     
-
+    
     public func resetDistanceBeaconOnce() {
         print("resetDistanceBeaconOnce")
         for beacon in beacons {

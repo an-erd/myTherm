@@ -14,6 +14,7 @@ struct BeaconBottomBarStatusFilterButton: View {
     @Binding var filterByLocation: Bool
     @Binding var filterByFlag: Bool
     @Binding var filterByHidden: Bool
+    @Binding var filterByShown: Bool
     var predicate: NSPredicate?
     
     func buildFilterString() -> String {
@@ -45,6 +46,13 @@ struct BeaconBottomBarStatusFilterButton: View {
             }
             filterString.append("Hidden")
         }
+        if filterByShown {
+            if !firstEntry {
+                filterString.append(", ")
+                firstEntry = false
+            }
+            filterString.append("Shown")
+        }
 
         return filterString
     }
@@ -70,8 +78,9 @@ struct BeaconBottomBarStatusFilterButton_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             BeaconBottomBarStatusFilterButton(filterActive: true, filterByTime: .constant(true), filterByLocation: .constant(false),
-                                              filterByFlag: .constant(true), filterByHidden: .constant(false), predicate: nil)
-            BeaconBottomBarStatusFilterButton(filterActive: false, filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true), filterByHidden: .constant(false), predicate: nil)
+                                              filterByFlag: .constant(true), filterByHidden: .constant(false), filterByShown: .constant(false),
+                                              predicate: nil)
+            BeaconBottomBarStatusFilterButton(filterActive: false, filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true), filterByHidden: .constant(false), filterByShown: .constant(false),predicate: nil)
         }
         .previewLayout(.fixed(width: 300, height: 70))
     }

@@ -20,7 +20,7 @@ struct TextEdit : View {
             List {
                 ZStack {
                     HStack {
-                        TextField(name, text: $editName)
+                        TextField(fieldName, text: $editName)
                         if !editName.isEmpty {
                             Button(action: {
                                 self.editName = ""

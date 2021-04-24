@@ -24,9 +24,9 @@ func BeaconHistoryCleanupSpikes(context: NSManagedObjectContext) {
     print("beacons fetched, num \(beacons.count)")
     
     for beacon in beacons {
-        var history = beacon.historyArray
+        let history = beacon.historyArray
         print("\(beacon.wrappedDeviceName) count history \(history.count)")
-        var historyFiltered = history.filter() { point in
+        let historyFiltered = history.filter() { point in
             return point.temperature == -45
         }
         for point in historyFiltered {

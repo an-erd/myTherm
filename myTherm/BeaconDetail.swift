@@ -74,10 +74,11 @@ struct BeaconDetail: View {
                     }
                 }
             }
-            .padding(.bottom, 30)
+            .padding(.bottom, 40)
 
         }
         .navigationTitle(beacon.name!)
+//        .navigationBarHidden(true)
         // https://stackoverflow.com/questions/61823392/displaying-progress-from-sessiondownloaddelegate-with-swiftui
     }
 }
