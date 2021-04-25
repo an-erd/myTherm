@@ -5,6 +5,7 @@ import OSLog
 struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     let persistenceController = PersistenceController.shared
+    private var beaconModel = BeaconModel.shared
 
     var body: some View {
         NavigationView {
@@ -39,10 +40,13 @@ struct ContentView: View {
                 print("PHASECHANGE: View entered active")
             case .inactive:
                 print("PHASECHANGE: View entered inactive")
-                DispatchQueue.main.async {
-                    MyCentralManagerDelegate.shared.copyLocalBeaconsToWriteContext()
-                    PersistenceController.shared.writeContext.performAndWait {
-                        PersistenceController.shared.saveContext(context: PersistenceController.shared.writeContext)
+                // if not in history downloading:
+                if !beaconModel.scanUpdateTemporaryStopped {
+                    DispatchQueue.main.async {
+                        MyCentralManagerDelegate.shared.copyLocalBeaconsToWriteContext()
+                        PersistenceController.shared.writeContext.performAndWait {
+                            PersistenceController.shared.saveContext(context: PersistenceController.shared.writeContext)
+                        }
                     }
                 }
             @unknown default:
