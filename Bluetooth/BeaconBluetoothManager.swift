@@ -769,7 +769,11 @@ extension MyCentralManagerDelegate {
                     downloadHistory.status = .downloading_data
                     downloadHistory.numEntriesAll = Int(historyCount)
                     //                    downloadHistory.numEntriesReceived = 0
-                    deviceName = downloadHistory.beacon?.wrappedDeviceName ?? "no dev name"
+                    localMoc.performAndWait {
+                        if let beacon = fetchBeacon(context: localMoc, with: downloadHistory.uuid) {
+                            deviceName = beacon.wrappedDeviceName
+                        }
+                    }
                 }
                 
                 guard let discoveredPeripheral = MyBluetoothManager.shared.discoveredPeripheral,

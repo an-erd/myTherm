@@ -22,7 +22,7 @@ public enum DownloadStatus: Int32 {
 
 class Download : ObservableObject {
     var uuid: UUID
-    var beacon: Beacon?
+//    var beacon: Beacon?
     var viewContext: NSManagedObjectContext
     var status: DownloadStatus = .waiting
 //    {
@@ -62,9 +62,8 @@ class Download : ObservableObject {
     var history: [BeaconHistoryDataPointLocal] = []
         
 
-    init(uuid: UUID, beacon: Beacon) {
+    init(uuid: UUID) {
         self.uuid = uuid
-        self.beacon = beacon
         self.viewContext = PersistenceController.shared.container.viewContext
     }
     

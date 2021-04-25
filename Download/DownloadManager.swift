@@ -62,7 +62,7 @@ class DownloadManager: NSObject, ObservableObject {
             }
             
             if let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: localMoc, with: uuid) {
-                let newDownload = Download(uuid: beacon.uuid!, beacon: beacon) // , delegate: beacon)
+                let newDownload = Download(uuid: beacon.uuid!) // , delegate: beacon)
                 downloads.append(newDownload)
                 
                 resume()
@@ -117,7 +117,7 @@ class DownloadManager: NSObject, ObservableObject {
             var counter = downloadsError.count
             for download in downloadsError {
                 counter -= 1
-                if let beacon = download.beacon {
+                if let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: localMoc, with: download.uuid)  {
                     text.append("\(beacon.wrappedDeviceName) - \(beacon.wrappedName)")
                     if counter > 0 {
                         text.append("\n")
@@ -209,9 +209,7 @@ class DownloadManager: NSObject, ObservableObject {
         MyCentralManagerDelegate.shared.updateBeaconDownloadStatus(context: viewMoc, with: download.uuid, status: .connecting)
 
         self.status = .processing
-        
-        print("DownloadManager startDownload beacon \(activeDownload?.beacon?.wrappedName ?? "no beacon")")
-       
+      
         let foundPeripherals = MyBluetoothManager.shared.central.retrievePeripherals(withIdentifiers: [download.uuid])
         MyBluetoothManager.shared.connectedPeripheral = foundPeripherals.first
         
@@ -306,7 +304,7 @@ class DownloadManager: NSObject, ObservableObject {
                 return
             }
             
-            guard let beacon = activeDownload?.beacon else {
+            guard let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: localMoc, with: uuid) else {
                 print("mergeHistoryToStore fetchBeacon error")
                 return
             }
