@@ -43,3 +43,35 @@ class BeaconLocalValueView : ObservableObject {
     @Published var temperature: Double = 0
     @Published var humidity: Double = 0
 }
+
+public struct CopyBeacon {
+    var beacon_version: Int16
+    var company_id: Int16
+    var descr: String?
+    var device_name: String?
+    var id_maj: String?
+    var id_min: String?
+    var name: String?
+    var uuid: UUID?
+    var flag: Bool
+    var hidden: Bool
+}
+
+public struct CopyBeaconAdv {
+    var accel_x: Double
+    var accel_y: Double
+    var accel_z: Double
+    var battery: Int64
+    var humidity: Double
+    var rawdata: String?
+    var rssi: Int64
+    var temperature: Double
+    var timestamp: Date?
+}
+
+public struct CopyBeaconLoc {
+    var latitude: Double
+    var longitude: Double
+    var timestamp: Date?
+    var address: String
+}

@@ -228,9 +228,9 @@ struct BeaconList: View {
         })
         .onDisappear(perform: {
             self.onDisappear()
-            //            DispatchQueue.main.async {
-            //                copyLocalBeaconsToStore()
-            //            }
+//            DispatchQueue.main.async {
+//                copyLocalBeaconsToStore()
+//            }
         })
         .toolbar {
             ToolbarItemGroup (placement: .bottomBar) {

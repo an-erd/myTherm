@@ -150,6 +150,28 @@ extension Beacon {
         self.name = from.name
         self.uuid = from.uuid
         self.flag = from.flag
+        self.hidden = from.hidden
+    }
+    
+    public func copyContent() -> CopyBeacon {
+        return CopyBeacon(
+            beacon_version: self.beacon_version, company_id: self.company_id,
+            descr: self.descr, device_name: self.device_name,
+            id_maj: self.id_maj, id_min: self.id_min,
+            name: self.name,uuid: self.uuid, flag: self.flag, hidden: self.hidden)
+    }
+    
+    public func copyContent(from: CopyBeacon) {
+        self.beacon_version = from.beacon_version
+        self.company_id = from.company_id
+        self.descr = from.descr
+        self.device_name = from.device_name
+        self.id_maj = from.id_maj
+        self.id_min = from.id_min
+        self.name = from.name
+        self.uuid = from.uuid
+        self.flag = from.flag
+        self.hidden = from.hidden
     }
 }
 

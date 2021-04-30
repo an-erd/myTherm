@@ -27,9 +27,19 @@ extension BeaconLocation {
         self.longitude = from.longitude
         self.timestamp = from.timestamp
         self.address = from.address
-        self.beacon = from.beacon
     }
 
+    public func copyContent() -> CopyBeaconLoc {
+        return CopyBeaconLoc(latitude: self.latitude, longitude: self.longitude,
+                             timestamp: self.timestamp, address: self.address)
+    }
+    
+    public func copyContent(from: CopyBeaconLoc) {
+        self.latitude = from.latitude
+        self.longitude = from.longitude
+        self.timestamp = from.timestamp
+        self.address = from.address
+    }
 }
 
 extension BeaconLocation : Identifiable {

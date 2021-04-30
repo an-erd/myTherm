@@ -19,7 +19,7 @@ struct BeaconDetail: View {
                 NavigationLink(destination: TextEdit(fieldName: "Name", name: Binding($beacon.name)!,
                                                      allowEmpty: false)
                 ) {
-                    BeaconDetailListEntry(title: "Name", text: beacon.name ?? "default value" )
+                    BeaconDetailListEntry(title: "Name", text: beacon.name ?? beacon.wrappedDeviceName )
                 }
 
                 NavigationLink(destination: TextEdit(fieldName: "Description",

@@ -30,13 +30,14 @@ class MyBluetoothManager {
         
         localMoc = PersistenceController.shared.container.newBackgroundContext()
         viewMoc = PersistenceController.shared.container.viewContext
-        MyCentralManagerDelegate.shared.setMoc(localMoc: localMoc, viewMoc: viewMoc)
+        MyCentralManagerDelegate.shared.setMoc(localMoc: localMoc, viewMoc: viewMoc, queue: queue)
     }
 }
 
 class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     static let shared = MyCentralManagerDelegate()
     private var localMoc: NSManagedObjectContext!
+    private var queue: DispatchQueue!
     private var viewMoc: NSManagedObjectContext!
     private var locationManager = LocationManager.shared
     private var beaconModel = BeaconModel.shared
@@ -93,9 +94,10 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
 
 extension MyCentralManagerDelegate {
     
-    func setMoc(localMoc: NSManagedObjectContext, viewMoc: NSManagedObjectContext){
+    func setMoc(localMoc: NSManagedObjectContext, viewMoc: NSManagedObjectContext, queue: DispatchQueue){
         self.localMoc = localMoc
         self.viewMoc = viewMoc
+        self.queue = queue
         downloadManager.setMoc(localMoc: localMoc, viewMoc: viewMoc)
     }
     
@@ -202,63 +204,75 @@ extension MyCentralManagerDelegate {
             os_signpost(.end, log: log, name: "copyHistoryArrayToLocalArray")
         }
     }
-
+    
     public func copyLocalBeaconsToWriteContext() {
-        print("copyLocalBeaconsToStore")
+        print("copyLocalBeaconsToWriteContext")
         print("\(Thread.current)")  // must be on main!
         
+        struct CopyOfBeacon {
+            var uuid: UUID
+            var changesBeacon: CopyBeacon?
+            var changesAdv: CopyBeaconAdv?
+            var changesLoc: CopyBeaconLoc?
+        }
+        
+        var copyOfAllBeacons: [ CopyOfBeacon ] = []
+        
         let viewMoc = PersistenceController.shared.viewContext
-        let writeMoc = PersistenceController.shared.writeContext
-        
-        var toBeacon: Beacon!
-        
         viewMoc.performAndWait {
             let fromBeacons = fetchAllBeacons(context: viewMoc)
             for fromBeacon in fromBeacons {
-                writeMoc.performAndWait {
-                    toBeacon = fetchBeacon(context: writeMoc, with: fromBeacon.uuid!)
-                }
-                if fromBeacon.changedValues().count > 0 {
-//                    print("copy     \(fromBeacon.wrappedDeviceName)")
-                    let changes = fromBeacon.changedValues()
-                    writeMoc.performAndWait {
-                        if let toBeacon = toBeacon {
-                            toBeacon.setValuesForKeys(changes)
-                        } else {
-                            print("toBeacon not found")
+                if let uuid = fromBeacon.uuid {
+                    var localChanges = CopyOfBeacon(uuid: uuid)
+                    
+                    if fromBeacon.changedValues().count > 0 {
+                        localChanges.changesBeacon = fromBeacon.copyContent()
+                    }
+                    
+                    if let fromAdv = fromBeacon.adv {
+                        if fromAdv.changedValues().count > 0 {
+                            localChanges.changesAdv = fromAdv.copyContent()
                         }
                     }
+                    
+                    if let fromLocation = fromBeacon.location {
+                        if fromLocation.changedValues().count > 0 {
+                            localChanges.changesLoc = fromLocation.copyContent()
+                        }
+                    }
+                    copyOfAllBeacons.append(localChanges)
                 }
-                if let fromAdv = fromBeacon.adv {
-                    if fromAdv.changedValues().count > 0 {
-//                        print("copy adv \(fromBeacon.wrappedDeviceName)")
-                        let changes = fromAdv.changedValues()
-                        writeMoc.performAndWait {
+            }
+        }
+        
+        let queue = DispatchQueue(label: "CentralManager")
+        queue.async { [self] in
+            let moc = PersistenceController.shared.newTaskContext()
+            moc.performAndWait {
+                for copy in copyOfAllBeacons {
+                    if let toBeacon = fetchBeacon(context: moc, with: copy.uuid) {
+                        if let changesBeacon = copy.changesBeacon {
+                            toBeacon.copyContent(from: changesBeacon)
+                        }
+                        if let changesAdv = copy.changesAdv {
                             if toBeacon.adv != nil { } else {
-                                toBeacon.adv = BeaconAdv(context: writeMoc)
+                                toBeacon.adv = BeaconAdv(context: moc)
                             }
                             if let toAdv = toBeacon.adv {
-//                                print("writeMoc changes \(toBeacon.wrappedDeviceName) > \(toAdv.changedValues().count)")
-                                toAdv.setValuesForKeys(changes)
-//                                print("writeMoc changes \(toBeacon.wrappedDeviceName) < \(toAdv.changedValues().count)")
+                                toAdv.copyContent(from: changesAdv)
                             }
                         }
-                    }
-                }
-                if let fromLocation = fromBeacon.location {
-                    if fromLocation.changedValues().count > 0 {
-//                        print("copy loc \(fromBeacon.wrappedDeviceName)")
-                        let changes = fromLocation.changedValues()
-                        writeMoc.performAndWait {
+                        if let changesLoc = copy.changesLoc {
                             if toBeacon.location != nil { } else {
-                                toBeacon.location = BeaconLocation(context: writeMoc)
+                                toBeacon.location = BeaconLocation(context: moc)
                             }
                             if let toLocation = toBeacon.location {
-                                toLocation.setValuesForKeys(changes)
+                                toLocation.copyContent(from: changesLoc)
                             }
                         }
                     }
                 }
+                PersistenceController.shared.saveContext(context: moc)
             }
         }
     }
@@ -433,6 +447,21 @@ extension MyCentralManagerDelegate {
             var beaconFind: Beacon?
             if let alreadyAvailableBeacon = self.fetchBeacon(context: localMoc, with: peripheral.identifier) {
                 beaconFind = alreadyAvailableBeacon
+                if let beaconFind = beaconFind {
+                    if beaconFind.device_name == "(no device name)" || beaconFind.device_name == nil {
+                        if peripheral.name != nil {
+                            beaconFind.device_name = peripheral.name!
+                        } else {
+                            beaconFind.device_name = nil
+                        }
+                    }
+                    if beaconFind.name == nil || beaconFind.name == "(no name)" {
+                        if beaconFind.device_name != nil {
+                            beaconFind.name = beaconFind.device_name!
+                        }
+                    }
+//                    print("  \(beaconFind.wrappedDeviceName) - \(peripheral.name ?? "peripheral no name")")
+                }
             } else {
                 beaconFind = Beacon(context: MyCentralManagerDelegate.shared.localMoc)
                 if let beacon = beaconFind {
@@ -441,8 +470,8 @@ extension MyCentralManagerDelegate {
                     beacon.id_maj = extractBeacon.id_maj
                     beacon.id_min = extractBeacon.id_min
                     beacon.beacon_version = extractBeacon.beacon_version
-                    beacon.name = peripheral.name ?? "(no name)"
-                    beacon.device_name = peripheral.name ?? "(no device name)"
+                    beacon.name = peripheral.name ?? nil
+                    beacon.device_name = peripheral.name ?? nil
                     
                     print(beacon)
                     print("add new beacon \(peripheral.identifier)")

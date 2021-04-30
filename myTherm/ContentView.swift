@@ -19,7 +19,7 @@ struct ContentView: View {
         .onAppear(perform: {
             print("ContentView onAppear")
             PersistenceController.shared.writeContext.perform {
-                //                                copyStoreToLocalBeacons()
+//                                                copyStoreToLocalBeacons()
                 let log = OSLog(
                     subsystem: "com.anerd.myTherm",
                     category: "preparation"
@@ -42,18 +42,38 @@ struct ContentView: View {
                 print("PHASECHANGE: View entered inactive")
                 // if not in history downloading:
                 if !beaconModel.scanUpdateTemporaryStopped {
-                    DispatchQueue.main.async {
-                        MyCentralManagerDelegate.shared.copyLocalBeaconsToWriteContext()
-                        PersistenceController.shared.writeContext.performAndWait {
-                            PersistenceController.shared.saveContext(context: PersistenceController.shared.writeContext)
-                        }
-                    }
+                    print(".onChange \(Thread.current)")
+                    MyCentralManagerDelegate.shared.copyLocalBeaconsToWriteContext()
+                    
+                    // TODO delete history
+//                    let moc = PersistenceController.shared.newTaskContext()
+//                    moc.performAndWait {
+//                        print(".onChange deleteHistory")
+//                        do {
+//                            try deleteHistory(in: moc)
+//                        } catch let error as NSError  {
+//                            print("Could not delete history \(error), \(error.userInfo)")
+//                        }
+//                        PersistenceController.shared.saveContext(context: moc)
+//                    }
                 }
             @unknown default:
                 print("PHASECHANGE: View entered unknown phase.")
             }
         }
     }
+}
+
+public func deleteHistory(in context: NSManagedObjectContext) throws {
+    guard #available(iOSApplicationExtension 11.0, *) else { return }
+
+    let currentDate = Date()
+    var dateComponent = DateComponents()
+    dateComponent.day = -7
+
+    guard let timestamp = Calendar.current.date(byAdding: dateComponent, to: currentDate) else { return }
+    let deleteHistoryRequest = NSPersistentHistoryChangeRequest.deleteHistory(before: timestamp)
+    try! context.execute(deleteHistoryRequest)
 }
 
 struct ContentView_Previews: PreviewProvider {

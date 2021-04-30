@@ -34,38 +34,42 @@ struct BeaconDownloadImageButton: View {
                 }
             }
         }) {
-            if activeDownload != nil {
-                switch beacon.localDownloadStatus {
-                case .waiting:
-                    ProgressCircle(mode: .busy)
-                case .connecting:
-                    ProgressCircle(progress: 0.0, mode: .progress)
-                case .downloading_num, .downloading_data:
-                    ProgressCircle(progress: CGFloat(beacon.localDownloadProgress), mode: .progress)
-                case .downloading_finished:
-                    Image(systemName: "checkmark")
-                case .alldone:
-                    Image(systemName: "checkmark")
-                case .cancelled:
-                    Image(systemName: "xmark")
-                case .error:
-                    Image(systemName: "exclamationmark.triangle")
-                        .foregroundColor(.red)
-                }
-            } else {
-                if let adv = beacon.adv, let timestamp = adv.timestamp {
-                    if seenRecently(date: timestamp, nowDate: nowDate, timeInterval: 180) {
-                        Image(systemName: "icloud.and.arrow.down")
-                            .foregroundColor(.primary)
+            ZStack {
+                if activeDownload != nil {
+                    switch beacon.localDownloadStatus {
+                    case .waiting:
+                        ProgressCircle(mode: .busy)
+                    case .connecting:
+                        ProgressCircle(progress: 0.0, mode: .progress)
+                    case .downloading_num, .downloading_data:
+                        ProgressCircle(progress: CGFloat(beacon.localDownloadProgress), mode: .progress)
+                    case .downloading_finished:
+                        Image(systemName: "checkmark")
+                    case .alldone:
+                        Image(systemName: "checkmark")
+                    case .cancelled:
+                        Image(systemName: "xmark")
+                    case .error:
+                        Image(systemName: "exclamationmark.triangle")
+                            .foregroundColor(.red)
+                    }
+                } else {
+                    if let adv = beacon.adv, let timestamp = adv.timestamp {
+                        if seenRecently(date: timestamp, nowDate: nowDate, timeInterval: 180) {
+                            Image(systemName: "icloud.and.arrow.down")
+                                .foregroundColor(.primary)
+                        } else {
+                            Image(systemName: "icloud.and.arrow.down")
+                                .foregroundColor(.gray)
+                        }
                     } else {
                         Image(systemName: "icloud.and.arrow.down")
                             .foregroundColor(.gray)
                     }
-                } else {
-                    Image(systemName: "icloud.and.arrow.down")
-                        .foregroundColor(.gray)
                 }
             }
+            .frame(width: 24, height: 24)
+//            .border(Color.red)
         }
     }
 }

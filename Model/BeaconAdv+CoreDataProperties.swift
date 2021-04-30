@@ -37,7 +37,25 @@ extension BeaconAdv {
         self.rssi = from.rssi
         self.temperature = from.temperature
         self.timestamp = from.timestamp
-        self.beacon = from.beacon
+    }
+    
+    public func copyContent() -> CopyBeaconAdv {
+        return CopyBeaconAdv(
+            accel_x: self.accel_x, accel_y: self.accel_y, accel_z: self.accel_z,
+            battery: self.battery, humidity: self.humidity, rawdata: self.rawdata, rssi: self.rssi,
+            temperature: self.temperature, timestamp: self.timestamp)
+    }
+    
+    public func copyContent(from: CopyBeaconAdv) {
+        self.accel_x = from.accel_x
+        self.accel_y = from.accel_y
+        self.accel_z = from.accel_z
+        self.battery = from.battery
+        self.humidity = from.humidity
+        self.rawdata = from.rawdata
+        self.rssi = from.rssi
+        self.temperature = from.temperature
+        self.timestamp = from.timestamp
     }
 }
 
