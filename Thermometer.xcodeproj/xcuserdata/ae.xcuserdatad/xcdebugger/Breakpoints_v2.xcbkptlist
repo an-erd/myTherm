@@ -30,65 +30,33 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C737B6D0-E885-4FAB-A672-4538E029E79B"
+            uuid = "2DE1FEF5-12C7-4E13-807F-2EC54760F2A3"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "TextFields/TextEdit.swift"
+            filePath = "LineView/Line.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "19"
-            endingLineNumber = "19"
-            landmarkName = "body"
+            startingLineNumber = "127"
+            endingLineNumber = "127"
+            landmarkName = "path"
             landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "C737B6D0-E885-4FAB-A672-4538E029E79B - 697119b89c2d0eac"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Thermometer.TextEdit.body.getter : some"
-                  moduleName = "Thermometer"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/ae/Library/Mobile%20Documents/com~apple~CloudDocs/mycode/myTherm/TextFields/TextEdit.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "19"
-                  endingLineNumber = "19"
-                  offsetFromSymbolStart = "1000">
-               </Location>
-               <Location
-                  uuid = "C737B6D0-E885-4FAB-A672-4538E029E79B - 39bfa93a774e084a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; &lt;&lt;opaque return type of SwiftUI.View.background&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.View&gt;(_: &#x3c4;_1_0, alignment: SwiftUI.Alignment) -&gt; some&gt;&gt;.0 in Thermometer.TextEdit.body.getter : some"
-                  moduleName = "Thermometer"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/ae/Library/Mobile%20Documents/com~apple~CloudDocs/mycode/myTherm/TextFields/TextEdit.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "20"
-                  endingLineNumber = "20"
-                  offsetFromSymbolStart = "772">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "42AFD84A-C44C-419B-8F26-65B86897D172"
+            uuid = "C2FD844E-807A-4B7F-9517-86A8AE2ED288"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Bluetooth/BeaconBluetoothManager.swift"
+            filePath = "LineView/Line.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "457"
-            endingLineNumber = "457"
-            landmarkName = "centralManager(_:didDiscover:advertisementData:rssi:)"
-            landmarkType = "7">
+            startingLineNumber = "136"
+            endingLineNumber = "136"
+            landmarkName = "path"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

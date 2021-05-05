@@ -26,9 +26,10 @@ class MyBluetoothManager {
         print("MyBluetoothmanager init called")
         
         queue = DispatchQueue(label: "CentralManager")
+        print("MyBluetoothManager queueu \(queue)")
         central = CBCentralManager(delegate: MyCentralManagerDelegate.shared, queue: queue)
         
-        localMoc = PersistenceController.shared.container.newBackgroundContext()
+        localMoc = PersistenceController.shared.newTaskContext()
         viewMoc = PersistenceController.shared.container.viewContext
         MyCentralManagerDelegate.shared.setMoc(localMoc: localMoc, viewMoc: viewMoc, queue: queue)
     }
@@ -103,7 +104,7 @@ extension MyCentralManagerDelegate {
     
     func updateBeaconDownloadStatus(context: NSManagedObjectContext, with identifier: UUID, status: DownloadStatus) {
         context.perform { [self] in
-            let beacon = fetchBeacon(context: context, with: identifier)
+            let beacon = beaconModel.fetchBeacon(context: context, with: identifier)
             if let beacon = beacon {
                 beacon.localDownloadStatus = status
             }
@@ -112,171 +113,12 @@ extension MyCentralManagerDelegate {
     
     func updateBeaconDownloadProgress(context: NSManagedObjectContext, with identifier: UUID, progress: Float) {
         context.perform { [self] in
-            let beacon = fetchBeacon(context: context, with: identifier)
+            let beacon = beaconModel.fetchBeacon(context: context, with: identifier)
             if let beacon = beacon {
                 beacon.localDownloadProgress = progress
             }
         }
     }
-    
-    func fetchBeacon(context: NSManagedObjectContext, with identifier: UUID) -> Beacon? {
-        let fetchRequest: NSFetchRequest<Beacon> = Beacon.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "%K == %@", "uuid", identifier as CVarArg)
-        
-        // Perform the fetch with the predicate
-        do {
-            let beacons: [Beacon] = try context.fetch(fetchRequest)
-            return beacons.first
-        } catch {
-            let fetchError = error as NSError
-            debugPrint(fetchError)
-        }
-        
-        return nil
-    }
-    
-    func fetchAllBeacons(context: NSManagedObjectContext) -> [Beacon] {
-        let fetchRequest: NSFetchRequest<Beacon> = Beacon.fetchRequest()
-        do {
-            let beacons: [Beacon] = try context.fetch(fetchRequest)
-            return beacons
-        } catch {
-            let fetchError = error as NSError
-            debugPrint(fetchError)
-        }
-        return []
-    }
-    
-    public func copyHistoryArrayToLocalArray(context: NSManagedObjectContext, uuid: UUID) {
-        context.performAndWait {
-            if let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: context, with: uuid) {
-                beacon.copyHistoryArrayToLocalArray()
-            } else {
-                print("copyHistoryArrayToLocalArray beacon not found")
-            }
-        }
-    }
-
-    public func copyLocalHistoryArrayBetweenContext(
-        contextFrom: NSManagedObjectContext, contextTo: NSManagedObjectContext, uuid: UUID) {
-        
-        var tempHistoryTemperature: [Double]!
-        var tempHistoryHumidity: [Double]!
-        var tempHistoryTimestamp: [Date]!
-        
-        contextFrom.performAndWait {
-            if let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: contextFrom, with: uuid) {
-                tempHistoryTemperature = beacon.localHistoryTemperature
-                tempHistoryHumidity = beacon.localHistoryHumidity
-                tempHistoryTimestamp = beacon.localHistoryTimestamp
-            }
-        }
-        
-        DispatchQueue.main.async {
-            contextTo.performAndWait {
-                if let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: contextTo, with: uuid) {
-                    beacon.localHistoryTemperature = tempHistoryTemperature
-                    beacon.localHistoryHumidity = tempHistoryHumidity
-                    beacon.localHistoryTimestamp = tempHistoryTimestamp
-                }
-            }
-        }
-    }
-        
-    public func copyBeaconHistoryOnce() {
-        print("copyBeaconHistoryOnce")
-
-        let writeMoc = PersistenceController.shared.writeContext    // 1) prepare local history
-        let viewMoc = PersistenceController.shared.viewContext      // 2) copy to view context
-
-        let writeBeacons = fetchAllBeacons(context: writeMoc)
-        for beacon in writeBeacons {
-            //            print("copyBeaconHistoryOnce \(beacon.wrappedName)")
-            let log = OSLog(
-                subsystem: "com.anerd.myTherm",
-                category: "preparation"
-            )
-            os_signpost(.begin, log: log, name: "copyHistoryArrayToLocalArray", "%{public}s", beacon.wrappedDeviceName)
-            let uuid: UUID = beacon.uuid!
-            copyHistoryArrayToLocalArray(context: writeMoc, uuid: uuid)
-            copyLocalHistoryArrayBetweenContext(
-                contextFrom: writeMoc, contextTo: viewMoc, uuid: uuid)
-            os_signpost(.end, log: log, name: "copyHistoryArrayToLocalArray")
-        }
-    }
-    
-    public func copyLocalBeaconsToWriteContext() {
-        print("copyLocalBeaconsToWriteContext")
-        print("\(Thread.current)")  // must be on main!
-        
-        struct CopyOfBeacon {
-            var uuid: UUID
-            var changesBeacon: CopyBeacon?
-            var changesAdv: CopyBeaconAdv?
-            var changesLoc: CopyBeaconLoc?
-        }
-        
-        var copyOfAllBeacons: [ CopyOfBeacon ] = []
-        
-        let viewMoc = PersistenceController.shared.viewContext
-        viewMoc.performAndWait {
-            let fromBeacons = fetchAllBeacons(context: viewMoc)
-            for fromBeacon in fromBeacons {
-                if let uuid = fromBeacon.uuid {
-                    var localChanges = CopyOfBeacon(uuid: uuid)
-                    
-                    if fromBeacon.changedValues().count > 0 {
-                        localChanges.changesBeacon = fromBeacon.copyContent()
-                    }
-                    
-                    if let fromAdv = fromBeacon.adv {
-                        if fromAdv.changedValues().count > 0 {
-                            localChanges.changesAdv = fromAdv.copyContent()
-                        }
-                    }
-                    
-                    if let fromLocation = fromBeacon.location {
-                        if fromLocation.changedValues().count > 0 {
-                            localChanges.changesLoc = fromLocation.copyContent()
-                        }
-                    }
-                    copyOfAllBeacons.append(localChanges)
-                }
-            }
-        }
-        
-        let queue = DispatchQueue(label: "CentralManager")
-        queue.async { [self] in
-            let moc = PersistenceController.shared.newTaskContext()
-            moc.performAndWait {
-                for copy in copyOfAllBeacons {
-                    if let toBeacon = fetchBeacon(context: moc, with: copy.uuid) {
-                        if let changesBeacon = copy.changesBeacon {
-                            toBeacon.copyContent(from: changesBeacon)
-                        }
-                        if let changesAdv = copy.changesAdv {
-                            if toBeacon.adv != nil { } else {
-                                toBeacon.adv = BeaconAdv(context: moc)
-                            }
-                            if let toAdv = toBeacon.adv {
-                                toAdv.copyContent(from: changesAdv)
-                            }
-                        }
-                        if let changesLoc = copy.changesLoc {
-                            if toBeacon.location != nil { } else {
-                                toBeacon.location = BeaconLocation(context: moc)
-                            }
-                            if let toLocation = toBeacon.location {
-                                toLocation.copyContent(from: changesLoc)
-                            }
-                        }
-                    }
-                }
-                PersistenceController.shared.saveContext(context: moc)
-            }
-        }
-    }
-    
     fileprivate func startDownloadTimer() {
         DispatchQueue.main.async {
             MyBluetoothManager.shared.downloadTimer =
@@ -444,10 +286,12 @@ extension MyCentralManagerDelegate {
         }
         
         localMoc.performAndWait {
+//            print("\(Thread.current)")
             var beaconFind: Beacon?
-            if let alreadyAvailableBeacon = self.fetchBeacon(context: localMoc, with: peripheral.identifier) {
+            if let alreadyAvailableBeacon = beaconModel.fetchBeacon(context: localMoc, with: peripheral.identifier) {
                 beaconFind = alreadyAvailableBeacon
                 if let beaconFind = beaconFind {
+//                    print("  \(beaconFind.wrappedDeviceName), devices \(beaconFind.devices != nil ? "yes" : "no")")
                     if beaconFind.device_name == "(no device name)" || beaconFind.device_name == nil {
                         if peripheral.name != nil {
                             beaconFind.device_name = peripheral.name!
@@ -463,7 +307,8 @@ extension MyCentralManagerDelegate {
 //                    print("  \(beaconFind.wrappedDeviceName) - \(peripheral.name ?? "peripheral no name")")
                 }
             } else {
-                beaconFind = Beacon(context: MyCentralManagerDelegate.shared.localMoc)
+                print("add new beacon 1 \(peripheral.identifier)")
+                beaconFind = Beacon(context: localMoc)
                 if let beacon = beaconFind {
                     beacon.uuid = peripheral.identifier
                     beacon.company_id = extractBeacon.company_id
@@ -474,71 +319,83 @@ extension MyCentralManagerDelegate {
                     beacon.device_name = peripheral.name ?? nil
                     
                     print(beacon)
-                    print("add new beacon \(peripheral.identifier)")
-                    
+                    print("add new beacon 2 \(peripheral.identifier) objectID \(beacon.objectID)")
+                    beaconModel.addBeaconToDevices(context: localMoc, beacon: beacon)
+
                     guard let newadv = beacon.adv else { return }
                     print("inverse \(newadv.beacon?.name ?? "inverse beacon not set")")
+                    
+
                 }
             }
             
             if localMoc.hasChanges {
-                PersistenceController.shared.persistentContainerQueue.addOperation(){
-                    self.localMoc.performAndWait{
-                        do {
-                            try self.localMoc.save()
-                        } catch let error as NSError  {
-                            print("Could not save \(error), \(error.userInfo)")
-                        }
-                    }
-                }
+                PersistenceController.shared.saveContext(context: localMoc)
+//                PersistenceController.shared.persistentContainerQueue.addOperation(){
+//                    self.localMoc.performAndWait{
+//                        do {
+//                            try self.localMoc.save()
+//                        } catch let error as NSError  {
+//                            print("Could not save \(error), \(error.userInfo)")
+//                        }
+//                    }
+//                }
             }
         }
         
         if !beaconModel.doUpdateAdv {
             return
         }
-        
-        viewMoc.perform {
-            if let alreadyAvailableBeacon = self.fetchBeacon(context: self.viewMoc, with: peripheral.identifier) {
-                if alreadyAvailableBeacon.adv != nil { } else {
-                    alreadyAvailableBeacon.adv = BeaconAdv(context: self.viewMoc)
+        DispatchQueue.main.async { [self] in
+            viewMoc.perform { [self] in
+                if self.beaconModel.fetchDevices(context: self.viewMoc) == nil {
+                    print("didDiscover devices(viewMoc) == nil")
+                    return
                 }
-                alreadyAvailableBeacon.localTimestamp = Date()
-
-                if let adv = alreadyAvailableBeacon.adv {
-                    adv.rssi = RSSI.int64Value
-                    adv.timestamp = Date()
-                    adv.temperature = extractBeaconAdv.temperature
-                    adv.humidity = extractBeaconAdv.humidity
-                    adv.battery = extractBeaconAdv.battery
-                    adv.accel_x = extractBeaconAdv.accel_x
-                    adv.accel_y = extractBeaconAdv.accel_y
-                    adv.accel_z = extractBeaconAdv.accel_z
-                    adv.rawdata = extractBeaconAdv.rawdata
-                }
-
-                if let location = self.locationManager.location {
-                    //            print(location)
-                    if alreadyAvailableBeacon.location != nil { } else {
-                        alreadyAvailableBeacon.location = BeaconLocation(context: self.viewMoc)
+                
+                if let alreadyAvailableBeacon = beaconModel.fetchBeacon(context: self.viewMoc, with: peripheral.identifier) {
+                    if alreadyAvailableBeacon.adv != nil { } else {
+                        alreadyAvailableBeacon.adv = BeaconAdv(context: self.viewMoc)
                     }
-                    if let localLocation = alreadyAvailableBeacon.location {
-                        localLocation.latitude = location.latitude
-                        localLocation.longitude = location.longitude
-                        localLocation.timestamp = Date()
-                        let distance = distanceFromPosition(location: location, beacon: alreadyAvailableBeacon)
-                        alreadyAvailableBeacon.localDistanceFromPosition = distance
-                        localLocation.address = self.locationManager.address
-//                        print("update \(alreadyAvailableBeacon.wrappedDeviceName): distanceFromPostion \(distance) address \(localLocation.address)")
+                    alreadyAvailableBeacon.localTimestamp = Date()
+                    
+//                    alreadyAvailableBeacon.flag.toggle()
+                    
+                    if let adv = alreadyAvailableBeacon.adv {
+                        adv.rssi = RSSI.int64Value
+                        adv.timestamp = Date()
+                        adv.temperature = extractBeaconAdv.temperature
+                        adv.humidity = extractBeaconAdv.humidity
+                        adv.battery = extractBeaconAdv.battery
+                        adv.accel_x = extractBeaconAdv.accel_x
+                        adv.accel_y = extractBeaconAdv.accel_y
+                        adv.accel_z = extractBeaconAdv.accel_z
+                        adv.rawdata = extractBeaconAdv.rawdata
                     }
                     
+                    if let location = self.locationManager.location {
+                        //            print(location)
+                        if alreadyAvailableBeacon.location != nil { } else {
+                            alreadyAvailableBeacon.location = BeaconLocation(context: self.viewMoc)
+                        }
+                        if let localLocation = alreadyAvailableBeacon.location {
+                            localLocation.latitude = location.latitude
+                            localLocation.longitude = location.longitude
+                            localLocation.timestamp = Date()
+                            let distance = distanceFromPosition(location: location, beacon: alreadyAvailableBeacon)
+                            alreadyAvailableBeacon.localDistanceFromPosition = distance
+                            localLocation.address = self.locationManager.address
+                            //                        print("update \(alreadyAvailableBeacon.wrappedDeviceName): distanceFromPostion \(distance) address \(localLocation.address)")
+                        }
+                        
+                    }
+                    os_signpost(.event, log: log, name: "didDiscover", "%{public}s", alreadyAvailableBeacon.wrappedDeviceName)
+                } else {
+                    print("beacon not found in PersistenceController.shared.container.viewContext.perform")
                 }
-                os_signpost(.event, log: log, name: "didDiscover", "%{public}s", alreadyAvailableBeacon.wrappedDeviceName)
-            } else {
-                print("beacon not found in PersistenceController.shared.container.viewContext.perform")
             }
+            //        os_signpost(.end, log: log, name: "didDiscover Peripheral")
         }
-//        os_signpost(.end, log: log, name: "didDiscover Peripheral")
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
@@ -799,7 +656,7 @@ extension MyCentralManagerDelegate {
                     downloadHistory.numEntriesAll = Int(historyCount)
                     //                    downloadHistory.numEntriesReceived = 0
                     localMoc.performAndWait {
-                        if let beacon = fetchBeacon(context: localMoc, with: downloadHistory.uuid) {
+                        if let beacon = beaconModel.fetchBeacon(context: localMoc, with: downloadHistory.uuid) {
                             deviceName = beacon.wrappedDeviceName
                         }
                     }

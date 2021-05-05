@@ -83,9 +83,7 @@ struct PersistenceController {
         })
         
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-//        container.viewContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
         container.viewContext.undoManager = nil
-//        container.viewContext.shouldDeleteInaccessibleFaults = true
         container.viewContext.transactionAuthor = appTransactionAuthorName
         container.viewContext.automaticallyMergesChangesFromParent = true
         do {

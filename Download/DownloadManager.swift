@@ -26,6 +26,7 @@ class DownloadManager: NSObject, ObservableObject {
     var status: DownloadManagerStatus = .idle
     
     static var shared = DownloadManager()
+    private var beaconModel = BeaconModel.shared
 
     func setMoc(localMoc: NSManagedObjectContext, viewMoc: NSManagedObjectContext) {
         self.localMoc = localMoc
@@ -61,7 +62,7 @@ class DownloadManager: NSObject, ObservableObject {
                 return
             }
             
-            if let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: localMoc, with: uuid) {
+            if let beacon = beaconModel.fetchBeacon(context: localMoc, with: uuid) {
                 let newDownload = Download(uuid: beacon.uuid!) // , delegate: beacon)
                 downloads.append(newDownload)
                 
@@ -74,7 +75,7 @@ class DownloadManager: NSObject, ObservableObject {
     
     func addAllBeaconsToDownloadQueue() {
         localMoc.perform { [self] in
-            let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons(context: localMoc)
+            let beacons: [Beacon] = beaconModel.fetchAllBeaconsFromStore(context: localMoc)
             for beacon in beacons {
                 addBeaconToDownloadQueue(uuid: beacon.uuid!)
             }
@@ -117,7 +118,7 @@ class DownloadManager: NSObject, ObservableObject {
             var counter = downloadsError.count
             for download in downloadsError {
                 counter -= 1
-                if let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: localMoc, with: download.uuid)  {
+                if let beacon = beaconModel.fetchBeacon(context: localMoc, with: download.uuid)  {
                     text.append("\(beacon.wrappedDeviceName) - \(beacon.wrappedName)")
                     if counter > 0 {
                         text.append("\n")
@@ -304,7 +305,7 @@ class DownloadManager: NSObject, ObservableObject {
                 return
             }
             
-            guard let beacon = MyCentralManagerDelegate.shared.fetchBeacon(context: localMoc, with: uuid) else {
+            guard let beacon = beaconModel.fetchBeacon(context: localMoc, with: uuid) else {
                 print("mergeHistoryToStore fetchBeacon error")
                 return
             }
@@ -341,7 +342,7 @@ class DownloadManager: NSObject, ObservableObject {
             
             if let uuid = beacon.uuid {
                 DispatchQueue.main.async {
-                    MyCentralManagerDelegate.shared.copyHistoryArrayToLocalArray(context: viewMoc, uuid: uuid)
+                    beaconModel.copyHistoryArrayToLocalArray(context: viewMoc, uuid: uuid)
                 }
             } else {
                     print("MyCentralManagerDelegate.shared.copyHistoryArrayToLocalArray uuid nil")

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct BeaconBottomBarStatusFilterButton: View {
+struct BeaconBottomBarStatusFilterButton: View, Equatable {
     
     var filterActive: Bool
     @Binding var filterByTime: Bool
@@ -68,9 +68,22 @@ struct BeaconBottomBarStatusFilterButton: View {
             }
             .padding(10)
         } else{
-            BeaconFilterCountView(predicate: predicate)
+//            BeaconFilterCountView(predicate: predicate) // hitches
         }
     }
+    
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        if lhs.filterActive != rhs.filterActive {
+            return false
+        }
+        
+        if lhs.filterActive {
+            return lhs.buildFilterString() == rhs.buildFilterString()
+        } else {
+            return true
+        }
+    }
+
 }
 
 struct BeaconBottomBarStatusFilterButton_Previews: PreviewProvider {

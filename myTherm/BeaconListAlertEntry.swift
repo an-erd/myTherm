@@ -18,7 +18,7 @@ struct AlertGroupBox: GroupBoxStyle {
     }
 }
 
-struct BeaconListAlertEntry: View {
+struct BeaconListAlertEntry: View, Equatable {
     var title: String
     var image: String   
     var text: String
@@ -69,6 +69,12 @@ struct BeaconListAlertEntry: View {
         .background(RoundedRectangle(cornerRadius: 10).fill(backgroundColor))
         .padding(10)
     }
+    
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.title == rhs.title &&
+            lhs.text == rhs.text
+    }
+
 }
 
 struct BeaconListAlertEntry_Previews: PreviewProvider {

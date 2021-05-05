@@ -11,7 +11,6 @@ import CoreLocation
 @main
 struct myThermApp: App {
     let persistenceController = PersistenceController.shared
-    @StateObject var model = BeaconModel()
     @StateObject var viewRouter = ViewRouter()
     @StateObject var userSettings = UserSettings()
     @StateObject var networkManager = NetworkManager()
@@ -28,7 +27,6 @@ struct myThermApp: App {
             }
             MotherView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                .environmentObject(model)
                 .environmentObject(viewRouter)
                 .environmentObject(userSettings)
                 .environmentObject(networkManager)

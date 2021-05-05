@@ -11,9 +11,9 @@ import os
 // see here: https://stackoverflow.com/questions/64573755/swiftui-scrollview-with-tap-and-drag-gesture
 //           https://stackoverflow.com/questions/62837754/capture-touchdown-location-of-onlongpressgesture-in-swiftui
 
-struct LineView: View {
+struct LineView: View, Equatable {
     
-    @StateObject var model = BeaconModel.shared
+    @StateObject var beaconModel = BeaconModel.shared
 
     @ObservedObject var beacon: Beacon
     @ObservedObject var localValue: BeaconLocalValueView
@@ -25,8 +25,9 @@ struct LineView: View {
     @State private var dragMode = false
     @State private var dragStart: CGFloat = 0.0
     @State private var dragOffset = CGSize.zero
-    
     @State private var dragWidth: CGFloat = 0
+    
+    @State private var isShownTemp = true
     
     var boundX: CGFloat {
         let tempX = -dragWidth / 2 + dragStart + dragOffset.width
@@ -141,7 +142,8 @@ struct LineView: View {
             .onEnded {_ in
 //                print("tapGesture .onEnded")
                 if !dragMode {
-                    model.isShownTemperature.toggle()
+                    beaconModel.isShownTemperature.toggle()
+                    self.isShownTemp = beaconModel.isShownTemperature
                 }
             }
 
@@ -215,23 +217,25 @@ struct LineView: View {
                     Line(beacon: beacon,
                          localValue: localValue,
                          timestamp: beacon.wrappedLocalHistoryTimestamp,
-                         displaySteps: model.isShownTemperature ? 0 : 1,
+                         displaySteps: beaconModel.isShownTemperature ? 0 : 1,
                          dataTemperature: beacon.wrappedLocalHistoryTemperature,
                          dataHumidity: beacon.wrappedLocalHistoryHumidity,
                          frame: .constant(CGRect(x: 0, y: 0,
                                                  width: reader.frame(in: .local).width,
                                                  height: reader.frame(in: .local).height)),
                          dragMode: $dragMode, dragStart: $dragStart, dragOffset: $dragOffset,
+                         isShownTemperature: $beaconModel.isShownTemperature,
                          boundX: boundX,
                          dataIndex: dataIndex
                     )
+                    .equatable()
                     .offset(x: 0, y: 0)
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Spacer()
-                        Text(self.titleStrings[model.isShownTemperature ? 0 : 1])
+                        Text(self.titleStrings[beaconModel.isShownTemperature ? 0 : 1])
                             .font(.body)
                             .foregroundColor(Color.primary)
                             .offset(x: -5, y: 0)
@@ -244,6 +248,35 @@ struct LineView: View {
             .gesture(simultaneously)
 
         }
+    }
+    
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        let test1 = lhs.dragMode && rhs.dragMode
+        let test2 = lhs.dragMode != rhs.dragMode
+        let test3 = !lhs.dragMode && !rhs.dragMode
+        let test4 = lhs.isShownTemp == rhs.isShownTemp
+        let test5 = lhs.beacon.wrappedLocalHistoryTimestamp.last == rhs.beacon.wrappedLocalHistoryTimestamp.last
+        let test6 = lhs.beacon.wrappedLocalHistoryTemperature.last == rhs.beacon.wrappedLocalHistoryTemperature.last
+        
+        // check1
+        if test1 || test2 || (test3 && !test4) {
+            print("LineView \(lhs.beacon.wrappedDeviceName) check1 -> false")
+            return false
+        }
+        
+        // check2
+        if test3 {
+           let test = test4 && test5 && test6
+            if !test {
+                print("LineView \(lhs.beacon.wrappedDeviceName) check2 -> false")
+                return false
+            } else {
+                return true
+            }
+        }
+        print("LineView \(lhs.beacon.wrappedDeviceName) default -> false")
+
+        return false
     }
 }
 

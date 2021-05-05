@@ -8,41 +8,25 @@
 
 import SwiftUI
 import CoreLocation
+import CoreData
 import OSLog
 
-enum ActiveSheet: Identifiable {
-    case filter, settings
-    
-    var id: Int {
-        hashValue
-    }
-}
 
-enum ActiveAlert: Identifiable {
-    case downloadError
-    case hiddenAlert
-    
-    var id: Int {
-        hashValue
-    }
-}
-
-struct BeaconList: View {
+struct BeaconList: View, Equatable {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var userSettings: UserSettings
     @EnvironmentObject var networkManager: NetworkManager
-    @StateObject var beaconModel = BeaconModel.shared 
+    @StateObject var beaconModel = BeaconModel.shared
     @StateObject var downloadManager = DownloadManager.shared
-    @StateObject var locationManager = LocationManager.shared
-    
+    @StateObject var lm = LocationManager.shared
+    var authMode = LocationManager.shared.locationAuthorizationStatus
+
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Beacon.name, ascending: true)],
+        sortDescriptors: [],
         animation: .default)
-    private var beacons: FetchedResults<Beacon>
-    
+    private var devices: FetchedResults<Devices>
+
     @State private var editMode: EditMode = .inactive
-    
-    
     @State private var doFilter: Bool = false
     @State var activeSheet: ActiveSheet?
     @State var activeSheetDismiss: ActiveSheet?
@@ -56,14 +40,13 @@ struct BeaconList: View {
     let filterPredicateTimeinterval: Double = 180
     let filterPredicateDistanceMeter: Double = 100
     
+    @State var filter: Bool = false
+
     @State private var doErrorMessageDownload: Bool = false
-    @State var activeAlert: ActiveAlert?
-    
-//    @State private var showAlert = false
-//    @State private var alert: Alert? = nil
-//    
+//    @State var activeAlert: ActiveAlert?
+
     @State var sort: Int = 0
-    
+
     func startFilterUpdate() {
         filterUpdatePredicate()
         filterPredicateUpdateTimer =
@@ -71,7 +54,7 @@ struct BeaconList: View {
                 filterUpdatePredicate()
             }
     }
-    
+
     func stopFilterUpdate() {
         if let timer = filterPredicateUpdateTimer {
             timer.invalidate()
@@ -84,10 +67,10 @@ struct BeaconList: View {
                                                         [NSPredicate(format: "hidden == NO or hidden == nil")])
         }
     }
-    
+
     func filterUpdatePredicate() {
         var compound: [NSPredicate] = []
-        
+
         if userSettings.filterByTime {
             let comparison = Date(timeIntervalSinceNow: -filterPredicateTimeinterval)
             predicateTimeFilter = NSPredicate(format: "localTimestamp >= %@", comparison as NSDate)
@@ -95,20 +78,20 @@ struct BeaconList: View {
                 compound.append(predicateTimeFilter)
             }
         }
-        
+
         if userSettings.filterByLocation {
             predicateLocationFilter = NSPredicate(format: "localDistanceFromPosition <= %@", filterPredicateDistanceMeter as NSNumber)
             if let predicateLocationFilter = predicateLocationFilter {
                 compound.append(predicateLocationFilter)
             }
         }
-        
+
         if userSettings.filterByFlag {
             predicateFlaggedFilter = NSPredicate(format: "flag == true")
             if let predicateFlaggedFilter = predicateFlaggedFilter {
                 compound.append(predicateFlaggedFilter)
             }
-            
+
         }
         if userSettings.filterByHidden {
             predicateHiddenFilter = NSPredicate(format: "hidden == true")
@@ -122,19 +105,19 @@ struct BeaconList: View {
                 compound.append(predicateShownFilter)
             }
         }
-        
+
         withAnimation {
             compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: compound)
         }
     }
-    
+
     func printBeaconListHistoryCount() {
-        let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons(context: viewContext)
+        let beacons: [Beacon] = beaconModel.fetchAllBeaconsFromStore(context: viewContext)
         for beacon in beacons.sorted(by: { $0.wrappedDeviceName < $1.wrappedDeviceName }) {
             print("\(beacon.wrappedDeviceName) historyCount \(beacon.wrappedLocalHistoryTemperature.count) overallCount \(beacon.historyCount) distance \(beacon.localDistanceFromPosition)")
         }
     }
-    
+
     fileprivate func buildViewBluetoothAutorization() -> some View {
         return BeaconListAlertEntry(title: "Bluetooth permission required",
                                     image: "exclamationmark.triangle.fill",
@@ -143,8 +126,9 @@ struct BeaconList: View {
                                     backgroundColor: Color("alertRed"),
                                     allowDismiss: false,
                                     dismiss: .constant(false))
+            .equatable()
     }
-    
+
     fileprivate func buildViewLocationServices() -> some View {
         return BeaconListAlertEntry(title: "Location permission preferable",
                                     image: "questionmark.circle.fill",
@@ -153,8 +137,9 @@ struct BeaconList: View {
                                     backgroundColor: Color("alertYellow"),
                                     allowDismiss: true,
                                     dismiss: $userSettings.showRequestLocationAlert)
+            .equatable()
     }
-    
+
     fileprivate func buildViewInternet() -> some View {
         return BeaconListAlertEntry(title: "Internet connection preferable",
                                     image: "questionmark.circle.fill",
@@ -163,32 +148,33 @@ struct BeaconList: View {
                                     backgroundColor: Color("alertYellow"),
                                     allowDismiss: true,
                                     dismiss: $userSettings.showRequestInternetAlert)
+            .equatable()
     }
-    
-    fileprivate func buildViewDebugTogglesScanAdv() -> some View {
-        return VStack {
-            Toggle("Scan", isOn: $beaconModel.doScan)
-                .onChange(of: beaconModel.doScan, perform: { value in
-                    if value == true {
-                        MyCentralManagerDelegate.shared.startScanService()
-                    } else {
-                        MyCentralManagerDelegate.shared.stopScanService()
-                    }
-                    print("toggle update adv \(value)")
-                })
-            Toggle("Adv", isOn: $beaconModel.doUpdateAdv)
-                .onChange(of: beaconModel.doUpdateAdv, perform: { value in
-                    if value == true {
-                        MyCentralManagerDelegate.shared.startUpdateAdv()
-                    } else {
-                        MyCentralManagerDelegate.shared.stopUpdateAdv()
-                    }
-                    print("toggle update adv \(value)")
-                })
-        }
-        .padding()
-    }
-    
+
+//    fileprivate func buildViewDebugTogglesScanAdv() -> some View {
+//        return VStack {
+//            Toggle("Scan", isOn: $beaconModel.doScan)
+//                .onChange(of: beaconModel.doScan, perform: { value in
+//                    if value == true {
+//                        MyCentralManagerDelegate.shared.startScanService()
+//                    } else {
+//                        MyCentralManagerDelegate.shared.stopScanService()
+//                    }
+//                    print("toggle update adv \(value)")
+//                })
+//            Toggle("Adv", isOn: $beaconModel.doUpdateAdv)
+//                .onChange(of: beaconModel.doUpdateAdv, perform: { value in
+//                    if value == true {
+//                        MyCentralManagerDelegate.shared.startUpdateAdv()
+//                    } else {
+//                        MyCentralManagerDelegate.shared.stopUpdateAdv()
+//                    }
+//                    print("toggle update adv \(value)")
+//                })
+//        }
+//        .padding()
+//    }
+
     var body: some View {
         
         ScrollView {
@@ -199,7 +185,7 @@ struct BeaconList: View {
                 }
                 
                 //                if (userSettings.showRequestLocationAlert) {
-                if (locationManager.locationAuthorizationStatus == .restricted) || (locationManager.locationAuthorizationStatus == .denied) {
+                if (lm.locationAuthorizationStatus == .restricted) || (lm.locationAuthorizationStatus == .denied) {
                     buildViewLocationServices()
                 }
                 //                }
@@ -216,21 +202,20 @@ struct BeaconList: View {
                 //                    }
             }
             withAnimation {
-                BeaconGroupBoxList(predicate: compoundPredicate, activeAlert: $activeAlert)
-                    .environmentObject(locationManager)
+                BeaconGroupBoxList(predicate: compoundPredicate)
+//                    .environmentObject(lm)
             }
+                        
+//            DebugTestView(beacons: devices.first!.beaconArray, filter: filter)
+//            DebugView1(predicate: compoundPredicate)
         }
         
         .onAppear(perform: {
             self.onAppear()
             stopFilterUpdate()
-            
         })
         .onDisappear(perform: {
             self.onDisappear()
-//            DispatchQueue.main.async {
-//                copyLocalBeaconsToStore()
-//            }
         })
         .toolbar {
             ToolbarItemGroup (placement: .bottomBar) {
@@ -256,9 +241,10 @@ struct BeaconList: View {
                     }
                     .padding()
                 }
-                
+
                 Spacer()
                 ZStack {
+                    // hitches
                     BeaconBottomBarStatusFilterButton(
                         filterActive: doFilter,
                         filterByTime: $userSettings.filterByTime,
@@ -283,7 +269,7 @@ struct BeaconList: View {
                     
                     Button(action: {
                         if beaconModel.isDownloadStatusError {
-                            activeAlert = .downloadError    // TODO
+                            beaconModel.activeAlert = .downloadError    // TODO
                         } else if doFilter {
                             activeSheet = .filter
                         }
@@ -355,23 +341,23 @@ struct BeaconList: View {
                 BeaconConfigSettingsSheet()
             }
         }
-        .alert(item: $activeAlert) { item in
-            switch item {
-            case .downloadError:
-                return Alert(
-                    title: Text("Download errors"),
-                    message: Text("Download sensor data is complete. Retrieval did not succeed for the following sensors:\n\(downloadManager.buildDownloadErrorDeviceList())"),
-                    dismissButton: .default(Text("OK"),
-                                            action: { downloadManager.clearDownloadErrorAndResume() })
-                )
-            case .hiddenAlert:
-                return Alert(
-                    title: Text("Hide sensor"),
-                    message: Text("Sensor will be marked as hidden. Find it again using sensor filter."),
-                    dismissButton: .default(Text("Got it!"))
-                )
-            }
-        }
+//        .alert(item: beaconModel.activeAlert) { item in
+//            switch item {
+//            case .downloadError:
+//                return Alert(
+//                    title: Text("Download errors"),
+//                    message: Text("Download sensor data is complete. Retrieval did not succeed for the following sensors:\n\(downloadManager.buildDownloadErrorDeviceList())"),
+//                    dismissButton: .default(Text("OK"),
+//                                            action: { downloadManager.clearDownloadErrorAndResume() })
+//                )
+//            case .hiddenAlert:
+//                return Alert(
+//                    title: Text("Hide sensor"),
+//                    message: Text("Sensor will be marked as hidden. Find it again using sensor filter."),
+//                    dismissButton: .default(Text("Got it!"))
+//                )
+//            }
+//        }
     }
     
     public func onAppear() {
@@ -381,7 +367,85 @@ struct BeaconList: View {
     public func onDisappear() {
         print("onDisappear")
     }
-    
+//
+//    public func addNewDevicesEntity_Step1() {
+//        print("addNewDevicesEntity Step1")
+//        let moc = PersistenceController.shared.container.viewContext
+//        moc.perform {
+//            let fetchRequest: NSFetchRequest<Beacon> = Beacon.fetchRequest()
+//            var localBeacons: [Beacon] = []
+//            do {
+//                localBeacons = try moc.fetch(fetchRequest)
+//            } catch {
+//                print("addNewDevicesEntity error")
+//                let fetchError = error as NSError
+//                debugPrint(fetchError)
+//                return
+//            }
+//
+//            print("localBeacons count: \(localBeacons.count)")
+//
+//            for beacon in localBeacons {
+//                print("\(beacon.wrappedDeviceName) \(beacon.devices == nil ? "devices nil" : "devices set")")
+//            }
+//
+//            print("add new Device")
+//            let newDevices = Devices(context: moc)
+//            print("beacons >")
+//            print("\(newDevices.beaconArray)")
+//            print("beacons <")
+//
+//            for beacon in localBeacons {
+//                print("set device for \(beacon.wrappedDeviceName)")
+//                beacon.devices = newDevices
+//            }
+//
+//            for beacon in localBeacons {
+//                print("\(beacon.wrappedDeviceName) \(beacon.devices == nil ? "devices nil" : "devices set")")
+//            }
+//
+//            print("beacons >")
+//            print("\(newDevices.beaconArray)")
+//            print("beacons <")
+//        }
+//    }
+//
+//    public func addNewDevicesEntity_Step2() {
+//        print("addNewDevicesEntity Step2")
+//        let moc = PersistenceController.shared.container.viewContext
+//        moc.perform {
+//            print("save new Devices")
+//            PersistenceController.shared.saveContext(context: moc)
+//
+//        }
+//    }
+//
+//    public func addNewDevicesEntity_Step3() {
+//        print("addNewDevicesEntity Step3")
+//        let moc = PersistenceController.shared.container.viewContext
+//        moc.perform {
+//            let fetchRequest: NSFetchRequest<Devices> = Devices.fetchRequest()
+//            var devices: [Devices] = []
+//            do {
+//                devices = try moc.fetch(fetchRequest)
+//            } catch {
+//                print("addNewDevicesEntity3 error")
+//                let fetchError = error as NSError
+//                debugPrint(fetchError)
+//                return
+//            }
+//
+//            print("devices count \(devices.count)")
+//            if let devices = devices.first {
+//                print("devides contains beacons count \(devices.beaconArray.count)")
+//                print("beacons >")
+//                print(devices.beaconArray)
+//                print("beacons <")
+//            }
+//
+//            print("step 3 done")
+//        }
+//    }
     //    public func copyStoreToLocalBeacons() {
     //        print("copyStoreToLocalBeacons")
     //        let moc = PersistenceController.shared.container.viewContext
@@ -409,37 +473,42 @@ struct BeaconList: View {
     //    }
     
     
-    public func resetDistanceBeaconOnce() {
-        print("resetDistanceBeaconOnce")
-        for beacon in beacons {
-            beacon.localDistanceFromPosition = -1
-        }
+//    public func resetDistanceBeaconOnce() {
+//        print("resetDistanceBeaconOnce")
+//        for beacon in beacons {
+//            beacon.localDistanceFromPosition = -1
+//        }
+//    }
+//
+//    public func listBeaconChanges() {
+//        var changesBeacon: [String : Any ] = [:]
+//        var changesBeaconAdv: [ String : Any ] = [:]
+//        var changesBeaconLocation: [ String : Any ] = [:]
+//
+//        print("listBeaconChanges")
+//        for beacon in beacons {
+//            changesBeacon = beacon.changedValues()
+//            if let adv = beacon.adv {
+//                changesBeaconAdv = adv.changedValues()
+//            }
+//            if let location = beacon.location {
+//                changesBeaconLocation = location.changedValues()
+//            }
+//            print("\(beacon.wrappedDeviceName) Changes: Beacon \(changesBeacon.count), adv \(changesBeaconAdv.count), location \(changesBeaconLocation.count) Distance \(beacon.localDistanceFromPosition)")
+//        }
+//    }
+//
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return false
     }
-    
-    public func listBeaconChanges() {
-        var changesBeacon: [String : Any ] = [:]
-        var changesBeaconAdv: [ String : Any ] = [:]
-        var changesBeaconLocation: [ String : Any ] = [:]
-        
-        print("listBeaconChanges")
-        for beacon in beacons {
-            changesBeacon = beacon.changedValues()
-            if let adv = beacon.adv {
-                changesBeaconAdv = adv.changedValues()
-            }
-            if let location = beacon.location {
-                changesBeaconLocation = location.changedValues()
-            }
-            print("\(beacon.wrappedDeviceName) Changes: Beacon \(changesBeacon.count), adv \(changesBeaconAdv.count), location \(changesBeaconLocation.count) Distance \(beacon.localDistanceFromPosition)")
-        }
-    }
+
 }
 
-struct BeaconList_Previews: PreviewProvider {
-    static var previews: some View {
-        BeaconList()
-            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-            .environmentObject(BeaconModel())
-            .environmentObject(ViewRouter())
-    }
-}
+//struct BeaconList_Previews: PreviewProvider {
+//    static var previews: some View {
+//        BeaconList()
+//            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+//            .environmentObject(BeaconModel())
+//            .environmentObject(ViewRouter())
+//    }
+//}

@@ -9,13 +9,10 @@ import SwiftUI
 
 struct BeaconGroupBoxListEntry: View {
     
-    @StateObject var model = BeaconModel.shared
-    @EnvironmentObject var lm: LocationManager
-
     @ObservedObject var beacon: Beacon
     var nowDate: Date
-    @Binding var displaySteps: Int
     
+    @StateObject var beaconModel = BeaconModel.shared
     @StateObject var localValue: BeaconLocalValueView = BeaconLocalValueView()
     @State private var selection: String? = nil
 
@@ -31,7 +28,8 @@ struct BeaconGroupBoxListEntry: View {
             label:
                 HStack {
                     Group {
-                        NavigationLink(destination: BeaconDetail(beacon: beacon).environmentObject(lm), tag: "Detail",
+                        NavigationLink(destination: BeaconDetail(beacon: beacon)//.environmentObject(lm)
+                                       , tag: "Detail",
                                        selection: $selection) { EmptyView() }
                         Label(beacon.wrappedName, systemImage: "thermometer").foregroundColor(Color.blue)
                             .padding(.vertical, 5)
@@ -53,13 +51,14 @@ struct BeaconGroupBoxListEntry: View {
 //                                Spacer().frame(width: 10)
                             }
                         }
+                        // hitches
                         BeaconDownloadImageButton(beacon: beacon,
                                                   activeDownload: getDownload(beacon: beacon),
                                                   nowDate: nowDate)
 //                        Spacer().frame(width: 10)
 //                        NavigationLink(destination: BeaconDetail(beacon: beacon).environmentObject(lm)) {
 //                            Image(systemName: "chevron.right").foregroundColor(.secondary) //.imageScale(.small)
-//                        }
+//                    }
                     }
                 },
             content: {
@@ -68,11 +67,12 @@ struct BeaconGroupBoxListEntry: View {
                         if beacon.adv != nil {
                             withAnimation {
                                 HStack {
+                                    // hitches
                                     BeaconValueView(beacon: beacon, localValue: localValue, nowDate: nowDate)
+                                        .equatable()
                                         .frame(width: 165)
                                     Spacer()
-                                    BeaconLineView(beacon: beacon, localValue: localValue, displaySteps: displaySteps)
-//                                    Text("dist \(beacon.localDistanceFromPosition)")
+                                    BeaconLineView(beacon: beacon, localValue: localValue) //, displaySteps: displaySteps)
                                 }.frame(height: 55)
                             }
                         }
@@ -81,23 +81,27 @@ struct BeaconGroupBoxListEntry: View {
             }
         )
     }
+//    static func == (lhs: Self, rhs: Self) -> Bool {
+//        return true
+//    }
+
 }
 
-struct BeaconGroupBoxListEntry_Previews_Container : View {
-    var beacon: Beacon = PersistenceController.preview.container.viewContext.registeredObjects.first(where: { $0 is Beacon }) as! Beacon
-    
-    @State var displaySteps: Int = 0
-    var body: some View {
-        BeaconGroupBoxListEntry(beacon: beacon, nowDate: Date(), displaySteps: $displaySteps)
-    }
-}
-
-
-struct BeaconGroupBoxListEntry_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            BeaconGroupBoxListEntry_Previews_Container()
-        }
-        .previewLayout(.fixed(width: 300, height: 70))
-    }
-}
+//struct BeaconGroupBoxListEntry_Previews_Container : View {
+//    var beacon: Beacon = PersistenceController.preview.container.viewContext.registeredObjects.first(where: { $0 is Beacon }) as! Beacon
+//    
+//    @State var displaySteps: Int = 0
+//    var body: some View {
+//        BeaconGroupBoxListEntry(beacon: beacon, nowDate: Date(), displaySteps: $displaySteps)
+//    }
+//}
+//
+//
+//struct BeaconGroupBoxListEntry_Previews: PreviewProvider {
+//    static var previews: some View {
+//        Group {
+//            BeaconGroupBoxListEntry_Previews_Container()
+//        }
+//        .previewLayout(.fixed(width: 300, height: 70))
+//    }
+//}

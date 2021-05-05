@@ -3,13 +3,15 @@ import MapKit
 import Combine
 
 struct BeaconDetail: View {
-    @EnvironmentObject var lm: LocationManager
+//    @EnvironmentObject var lm: LocationManager
     @ObservedObject var beacon: Beacon
     
     @State private var isExpandedBeaconInfo: Bool = false
     @State private var isExpandedPayload: Bool = false
     @State private var isExpandedLastSeen: Bool = true
     @State private var isExpandedLocation: Bool = true
+
+    @StateObject var lm = LocationManager.shared
 
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     

@@ -1,6 +1,7 @@
 
 import Foundation
 import CoreLocation
+import OSLog
 
 public enum LocationMode: Int32 {
     case none = 0           // none activated
@@ -25,7 +26,8 @@ public enum LocationGeocodeStatus: Int32 {
 class LocationManager: NSObject, ObservableObject {
     private let locationManager = CLLocationManager()
     private let geocoder = CLGeocoder()
-
+    private let log: OSLog = OSLog(subsystem: "com.anerd.myTherm", category: "location")
+    
     @Published var status: CLAuthorizationStatus?
 
     @Published var locationAuthorizationStatus: CLAuthorizationStatus?
@@ -39,6 +41,7 @@ class LocationManager: NSObject, ObservableObject {
     @Published var addressStatus: LocationGeocodeStatus = .none
     
     static var shared = LocationManager()
+    private var beaconModel = BeaconModel.shared
 
     var locationTimer: Timer?
     let minPrecision: Double = 65               // precision to consider as good
@@ -64,14 +67,16 @@ class LocationManager: NSObject, ObservableObject {
                 guard let zipCode = placemark.postalCode else { return }
                 guard let city = placemark.locality else { return }
 
+                os_signpost(.event, log: self.log, name: "location", "geo")
                 self.address = "\(streetName) \(streetNumber) \n \(zipCode) \(city)"
                 self.addressStatus = LocationGeocodeStatus(rawValue: self.locationStatus.rawValue)!
-                print("geocode addressStatus \(self.addressStatus) \(self.address)")
+//                print("geocode addressStatus \(self.addressStatus) \(self.address)")
             } else {
                 self.placemark = nil
                 self.address = ""
                 self.addressStatus = .none
                 
+                os_signpost(.event, log: self.log, name: "geo none")
                 print("geocode error \(String(describing: error)) addressStatus \(self.addressStatus)")
             }
         })
@@ -91,7 +96,9 @@ class LocationManager: NSObject, ObservableObject {
                 print("startMySignificantLocationChanges not supported")
                 return
             }
-            print("startMySignificantLocationChanges")
+//            print("startMySignificantLocationChanges")
+            os_signpost(.begin, log: log, name: "significant")
+
             self.locationManager.startMonitoringSignificantLocationChanges()
             locationMode = .significant
         }
@@ -104,7 +111,9 @@ class LocationManager: NSObject, ObservableObject {
                 print("stopMySignificantLocationChanges not supported")
                 return
             }
-            print("stopMySignificantLocationChanges")
+//            print("stopMySignificantLocationChanges")
+            os_signpost(.end, log: self.log, name: "significant")
+
             self.locationManager.stopMonitoringSignificantLocationChanges()
             self.locationMode = .none
         }
@@ -112,7 +121,9 @@ class LocationManager: NSObject, ObservableObject {
 
     func startPreciseLocationUpdate () {
         DispatchQueue.main.async { [self] in
-            print("startPreciseLocationUpdate")
+//            print("startPreciseLocationUpdate")
+            os_signpost(.begin, log: log, name: "precise")
+
             locationTimer = Timer.scheduledTimer(timeInterval: maxTimeLocationServices,
                                                  target: self,
                                                  selector: #selector(self.locationTimerFire),
@@ -124,7 +135,9 @@ class LocationManager: NSObject, ObservableObject {
     
     func stopPreciseLocationUpdate() {
         DispatchQueue.main.async { [self] in
-            print("stopPreciseLocationUpdate")
+//            print("stopPreciseLocationUpdate")
+            os_signpost(.end, log: log, name: "precise")
+
             if let timer = locationTimer {
                 timer.invalidate()
             }
@@ -148,15 +161,16 @@ extension LocationManager: CLLocationManagerDelegate {
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        
         if locationMode == .precise {
             self.location = location
             self.geocode()
             if location.horizontalAccuracy <= maxPrecision {
+                os_signpost(.event, log: log, name: "precise", "maxPrecision")
                 self.locationStatus = .precise
                 stopPreciseLocationUpdate()
                 startMySignificantLocationChanges()
             } else if location.horizontalAccuracy <= minPrecision {
+                os_signpost(.event, log: log, name: "significant", "minPrecision")
                 self.locationStatus = .approx
             }
         } else if locationMode == .significant {
@@ -164,11 +178,11 @@ extension LocationManager: CLLocationManagerDelegate {
             startPreciseLocationUpdate()
         }
     
-        print("locationManager didUpdateLocations mode \(locationMode.rawValue) accuracy \(location.horizontalAccuracy)")
+//        print("locationManager didUpdateLocations mode \(locationMode.rawValue) accuracy \(location.horizontalAccuracy)")
 //        if placemark != nil {
 //            print("\(placemark!)")
 //        }
-        let beacons: [Beacon] = MyCentralManagerDelegate.shared.fetchAllBeacons(context: PersistenceController.shared.viewContext)
+        let beacons: [Beacon] = beaconModel.fetchAllBeaconsFromStore(context: PersistenceController.shared.viewContext)
         for beacon in beacons {
             if let beaconLocation = beacon.location {
                 let distance = location.distance(from: beaconLocation.clLocation)

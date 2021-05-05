@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct BeaconValueView: View {
+struct BeaconValueView: View, Equatable {
     
     @ObservedObject var beacon: Beacon
     @ObservedObject var localValue: BeaconLocalValueView
@@ -58,12 +58,28 @@ struct BeaconValueView: View {
                         Spacer()
                     }
                 }
+                // hitches
                 Text(beacon.wrappedAdvDateInterpretation(nowDate: nowDate))
                     .font(.footnote).foregroundColor(.secondary) //.padding(.trailing, 4)
             }
             
         }
     }
+    
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        if lhs.localValue.isDragging != rhs.localValue.isDragging {
+            return false
+        }
+        
+        if lhs.localValue.isDragging && rhs.localValue.isDragging {
+            return (lhs.localValue.timestamp == rhs.localValue.timestamp)
+        } else {
+            return (lhs.localValue.temperature == rhs.localValue.temperature)
+                && (lhs.localValue.humidity == rhs.localValue.humidity)
+                && (lhs.beacon.wrappedAdvDateInterpretation(nowDate: lhs.nowDate) == rhs.beacon.wrappedAdvDateInterpretation(nowDate: rhs.nowDate))
+        }
+    }
+
 }
 
 

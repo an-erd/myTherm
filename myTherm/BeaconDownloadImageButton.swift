@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct BeaconDownloadImageButton: View {
+struct BeaconDownloadImageButton: View, Equatable {
     
     @ObservedObject var beacon: Beacon
     var activeDownload: Download?
@@ -72,6 +72,42 @@ struct BeaconDownloadImageButton: View {
 //            .border(Color.red)
         }
     }
+    
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        let lhsNil = lhs.activeDownload == nil
+        let rhsNil = rhs.activeDownload == nil
+
+        if (lhsNil && rhsNil) {
+            if let advLhs = lhs.beacon.adv, let timestampAdvLhs = advLhs.timestamp,
+               let advRhs = rhs.beacon.adv, let timestampAdvRhs = advRhs.timestamp {
+                if seenRecently(date: timestampAdvLhs, nowDate: lhs.nowDate, timeInterval: 180) ==
+                    seenRecently(date: timestampAdvRhs, nowDate: rhs.nowDate, timeInterval: 180) {
+                    return true
+                } else {
+                    return false
+                }
+            } else {
+                return false
+            }
+        }
+        
+        if (lhsNil && !rhsNil) || (!lhsNil && rhsNil) {
+            return false
+        }
+
+        let lhsStatus = lhs.beacon.localDownloadStatus
+        let rhsStatus = rhs.beacon.localDownloadStatus
+        
+        if (lhsStatus != rhsStatus) {
+            return false
+        }
+        
+        let lhsProgress = lhs.beacon.localDownloadProgress
+        let rhsProgress = rhs.beacon.localDownloadProgress
+        
+        return lhsProgress == rhsProgress
+    }
+
 }
 
 

@@ -8,7 +8,7 @@
 import SwiftUI
 import os
 
-struct Line: View {
+struct Line: View, Equatable {
     @ObservedObject var beacon: Beacon
     @ObservedObject var localValue: BeaconLocalValueView
 
@@ -20,6 +20,7 @@ struct Line: View {
     @Binding var dragMode: Bool
     @Binding var dragStart: CGFloat
     @Binding var dragOffset: CGSize
+    @Binding var isShownTemperature: Bool
     var boundX: CGFloat
     var dataIndex: Int
 
@@ -57,8 +58,16 @@ struct Line: View {
     }
     
     var path: Path {
+        let log = OSLog(
+            subsystem: "com.anerd.myTherm",
+            category: "chart"
+        )
+        
+        os_signpost(.begin, log: log, name: "path", "%{public}s", beacon.wrappedDeviceName)
         let points: [Double] = (displaySteps == 0) ? self.dataTemperature : self.dataHumidity
-        return Path.lineChart(points: points, step: CGPoint(x: stepWidth, y: stepHeight), offset: offset)
+        let path = Path.lineChart(points: points, step: CGPoint(x: stepWidth, y: stepHeight), offset: offset)
+        os_signpost(.end, log: log, name: "path", "%{public}s", beacon.wrappedDeviceName)
+        return path
     }
     
     var circleY: CGFloat {
@@ -92,4 +101,41 @@ struct Line: View {
             }
         }
     }
+    
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        
+        
+        let test1 = !lhs.dragMode && !rhs.dragMode  // both in non-drag mode
+        let test2 = lhs.timestamp.last == rhs.timestamp.last
+        let test3 = lhs.isShownTemperature == rhs.isShownTemperature
+        let test4 = lhs.isShownTemperature && (lhs.dataTemperature.last == rhs.dataTemperature.last)
+        let test5 = !lhs.isShownTemperature && (lhs.dataHumidity.last == rhs.dataHumidity.last)
+        let test6 = lhs.dragMode != rhs.dragMode
+        let test7 = lhs.dragMode && rhs.dragMode
+        let test8 = lhs.dragOffset == rhs.dragOffset
+        
+        // check1: non-drag, time, both showing the same, last entry correct
+        if test1 {
+            if test2 && test3 && ( test4 || test5) {
+                return true
+            }
+        }
+        
+        // check2: diff drag/non-drag
+        if test6 {
+            print("line == (\(lhs.beacon.wrappedDeviceName) \(rhs.beacon.wrappedDeviceName)) -> check2 -> false")
+            return false
+        }
+        
+        // check3: drag, offset
+        if test7 && test8 {
+            return true
+        }
+    
+//        print("line == (\(lhs.beacon.wrappedDeviceName) \(rhs.beacon.wrappedDeviceName)) -> default -> false")
+//        print("   drag \(lhs.dragMode ? "y" : "-") \(rhs.dragMode ? "Y" : "-") time \(lhs.timestamp.last == rhs.timestamp.last ? "= " : "!=") t/h \(lhs.isShownTemperature ? "t" : "h")\(rhs.isShownTemperature ? "t" : "h") temp \(lhs.dataTemperature.last == rhs.dataTemperature.last ? "= " : "!=") hum \(lhs.dataHumidity.last == rhs.dataHumidity.last ? "= " : "!=")")
+
+        return false
+    }
+
 }
