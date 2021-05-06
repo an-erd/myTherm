@@ -65,7 +65,8 @@ class DownloadManager: NSObject, ObservableObject {
             if let beacon = beaconModel.fetchBeacon(context: localMoc, with: uuid) {
                 let newDownload = Download(uuid: beacon.uuid!) // , delegate: beacon)
                 downloads.append(newDownload)
-                
+                MyCentralManagerDelegate.shared.updateBeaconDownloadStatus(context: viewMoc, with: uuid, status: .waiting)
+
                 resume()
             } else {
                 print("addBeaconToDownloadQueue beacon not found in store")

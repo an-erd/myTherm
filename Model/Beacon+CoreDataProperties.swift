@@ -85,6 +85,10 @@ extension Beacon {
         return localHistoryTimestamp!
     }
     
+    public var wrappedLocalTimestamp: Date {
+        guard localTimestamp != nil else { return Date().addingTimeInterval(-3600) }
+        return localTimestamp!
+    }
 
     public var historyArray: [BeaconHistoryDataPoint] {
         let set = history as? Set<BeaconHistoryDataPoint> ?? []

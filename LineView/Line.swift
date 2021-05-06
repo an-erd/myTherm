@@ -9,7 +9,7 @@ import SwiftUI
 import os
 
 struct Line: View, Equatable {
-    @ObservedObject var beacon: Beacon
+//    @ObservedObject var beacon: Beacon
     @ObservedObject var localValue: BeaconLocalValueView
 
     var timestamp: [Date]
@@ -58,15 +58,21 @@ struct Line: View, Equatable {
     }
     
     var path: Path {
-        let log = OSLog(
-            subsystem: "com.anerd.myTherm",
-            category: "chart"
-        )
-        
-        os_signpost(.begin, log: log, name: "path", "%{public}s", beacon.wrappedDeviceName)
+//        let log = OSLog(
+//            subsystem: "com.anerd.myTherm",
+//            category: "chart"
+//        )
+//        os_signpost(.begin, log: log, name: "path", "%{public}s", beacon.wrappedDeviceName)
+
+//        DispatchQueue.global(qos: .background).async {
+//
+//            DispatchQueue.main.async {
+//            }
+//        }
+
         let points: [Double] = (displaySteps == 0) ? self.dataTemperature : self.dataHumidity
         let path = Path.lineChart(points: points, step: CGPoint(x: stepWidth, y: stepHeight), offset: offset)
-        os_signpost(.end, log: log, name: "path", "%{public}s", beacon.wrappedDeviceName)
+//        os_signpost(.end, log: log, name: "path", "%{public}s", beacon.wrappedDeviceName)
         return path
     }
     
@@ -85,11 +91,20 @@ struct Line: View, Equatable {
     
     public var body: some View {
         ZStack {
-            self.path
-                .stroke(Color.green ,style: StrokeStyle(lineWidth: 3, lineJoin: .round))
-                .rotationEffect(.degrees(180), anchor: .center)
-                .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-                .drawingGroup()
+            HStack {
+                self.path
+                    .stroke(Color.green ,style: StrokeStyle(lineWidth: 3, lineJoin: .round))
+                    .rotationEffect(.degrees(180), anchor: .center)
+                    .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                    .drawingGroup()
+            }
+//            .opacity(0.5)
+//            HStack {
+//                Spacer()
+//                ProgressView()
+//                Spacer()
+//            }
+//            .opacity(0.5)
             if dragMode == true {
                 self.verticalLine
                     .stroke(Color.primary, lineWidth: 2)
@@ -103,7 +118,18 @@ struct Line: View, Equatable {
     }
     
     static func == (lhs: Self, rhs: Self) -> Bool {
+//        return false
         
+        if (lhs.frame.height != rhs.frame.height) || (lhs.frame.width != rhs.frame.width)  {
+            print("line == frame size changed -> false")
+            return false
+        }
+        
+        if (lhs.displaySteps != rhs.displaySteps) {
+            print("line == frame displaySteps -> false")
+
+            return false
+        }
         
         let test1 = !lhs.dragMode && !rhs.dragMode  // both in non-drag mode
         let test2 = lhs.timestamp.last == rhs.timestamp.last
@@ -123,7 +149,7 @@ struct Line: View, Equatable {
         
         // check2: diff drag/non-drag
         if test6 {
-            print("line == (\(lhs.beacon.wrappedDeviceName) \(rhs.beacon.wrappedDeviceName)) -> check2 -> false")
+//            print("line == (\(lhs.beacon.wrappedDeviceName) \(rhs.beacon.wrappedDeviceName)) -> check2 -> false")
             return false
         }
         
@@ -135,7 +161,7 @@ struct Line: View, Equatable {
 //        print("line == (\(lhs.beacon.wrappedDeviceName) \(rhs.beacon.wrappedDeviceName)) -> default -> false")
 //        print("   drag \(lhs.dragMode ? "y" : "-") \(rhs.dragMode ? "Y" : "-") time \(lhs.timestamp.last == rhs.timestamp.last ? "= " : "!=") t/h \(lhs.isShownTemperature ? "t" : "h")\(rhs.isShownTemperature ? "t" : "h") temp \(lhs.dataTemperature.last == rhs.dataTemperature.last ? "= " : "!=") hum \(lhs.dataHumidity.last == rhs.dataHumidity.last ? "= " : "!=")")
 
+        print("line == frame default -> false")
         return false
     }
-
 }

@@ -24,8 +24,11 @@ struct BeaconLineView: View {
                     // hitches
                     ZStack {
                         LineView(
-                            beacon: beacon,
+                            timestamp: beacon.wrappedLocalHistoryTimestamp,
+                            dataTemperature: beacon.wrappedLocalHistoryTemperature,
+                            dataHumidity: beacon.wrappedLocalHistoryHumidity,
                             localValue: localValue,
+                            showTemperature: $beaconModel.isShownTemperature,
                             //                isTabbing: $localValue.isTabbing,
                             isDragging: $localValue.isDragging,
                             //                        displaySteps: displaySteps,

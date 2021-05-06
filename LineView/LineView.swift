@@ -15,8 +15,13 @@ struct LineView: View, Equatable {
     
     @StateObject var beaconModel = BeaconModel.shared
 
-    @ObservedObject var beacon: Beacon
+//    @ObservedObject var beacon: Beacon
+    var timestamp: [Date]
+    var dataTemperature: [Double]
+    var dataHumidity: [Double]
+
     @ObservedObject var localValue: BeaconLocalValueView
+    @Binding var showTemperature: Bool
     @Binding var isDragging: Bool
     var titleStrings: [String]
     var frameSize: CGRect
@@ -27,7 +32,7 @@ struct LineView: View, Equatable {
     @State private var dragOffset = CGSize.zero
     @State private var dragWidth: CGFloat = 0
     
-    @State private var isShownTemp = true
+//    @State private var isShownTemp = true
     
     var boundX: CGFloat {
         let tempX = -dragWidth / 2 + dragStart + dragOffset.width
@@ -38,11 +43,10 @@ struct LineView: View, Equatable {
     }
 
     var stepWidth: CGFloat {
-        if beacon.wrappedLocalHistoryTemperature.count < 2 {
-            print("LineView count \(beacon.wrappedDeviceName) count \(beacon.wrappedLocalHistoryTemperature.count)")
+        if dataTemperature.count < 2 {
             return 1
         }
-        return dragWidth / CGFloat(beacon.wrappedLocalHistoryTemperature.count-1)
+        return dragWidth / CGFloat(dataTemperature.count-1)
     }
 
     var dataIndex: Int {
@@ -142,8 +146,9 @@ struct LineView: View, Equatable {
             .onEnded {_ in
 //                print("tapGesture .onEnded")
                 if !dragMode {
-                    beaconModel.isShownTemperature.toggle()
-                    self.isShownTemp = beaconModel.isShownTemperature
+                    showTemperature.toggle()
+//                    beaconModel.isShownTemperature.toggle()
+//                    self.isShownTemp = beaconModel.isShownTemperature
                 }
             }
 
@@ -159,9 +164,9 @@ struct LineView: View, Equatable {
                 dragWidth = frameSize.width
 //                print("longPressGesture .onEnded dataIndex \(dataIndex) dragOffset \(dragOffset) dragStart \(dragStart) dragWidth \(dragWidth)")
 
-                localValue.temperature = beacon.wrappedLocalHistoryTemperature[dataIndex]
-                localValue.humidity = beacon.wrappedLocalHistoryHumidity[dataIndex]
-                localValue.timestamp = beacon.wrappedLocalHistoryTimestamp[dataIndex]
+                localValue.temperature = dataTemperature[dataIndex]
+                localValue.humidity = dataHumidity[dataIndex]
+                localValue.timestamp = timestamp[dataIndex]
             }
         
         let dragGesture = DragGesture(minimumDistance: 0, coordinateSpace: .local)
@@ -184,9 +189,9 @@ struct LineView: View, Equatable {
                         dragStart = drag.startLocation.x
                         dragWidth = frameSize.width
                         
-                        localValue.temperature = beacon.wrappedLocalHistoryTemperature[dataIndex]
-                        localValue.humidity = beacon.wrappedLocalHistoryHumidity[dataIndex]
-                        localValue.timestamp = beacon.wrappedLocalHistoryTimestamp[dataIndex]
+                        localValue.temperature = dataTemperature[dataIndex]
+                        localValue.humidity = dataHumidity[dataIndex]
+                        localValue.timestamp = timestamp[dataIndex]
                         localValue.isDragging = true
                     } else {
 //                        print("set to zero")
@@ -214,12 +219,11 @@ struct LineView: View, Equatable {
         GeometryReader{ geometry in
             ZStack{
                 GeometryReader{ reader in
-                    Line(beacon: beacon,
-                         localValue: localValue,
-                         timestamp: beacon.wrappedLocalHistoryTimestamp,
+                    Line(localValue: localValue,
+                         timestamp: timestamp,
                          displaySteps: beaconModel.isShownTemperature ? 0 : 1,
-                         dataTemperature: beacon.wrappedLocalHistoryTemperature,
-                         dataHumidity: beacon.wrappedLocalHistoryHumidity,
+                         dataTemperature: dataTemperature,
+                         dataHumidity: dataHumidity,
                          frame: .constant(CGRect(x: 0, y: 0,
                                                  width: reader.frame(in: .local).width,
                                                  height: reader.frame(in: .local).height)),
@@ -251,16 +255,23 @@ struct LineView: View, Equatable {
     }
     
     static func == (lhs: Self, rhs: Self) -> Bool {
+//        return false
+        
+        if (lhs.frameSize.height != rhs.frameSize.height) || (lhs.frameSize.width != rhs.frameSize.width)  {
+            print("LineView frame size changed -> false")
+            return false
+        }
+
         let test1 = lhs.dragMode && rhs.dragMode
         let test2 = lhs.dragMode != rhs.dragMode
         let test3 = !lhs.dragMode && !rhs.dragMode
-        let test4 = lhs.isShownTemp == rhs.isShownTemp
-        let test5 = lhs.beacon.wrappedLocalHistoryTimestamp.last == rhs.beacon.wrappedLocalHistoryTimestamp.last
-        let test6 = lhs.beacon.wrappedLocalHistoryTemperature.last == rhs.beacon.wrappedLocalHistoryTemperature.last
+        let test4 = lhs.showTemperature == rhs.showTemperature
+        let test5 = lhs.timestamp.last == rhs.timestamp.last
+        let test6 = lhs.dataTemperature.last == rhs.dataTemperature.last
         
         // check1
         if test1 || test2 || (test3 && !test4) {
-            print("LineView \(lhs.beacon.wrappedDeviceName) check1 -> false")
+            print("LineView check1 -> false")
             return false
         }
         
@@ -268,13 +279,13 @@ struct LineView: View, Equatable {
         if test3 {
            let test = test4 && test5 && test6
             if !test {
-                print("LineView \(lhs.beacon.wrappedDeviceName) check2 -> false")
+                print("LineView check2 -> false")
                 return false
             } else {
                 return true
             }
         }
-        print("LineView \(lhs.beacon.wrappedDeviceName) default -> false")
+        print("LineView default -> false")
 
         return false
     }

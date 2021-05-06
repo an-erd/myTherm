@@ -9,15 +9,15 @@ import Foundation
 import CoreData
 
 public enum DownloadStatus: Int32 {
-    case waiting = 0                // in queue and waiting for next action: download
-    case connecting = 1             // in progress of connecting to device
-    case downloading_num = 2        // in progress of getting overall number of entries to download
-    case downloading_data = 3       // in progress of retrievin data
-    case downloading_finished = 4   // downloading has been finished
-    case alldone = 5                // status is all errors had been shown and cleared
-    case cancelled = 6              // download has been canceled by the user
-    case error = 7                  // error connecting to or retrieving data from device
-//    case none = 8                   // TODO should be removed
+    case none                   = 0 // no active download
+    case waiting                = 1 // in queue and waiting for next action: download
+    case connecting             = 2 // in progress of connecting to device
+    case downloading_num        = 3 // in progress of getting overall number of entries to download
+    case downloading_data       = 4 // in progress of retrievin data
+    case downloading_finished   = 5 // downloading has been finished
+    case alldone                = 6 // status is all errors had been shown and cleared
+    case cancelled              = 7 // download has been canceled by the user
+    case error                  = 8 // error connecting to or retrieving data from device
 }
 
 class Download : ObservableObject {
@@ -72,7 +72,7 @@ class Download : ObservableObject {
         let moc = PersistenceController.shared.container.viewContext
         moc.perform {
             MyCentralManagerDelegate.shared.updateBeaconDownloadProgress(context: moc, with: newUuid, progress: 0.0)
-            MyCentralManagerDelegate.shared.updateBeaconDownloadStatus(context: moc, with: newUuid, status: .waiting)
+            MyCentralManagerDelegate.shared.updateBeaconDownloadStatus(context: moc, with: newUuid, status: .none)
         }
     }
     

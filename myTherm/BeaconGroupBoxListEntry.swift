@@ -52,13 +52,13 @@ struct BeaconGroupBoxListEntry: View {
                             }
                         }
                         // hitches
-                        BeaconDownloadImageButton(beacon: beacon,
-                                                  activeDownload: getDownload(beacon: beacon),
-                                                  nowDate: nowDate)
-//                        Spacer().frame(width: 10)
-//                        NavigationLink(destination: BeaconDetail(beacon: beacon).environmentObject(lm)) {
-//                            Image(systemName: "chevron.right").foregroundColor(.secondary) //.imageScale(.small)
-//                    }
+                        BeaconDownloadImageButton(
+                            uuid: beacon.uuid!,
+                            status: beacon.localDownloadStatus,
+                            progress: beacon.localDownloadProgress,
+                            timestamp: beacon.wrappedLocalTimestamp,
+                            nowDate: nowDate)
+                            
                     }
                 },
             content: {
@@ -72,6 +72,7 @@ struct BeaconGroupBoxListEntry: View {
                                         .equatable()
                                         .frame(width: 165)
                                     Spacer()
+//                                    DebugView5(beacon: beacon, localValue: localValue)
                                     BeaconLineView(beacon: beacon, localValue: localValue) //, displaySteps: displaySteps)
                                 }.frame(height: 55)
                             }

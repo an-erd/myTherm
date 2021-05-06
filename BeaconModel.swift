@@ -68,6 +68,7 @@ final class BeaconModel: ObservableObject {
     private init() {
         print("init BeaconModel")
         checkAndInitStructures(context: PersistenceController.shared.writeContext)
+        setInitBeaconDownloadStatus(context: PersistenceController.shared.writeContext)
         printDevicesAndBeacons(context: PersistenceController.shared.writeContext)
     }
     
@@ -106,6 +107,15 @@ final class BeaconModel: ObservableObject {
         }
     }
     
+    func setInitBeaconDownloadStatus(context: NSManagedObjectContext) {
+        context.perform { [self] in
+            let beacons = fetchAllBeaconsFromStore(context: context)
+            for beacon in beacons {
+                beacon.localDownloadStatus = .none                
+            }
+        }
+    }
+
     func printDevicesAndBeacons(context: NSManagedObjectContext) {
         context.perform { [self] in
 //            let devices = fetchDevices(context: context)

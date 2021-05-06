@@ -414,7 +414,13 @@ extension MyCentralManagerDelegate {
                 beaconModel.doScan = false
                 beaconModel.scanUpdateTemporaryStopped = true
             }
-            stopScanService()        }
+            stopScanService()
+        } else {
+            DispatchQueue.main.async { [self] in
+                beaconModel.scanStatusBeforeDownload = beaconModel.doScan
+                beaconModel.scanUpdateTemporaryStopped = true
+            }
+        }
         
         if let timer = MyBluetoothManager.shared.connectTimer {
             print("stopTimer because connected")
@@ -449,6 +455,10 @@ extension MyCentralManagerDelegate {
                 beaconModel.scanUpdateTemporaryStopped = false
             }
             startScanService()
+        } else {
+            DispatchQueue.main.async { [self] in
+                beaconModel.scanUpdateTemporaryStopped = false
+            }
         }
     }
     

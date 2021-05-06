@@ -203,7 +203,6 @@ struct BeaconList: View, Equatable {
             }
             withAnimation {
                 BeaconGroupBoxList(predicate: compoundPredicate)
-//                    .environmentObject(lm)
             }
                         
 //            DebugTestView(beacons: devices.first!.beaconArray, filter: filter)
@@ -341,23 +340,23 @@ struct BeaconList: View, Equatable {
                 BeaconConfigSettingsSheet()
             }
         }
-//        .alert(item: beaconModel.activeAlert) { item in
-//            switch item {
-//            case .downloadError:
-//                return Alert(
-//                    title: Text("Download errors"),
-//                    message: Text("Download sensor data is complete. Retrieval did not succeed for the following sensors:\n\(downloadManager.buildDownloadErrorDeviceList())"),
-//                    dismissButton: .default(Text("OK"),
-//                                            action: { downloadManager.clearDownloadErrorAndResume() })
-//                )
-//            case .hiddenAlert:
-//                return Alert(
-//                    title: Text("Hide sensor"),
-//                    message: Text("Sensor will be marked as hidden. Find it again using sensor filter."),
-//                    dismissButton: .default(Text("Got it!"))
-//                )
-//            }
-//        }
+        .alert(item: $beaconModel.activeAlert) { item in
+            switch item {
+            case .downloadError:
+                return Alert(
+                    title: Text("Download errors"),
+                    message: Text("Download sensor data is complete. Retrieval did not succeed for the following sensors:\n\(downloadManager.buildDownloadErrorDeviceList())"),
+                    dismissButton: .default(Text("OK"),
+                                            action: { downloadManager.clearDownloadErrorAndResume() })
+                )
+            case .hiddenAlert:
+                return Alert(
+                    title: Text("Hide sensor"),
+                    message: Text("Sensor will be marked as hidden. Find it again using sensor filter."),
+                    dismissButton: .default(Text("Got it!"))
+                )
+            }
+        }
     }
     
     public func onAppear() {

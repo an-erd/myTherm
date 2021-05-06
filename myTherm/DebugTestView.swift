@@ -93,3 +93,12 @@ struct DebugView4: View, Equatable {
         return (lhs.beacon.hidden == rhs.beacon.hidden) && (lhs.beacon.flag == rhs.beacon.flag)
     }
 }
+
+struct DebugView5: View {
+    @ObservedObject var beacon: Beacon
+    @ObservedObject var localValue: BeaconLocalValueView
+
+    var body: some View {
+        Text("DebugView5")
+    }
+}
