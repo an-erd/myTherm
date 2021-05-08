@@ -342,9 +342,10 @@ class DownloadManager: NSObject, ObservableObject {
             PersistenceController.shared.saveContext(context: self.localMoc)
             
             if let uuid = beacon.uuid {
-                DispatchQueue.main.async {
-                    beaconModel.copyHistoryArrayToLocalArray(context: viewMoc, uuid: uuid)
-                }
+                beaconModel.copyBeaconHistory(contextFrom: self.localMoc, contextTo: self.viewMoc, uuid: uuid)
+//                DispatchQueue.main.async {
+//                    beaconModel.copyHistoryArrayToLocalArray(context: viewMoc, uuid: uuid)  // TODO Thread
+//                }
             } else {
                     print("MyCentralManagerDelegate.shared.copyHistoryArrayToLocalArray uuid nil")
             }

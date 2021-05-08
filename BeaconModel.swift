@@ -84,9 +84,7 @@ final class BeaconModel: ObservableObject {
     }
 
     func checkAndInitStructures(context: NSManagedObjectContext) {
-//        print("checkAndInitStructures 1 \(Thread.current)")
         context.performAndWait { [self] in
-//            print("checkAndInitStructures 2 \(Thread.current)")
             let devices = fetchDevices(context: context)
             if devices == nil {
                 print("checkAndInitStructures no Devices found, creating new one")
@@ -97,11 +95,8 @@ final class BeaconModel: ObservableObject {
                     if beacon.devices == nil {
                         print("checkAndInitStructures assigning beacon \(beacon.wrappedDeviceName) to new Devices")
                         beacon.devices = newDevices
-                    } else {
-//                        print("checkAndInitStructures beacon \(beacon.wrappedDeviceName) already assigned to Devices \(beacon.devices!)")
                     }
                 }
-//                print("checkAndInitStructures store Devices and assigned beacons")
                 PersistenceController.shared.saveContext(context: context)
             }
         }
@@ -118,22 +113,24 @@ final class BeaconModel: ObservableObject {
 
     func printDevicesAndBeacons(context: NSManagedObjectContext) {
         context.perform { [self] in
-//            let devices = fetchDevices(context: context)
-//            if let devices = devices {
-//                print("printDevicesAndBeacons beaconArray.count \(devices.beaconArray.count)")
-//                for beacon in devices.beaconArray {
-//                    print("  \(beacon.wrappedDeviceName)")
-//                }
-//            }
+            let devices = fetchDevices(context: context)
+            if let devices = devices {
+                print("printDevicesAndBeacons devices.count beaconArray.count \(devices.beaconArray.count)")
+                for beacon in devices.beaconArray {
+                    print("  \(beacon.wrappedDeviceName)")
+                }
+            }
             
-            print("beacons in store")
+            print("beacons w/o devices")
             let beacons = fetchAllBeaconsFromStore(context: context)
             for beacon in beacons {
-                print("  \(beacon.wrappedDeviceName), devices \(beacon.devices != nil ? "yes" : "no")")
+                if beacon.devices == nil {
+                    print("  \(beacon.wrappedDeviceName)")
+                }
             }
         }
     }
-    
+        
     func fetchDevices(context: NSManagedObjectContext) -> Devices? {
         let fetchRequest: NSFetchRequest<Devices> = Devices.fetchRequest()
         var devices: [Devices] = []
@@ -150,10 +147,11 @@ final class BeaconModel: ObservableObject {
     func fetchBeacon(context: NSManagedObjectContext, with identifier: UUID) -> Beacon? {
         let fetchRequest: NSFetchRequest<Beacon> = Beacon.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "%K == %@", "uuid", identifier as CVarArg)
-        
-        // Perform the fetch with the predicate
         do {
             let beacons: [Beacon] = try context.fetch(fetchRequest)
+            if let beacon = beacons.first {
+                os_signpost(.event, log: self.log, name: "fetch", "fetch_%{public}s", beacon.wrappedDeviceName)
+            }
             return beacons.first
         } catch {
             let fetchError = error as NSError
@@ -203,7 +201,9 @@ final class BeaconModel: ObservableObject {
     public func copyHistoryArrayToLocalArray(context: NSManagedObjectContext, uuid: UUID) {
         context.performAndWait {
             if let beacon = fetchBeacon(context: context, with: uuid) {
+                print("BeaconModel copyHistoryArrayToLocalArray \(beacon.wrappedDeviceName) ")
                 beacon.copyHistoryArrayToLocalArray()
+
             } else {
                 print("copyHistoryArrayToLocalArray beacon not found")
             }
@@ -212,12 +212,13 @@ final class BeaconModel: ObservableObject {
     
     public func copyLocalHistoryArrayBetweenContext(
         contextFrom: NSManagedObjectContext, contextTo: NSManagedObjectContext, uuid: UUID) {
-        
+        print("copyLocalHistoryArrayBetweenContext 1 \(Thread.current)")
         var tempHistoryTemperature: [Double]!
         var tempHistoryHumidity: [Double]!
         var tempHistoryTimestamp: [Date]!
         
         contextFrom.performAndWait {
+            print("copyLocalHistoryArrayBetweenContext 2 \(Thread.current)")
             if let beacon = fetchBeacon(context: contextFrom, with: uuid) {
                 tempHistoryTemperature = beacon.localHistoryTemperature
                 tempHistoryHumidity = beacon.localHistoryHumidity
@@ -227,6 +228,7 @@ final class BeaconModel: ObservableObject {
         
         DispatchQueue.main.async {
             contextTo.performAndWait {
+                print("copyLocalHistoryArrayBetweenContext 3 \(Thread.current)")
                 if let beacon = self.fetchBeacon(context: contextTo, with: uuid) {
                     beacon.localHistoryTemperature = tempHistoryTemperature
                     beacon.localHistoryHumidity = tempHistoryHumidity
@@ -236,20 +238,25 @@ final class BeaconModel: ObservableObject {
         }
     }
     
-    public func copyBeaconHistoryOnce() {
+    public func copyBeaconHistoryOnce(contextFrom: NSManagedObjectContext, contextTo: NSManagedObjectContext) {
         print("copyBeaconHistoryOnce")
-        
-        let writeMoc = PersistenceController.shared.writeContext    // 1) prepare local history
-        let viewMoc = PersistenceController.shared.viewContext      // 2) copy to view context
-        
-        let writeBeacons = fetchAllBeaconsFromStore(context: writeMoc)
-        for beacon in writeBeacons {
-            os_signpost(.begin, log: log, name: "copyHistoryArrayToLocalArray", "%{public}s", beacon.wrappedDeviceName)
+
+        os_signpost(.begin, log: log, name: "copyBeaconHistoryOnce")
+        let beacons = fetchAllBeaconsFromStore(context: contextFrom)
+        for beacon in beacons {
             let uuid: UUID = beacon.uuid!
-            copyHistoryArrayToLocalArray(context: writeMoc, uuid: uuid)
-            copyLocalHistoryArrayBetweenContext(contextFrom: writeMoc, contextTo: viewMoc, uuid: uuid)
-            os_signpost(.end, log: log, name: "copyHistoryArrayToLocalArray")
+            os_signpost(.begin, log: log, name: "copyBeaconHistory", "%{public}s", beacon.wrappedDeviceName)
+            copyBeaconHistory(contextFrom: contextFrom, contextTo: contextTo, uuid: uuid)
+            os_signpost(.end, log: log, name: "copyBeaconHistory", "%{public}s", beacon.wrappedDeviceName)
         }
+        os_signpost(.end, log: log, name: "copyBeaconHistoryOnce")
+    }
+    
+    public func copyBeaconHistory(contextFrom: NSManagedObjectContext, contextTo: NSManagedObjectContext, uuid: UUID) {
+        print("copyBeaconHistory")
+        
+        copyHistoryArrayToLocalArray(context: contextFrom, uuid: uuid)
+        copyLocalHistoryArrayBetweenContext(contextFrom: contextFrom, contextTo: contextTo, uuid: uuid)
     }
     
     public func copyLocalBeaconsToWriteContext() {

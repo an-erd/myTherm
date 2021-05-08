@@ -35,7 +35,8 @@ struct BeaconList: View, Equatable {
     @State var predicateFlaggedFilter: NSPredicate?
     @State var predicateHiddenFilter: NSPredicate?
     @State var predicateShownFilter: NSPredicate?
-    @State var compoundPredicate: NSCompoundPredicate?
+    @State var compoundPredicateWithFilter: NSCompoundPredicate?
+    @State var compoundPredicateWithoutFilter: NSCompoundPredicate?
     @State var filterPredicateUpdateTimer: Timer?
     let filterPredicateTimeinterval: Double = 180
     let filterPredicateDistanceMeter: Double = 100
@@ -46,30 +47,50 @@ struct BeaconList: View, Equatable {
 //    @State var activeAlert: ActiveAlert?
 
     @State var sort: Int = 0
+    
+    private let log: OSLog = OSLog(subsystem: "com.anerd.myTherm", category: "Useraction")
 
     func startFilterUpdate() {
-        filterUpdatePredicate()
-        filterPredicateUpdateTimer =
-            Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-                filterUpdatePredicate()
-            }
+//        filterPredicateUpdateTimer =
+//            Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+//                filterWithFilterUpdatePredicate()
+//            }
     }
 
     func stopFilterUpdate() {
         if let timer = filterPredicateUpdateTimer {
             timer.invalidate()
         }
-        predicateTimeFilter = nil
-        predicateLocationFilter = nil
-        predicateFlaggedFilter = nil
-        withAnimation {
-            compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates:
-                                                        [NSPredicate(format: "hidden == NO or hidden == nil")])
-        }
+        os_signpost(.event, log: self.log, name: "Useraction", "pred_update")
     }
 
-    func filterUpdatePredicate() {
+    func filterWithoutFilterInitPredicate() {
+        compoundPredicateWithoutFilter = NSCompoundPredicate(andPredicateWithSubpredicates:
+                                                                [NSPredicate(format: "hidden == NO or hidden == nil")])
+    }
+    
+    func filterWithFilterUpdatePredicate() {
         var compound: [NSPredicate] = []
+
+        if userSettings.filterByFlag {
+            predicateFlaggedFilter = NSPredicate(format: "flag == true")
+            if let predicateFlaggedFilter = predicateFlaggedFilter {
+                compound.append(predicateFlaggedFilter)
+            }
+        }
+
+        if userSettings.filterByHidden {
+            predicateHiddenFilter = NSPredicate(format: "hidden == true")
+            if let predicateHiddenFilter = predicateHiddenFilter {
+                compound.append(predicateHiddenFilter)
+            }
+        }
+        if userSettings.filterByShown {
+            predicateShownFilter = NSPredicate(format: "hidden != true")
+            if let predicateShownFilter = predicateShownFilter {
+                compound.append(predicateShownFilter)
+            }
+        }
 
         if userSettings.filterByTime {
             let comparison = Date(timeIntervalSinceNow: -filterPredicateTimeinterval)
@@ -86,28 +107,9 @@ struct BeaconList: View, Equatable {
             }
         }
 
-        if userSettings.filterByFlag {
-            predicateFlaggedFilter = NSPredicate(format: "flag == true")
-            if let predicateFlaggedFilter = predicateFlaggedFilter {
-                compound.append(predicateFlaggedFilter)
-            }
-
-        }
-        if userSettings.filterByHidden {
-            predicateHiddenFilter = NSPredicate(format: "hidden == true")
-            if let predicateHiddenFilter = predicateHiddenFilter {
-                compound.append(predicateHiddenFilter)
-            }
-        }
-        if userSettings.filterByShown {
-            predicateShownFilter = NSPredicate(format: "hidden != true")
-            if let predicateShownFilter = predicateShownFilter {
-                compound.append(predicateShownFilter)
-            }
-        }
-
+        os_signpost(.event, log: self.log, name: "Useraction", "pred_update")
         withAnimation {
-            compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: compound)
+            compoundPredicateWithFilter = NSCompoundPredicate(andPredicateWithSubpredicates: compound)
         }
     }
 
@@ -202,7 +204,9 @@ struct BeaconList: View, Equatable {
                 //                    }
             }
             withAnimation {
-                BeaconGroupBoxList(predicate: compoundPredicate)
+                BeaconGroupBoxList(doFilter: doFilter,
+                                   predicateWithoutFilter: compoundPredicateWithoutFilter,
+                                   predicateWithFilter: compoundPredicateWithFilter)
             }
                         
 //            DebugTestView(beacons: devices.first!.beaconArray, filter: filter)
@@ -211,6 +215,8 @@ struct BeaconList: View, Equatable {
         
         .onAppear(perform: {
             self.onAppear()
+            filterWithoutFilterInitPredicate()
+            filterWithFilterUpdatePredicate()
             stopFilterUpdate()
         })
         .onDisappear(perform: {
@@ -221,12 +227,14 @@ struct BeaconList: View, Equatable {
                 Button(action: {
                     withAnimation {
                         print("Filter pressed")
+
                         doFilter.toggle()
                         if doFilter {
                             startFilterUpdate()
                         } else {
                             stopFilterUpdate()
                         }
+                        os_signpost(.event, log: self.log, name: "Useraction", "filter_%{public}s", doFilter ? "y" : "n")
                     }
                 }
                 ) {
@@ -244,17 +252,17 @@ struct BeaconList: View, Equatable {
                 Spacer()
                 ZStack {
                     // hitches
-                    BeaconBottomBarStatusFilterButton(
-                        filterActive: doFilter,
-                        filterByTime: $userSettings.filterByTime,
-                        filterByLocation: $userSettings.filterByLocation,
-                        filterByFlag: $userSettings.filterByFlag,
-                        filterByHidden: $userSettings.filterByHidden,
-                        filterByShown: $userSettings.filterByShown,
-                        predicate: compoundPredicate)
-                        .opacity(!(beaconModel.isDownloadStatusError
-                                    || beaconModel.isDownloading
-                                    || beaconModel.isDownloadStatusSuccess) ? 1 : 0)
+//                    BeaconBottomBarStatusFilterButton(
+//                        filterActive: doFilter,
+//                        filterByTime: $userSettings.filterByTime,
+//                        filterByLocation: $userSettings.filterByLocation,
+//                        filterByFlag: $userSettings.filterByFlag,
+//                        filterByHidden: $userSettings.filterByHidden,
+//                        filterByShown: $userSettings.filterByShown,
+//                        predicate: compoundPredicate)
+//                        .opacity(!(beaconModel.isDownloadStatusError
+//                                    || beaconModel.isDownloading
+//                                    || beaconModel.isDownloadStatusSuccess) ? 1 : 0)
                     
                     BeaconBottomBarStatusDownloadButton(
                         textLine1: beaconModel.textDownloadStatusErrorLine1, colorLine1: .primary,
@@ -312,6 +320,7 @@ struct BeaconList: View, Equatable {
                                     beaconModel.doScan = true
                                     MyCentralManagerDelegate.shared.startScanService()
                                 }
+                                os_signpost(.event, log: self.log, name: "Useraction", "scan_%{public}s", beaconModel.doScan ? "y" : "n")
                             }) {
                                 HStack {
                                     if beaconModel.doScan {

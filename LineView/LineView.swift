@@ -32,6 +32,8 @@ struct LineView: View, Equatable {
     @State private var dragOffset = CGSize.zero
     @State private var dragWidth: CGFloat = 0
     
+    private let log: OSLog = OSLog(subsystem: "com.anerd.myTherm", category: "Useraction")
+
 //    @State private var isShownTemp = true
     
     var boundX: CGFloat {
@@ -147,6 +149,8 @@ struct LineView: View, Equatable {
 //                print("tapGesture .onEnded")
                 if !dragMode {
                     showTemperature.toggle()
+                    os_signpost(.event, log: self.log, name: "Useraction", "tap_%{public}s", showTemperature ? "T" : "H")
+
 //                    beaconModel.isShownTemperature.toggle()
 //                    self.isShownTemp = beaconModel.isShownTemperature
                 }
@@ -164,6 +168,9 @@ struct LineView: View, Equatable {
                 dragWidth = frameSize.width
 //                print("longPressGesture .onEnded dataIndex \(dataIndex) dragOffset \(dragOffset) dragStart \(dragStart) dragWidth \(dragWidth)")
 
+                os_signpost(.event, log: self.log, name: "Useraction", "drag_%{public}s", dragMode ? "start" : "stop")
+
+                
                 localValue.temperature = dataTemperature[dataIndex]
                 localValue.humidity = dataHumidity[dataIndex]
                 localValue.timestamp = timestamp[dataIndex]

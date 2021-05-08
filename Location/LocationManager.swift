@@ -58,28 +58,32 @@ class LocationManager: NSObject, ObservableObject {
 
     private func geocode() {
         guard let location = self.location else { return }
-        geocoder.reverseGeocodeLocation(location, completionHandler: { (places, error) in
-            if error == nil {
-                self.placemark = places?.first
-                guard let placemark = places?.first else { return }
-                guard let streetName = placemark.thoroughfare else { return }
-                guard let streetNumber = placemark.subThoroughfare else { return }
-                guard let zipCode = placemark.postalCode else { return }
-                guard let city = placemark.locality else { return }
-
-                os_signpost(.event, log: self.log, name: "location", "geo")
-                self.address = "\(streetName) \(streetNumber) \n \(zipCode) \(city)"
-                self.addressStatus = LocationGeocodeStatus(rawValue: self.locationStatus.rawValue)!
-//                print("geocode addressStatus \(self.addressStatus) \(self.address)")
-            } else {
-                self.placemark = nil
-                self.address = ""
-                self.addressStatus = .none
-                
-                os_signpost(.event, log: self.log, name: "geo none")
-                print("geocode error \(String(describing: error)) addressStatus \(self.addressStatus)")
-            }
-        })
+        DispatchQueue.global(qos: .background).async { [self] in
+            geocoder.reverseGeocodeLocation(location, completionHandler: { (places, error) in
+                DispatchQueue.main.async {
+                    if error == nil {
+                        self.placemark = places?.first
+                        guard let placemark = places?.first else { return }
+                        guard let streetName = placemark.thoroughfare else { return }
+                        guard let streetNumber = placemark.subThoroughfare else { return }
+                        guard let zipCode = placemark.postalCode else { return }
+                        guard let city = placemark.locality else { return }
+                        
+                        os_signpost(.event, log: self.log, name: "location", "geo")
+                        self.address = "\(streetName) \(streetNumber) \n \(zipCode) \(city)"
+                        self.addressStatus = LocationGeocodeStatus(rawValue: self.locationStatus.rawValue)!
+                        //                print("geocode addressStatus \(self.addressStatus) \(self.address)")
+                    } else {
+                        self.placemark = nil
+                        self.address = ""
+                        self.addressStatus = .none
+                        
+                        os_signpost(.event, log: self.log, name: "geo none")
+                        print("geocode error \(String(describing: error)) addressStatus \(self.addressStatus)")
+                    }
+                }
+            })
+        }
     }
 
     @objc
@@ -163,7 +167,9 @@ extension LocationManager: CLLocationManagerDelegate {
         guard let location = locations.last else { return }
         if locationMode == .precise {
             self.location = location
+
             self.geocode()
+            
             if location.horizontalAccuracy <= maxPrecision {
                 os_signpost(.event, log: log, name: "precise", "maxPrecision")
                 self.locationStatus = .precise
@@ -182,14 +188,14 @@ extension LocationManager: CLLocationManagerDelegate {
 //        if placemark != nil {
 //            print("\(placemark!)")
 //        }
-        let beacons: [Beacon] = beaconModel.fetchAllBeaconsFromStore(context: PersistenceController.shared.viewContext)
-        for beacon in beacons {
-            if let beaconLocation = beacon.location {
-                let distance = location.distance(from: beaconLocation.clLocation)
-//                print("distance \(beacon.wrappedName) = \(distance)")
-                beacon.localDistanceFromPosition = distance
-            }
-        }
+//        let beacons: [Beacon] = beaconModel.fetchAllBeaconsFromStore(context: PersistenceController.shared.viewContext)
+//        for beacon in beacons {
+//            if let beaconLocation = beacon.location {
+//                let distance = location.distance(from: beaconLocation.clLocation)
+////                print("distance \(beacon.wrappedName) = \(distance)")
+//                beacon.localDistanceFromPosition = distance
+//            }
+//        }
     }
 }
 

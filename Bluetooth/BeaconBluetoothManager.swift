@@ -348,11 +348,13 @@ extension MyCentralManagerDelegate {
         }
         DispatchQueue.main.async { [self] in
             viewMoc.perform { [self] in
+                os_signpost(.begin, log: log, name: "didDiscover")
                 if self.beaconModel.fetchDevices(context: self.viewMoc) == nil {
                     print("didDiscover devices(viewMoc) == nil")
+                    os_signpost(.end, log: log, name: "didDiscover")
+
                     return
                 }
-                
                 if let alreadyAvailableBeacon = beaconModel.fetchBeacon(context: self.viewMoc, with: peripheral.identifier) {
                     if alreadyAvailableBeacon.adv != nil { } else {
                         alreadyAvailableBeacon.adv = BeaconAdv(context: self.viewMoc)
@@ -393,6 +395,7 @@ extension MyCentralManagerDelegate {
                 } else {
                     print("beacon not found in PersistenceController.shared.container.viewContext.perform")
                 }
+                os_signpost(.end, log: log, name: "didDiscover")
             }
             //        os_signpost(.end, log: log, name: "didDiscover Peripheral")
         }

@@ -91,10 +91,8 @@ extension Beacon {
     }
 
     public var historyArray: [BeaconHistoryDataPoint] {
+        print("beacon.historyArray \(self.wrappedDeviceName)")
         let set = history as? Set<BeaconHistoryDataPoint> ?? []
-//        if let history = history {
-//            print("\(self.wrappedDeviceName) historyArray.count() \(history.count)")
-//        }
         return set.sorted {
             $0.wrappedTimeStamp < $1.wrappedTimeStamp
         }
@@ -217,22 +215,9 @@ extension Beacon {
 
 extension Beacon : Identifiable {
     public func copyHistoryArrayToLocalArray() {
-//        print("copyHistoryArrayToLocalArray \(self.wrappedDeviceName)")
+        print("Beacon copyHistoryArrayToLocalArray \(self.wrappedDeviceName) \(Thread.current)")
         self.localHistoryTemperature = self.temperatureArray
         self.localHistoryHumidity = self.humidityArray
         self.localHistoryTimestamp = self.dateArray
     }
 }
-
-//extension Beacon : DownloadDelegate {
-//    
-//    func downloadProgressUpdated(for progress: Float, for uuid: UUID) {
-//        self.localDownloadProgress = progress
-//    }
-//    
-//    func downloadStatusUpdated(for status: DownloadStatus, for uuid: UUID) {
-//        self.localDownloadStatus = status
-//        print("downloadStatusUpdated for \(self.wrappedDeviceName) to \(status)")
-//    }
-//    
-//}

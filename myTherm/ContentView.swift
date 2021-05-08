@@ -22,9 +22,9 @@ struct ContentView: View {
         .onAppear(perform: {
             print("ContentView onAppear")
             PersistenceController.shared.writeContext.perform {
-                os_signpost(.begin, log: log, name: "copyBeaconHistoryOnce")
-                beaconModel.copyBeaconHistoryOnce()
-                os_signpost(.end, log: log, name: "copyBeaconHistoryOnce")
+                let writeMoc = PersistenceController.shared.writeContext    // 1) prepare local history
+                let viewMoc = PersistenceController.shared.viewContext      // 2) copy to view context
+                beaconModel.copyBeaconHistoryOnce(contextFrom: writeMoc, contextTo: viewMoc)
             }
             MyCentralManagerDelegate.shared.stopScanService()
         })
@@ -33,10 +33,13 @@ struct ContentView: View {
             switch phase {
             case .background:
                 print("PHASECHANGE: View entered background")
+                os_signpost(.event, log: self.log, name: "Useraction", "phase_background")
             case .active:
                 print("PHASECHANGE: View entered active")
+                os_signpost(.event, log: self.log, name: "Useraction", "phase_active")
             case .inactive:
                 print("PHASECHANGE: View entered inactive")
+                os_signpost(.event, log: self.log, name: "Useraction", "phase_inactive")
                 beaconModel.copyLocalBeaconsToWriteContext()
             @unknown default:
                 print("PHASECHANGE: View entered unknown phase.")
