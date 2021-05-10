@@ -44,6 +44,7 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
     private var beaconModel = BeaconModel.shared
     var downloadManager = DownloadManager.shared
     private var downloadWatchdogEntries: Int = 0
+    let log = OSLog(subsystem: "com.anerd.myTherm", category: "download")
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
@@ -272,10 +273,6 @@ extension MyCentralManagerDelegate {
         
         //        print(advertisementData)
         
-        let log = OSLog(
-            subsystem: "com.anerd.myTherm",
-            category: "download"
-        )
 //        os_signpost(.begin, log: log, name: "didDiscover Peripheral")
         
         let (extractBeacon, extractBeaconAdv) = extractBeaconFromAdvertisment(advertisementData: advertisementData)
@@ -285,76 +282,14 @@ extension MyCentralManagerDelegate {
             return
         }
         
-        localMoc.performAndWait {
-//            print("\(Thread.current)")
-            var beaconFind: Beacon?
-            if let alreadyAvailableBeacon = beaconModel.fetchBeacon(context: localMoc, with: peripheral.identifier) {
-                beaconFind = alreadyAvailableBeacon
-                if let beaconFind = beaconFind {
-//                    print("  \(beaconFind.wrappedDeviceName), devices \(beaconFind.devices != nil ? "yes" : "no")")
-                    if beaconFind.device_name == "(no device name)" || beaconFind.device_name == nil {
-                        if peripheral.name != nil {
-                            beaconFind.device_name = peripheral.name!
-                        } else {
-                            beaconFind.device_name = nil
-                        }
-                    }
-                    if beaconFind.name == nil || beaconFind.name == "(no name)" {
-                        if beaconFind.device_name != nil {
-                            beaconFind.name = beaconFind.device_name!
-                        }
-                    }
-//                    print("  \(beaconFind.wrappedDeviceName) - \(peripheral.name ?? "peripheral no name")")
-                }
-            } else {
-                print("add new beacon 1 \(peripheral.identifier)")
-                beaconFind = Beacon(context: localMoc)
-                if let beacon = beaconFind {
-                    beacon.uuid = peripheral.identifier
-                    beacon.company_id = extractBeacon.company_id
-                    beacon.id_maj = extractBeacon.id_maj
-                    beacon.id_min = extractBeacon.id_min
-                    beacon.beacon_version = extractBeacon.beacon_version
-                    beacon.name = peripheral.name ?? nil
-                    beacon.device_name = peripheral.name ?? nil
-                    
-                    print(beacon)
-                    print("add new beacon 2 \(peripheral.identifier) objectID \(beacon.objectID)")
-                    beaconModel.addBeaconToDevices(context: localMoc, beacon: beacon)
-
-                    guard let newadv = beacon.adv else { return }
-                    print("inverse \(newadv.beacon?.name ?? "inverse beacon not set")")
-                    
-
-                }
-            }
-            
-            if localMoc.hasChanges {
-                PersistenceController.shared.saveContext(context: localMoc)
-//                PersistenceController.shared.persistentContainerQueue.addOperation(){
-//                    self.localMoc.performAndWait{
-//                        do {
-//                            try self.localMoc.save()
-//                        } catch let error as NSError  {
-//                            print("Could not save \(error), \(error.userInfo)")
-//                        }
-//                    }
-//                }
-            }
-        }
-        
         if !beaconModel.doUpdateAdv {
             return
         }
+        
         DispatchQueue.main.async { [self] in
             viewMoc.perform { [self] in
                 os_signpost(.begin, log: log, name: "didDiscover")
-                if self.beaconModel.fetchDevices(context: self.viewMoc) == nil {
-                    print("didDiscover devices(viewMoc) == nil")
-                    os_signpost(.end, log: log, name: "didDiscover")
-
-                    return
-                }
+                
                 if let alreadyAvailableBeacon = beaconModel.fetchBeacon(context: self.viewMoc, with: peripheral.identifier) {
                     if alreadyAvailableBeacon.adv != nil { } else {
                         alreadyAvailableBeacon.adv = BeaconAdv(context: self.viewMoc)
@@ -394,6 +329,60 @@ extension MyCentralManagerDelegate {
                     os_signpost(.event, log: log, name: "didDiscover", "%{public}s", alreadyAvailableBeacon.wrappedDeviceName)
                 } else {
                     print("beacon not found in PersistenceController.shared.container.viewContext.perform")
+                    localMoc.performAndWait {
+//            print("\(Thread.current)")
+                        var beaconFind: Beacon?
+                        
+                        if self.beaconModel.fetchDevices(context: self.localMoc) == nil {
+                            print("didDiscover devices(localMoc) == nil")
+                            os_signpost(.end, log: log, name: "didDiscover")
+
+                            return
+                        }
+
+                        if let alreadyAvailableBeacon = beaconModel.fetchBeacon(context: localMoc, with: peripheral.identifier) {
+                            beaconFind = alreadyAvailableBeacon
+                            if let beaconFind = beaconFind {
+                                //                    print("  \(beaconFind.wrappedDeviceName), devices \(beaconFind.devices != nil ? "yes" : "no")")
+                                if beaconFind.device_name == "(no device name)" || beaconFind.device_name == nil {
+                                    if peripheral.name != nil {
+                                        beaconFind.device_name = peripheral.name!
+                                    } else {
+                                        beaconFind.device_name = nil
+                                    }
+                                }
+                                if beaconFind.name == nil || beaconFind.name == "(no name)" {
+                                    if beaconFind.device_name != nil {
+                                        beaconFind.name = beaconFind.device_name!
+                                    }
+                                }
+//                    print("  \(beaconFind.wrappedDeviceName) - \(peripheral.name ?? "peripheral no name")")
+                            }
+                        } else {
+                            print("add new beacon 1 \(peripheral.identifier)")
+                            beaconFind = Beacon(context: localMoc)
+                            if let beacon = beaconFind {
+                                beacon.uuid = peripheral.identifier
+                                beacon.company_id = extractBeacon.company_id
+                                beacon.id_maj = extractBeacon.id_maj
+                                beacon.id_min = extractBeacon.id_min
+                                beacon.beacon_version = extractBeacon.beacon_version
+                                beacon.name = peripheral.name ?? nil
+                                beacon.device_name = peripheral.name ?? nil
+                                
+                                print(beacon)
+                                print("add new beacon 2 \(peripheral.identifier) objectID \(beacon.objectID)")
+                                beaconModel.addBeaconToDevices(context: localMoc, beacon: beacon)
+                                
+                                guard let newadv = beacon.adv else { return }
+                                print("inverse \(newadv.beacon?.name ?? "inverse beacon not set")")
+                            }
+                        }
+                        
+                        if localMoc.hasChanges {
+                            PersistenceController.shared.saveContext(context: localMoc)
+                        }
+                    }
                 }
                 os_signpost(.end, log: log, name: "didDiscover")
             }
@@ -403,10 +392,6 @@ extension MyCentralManagerDelegate {
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         print("centralManager didConnect peripheral")
-        let log = OSLog(
-            subsystem: "com.anerd.myTherm",
-            category: "download"
-        )
         os_signpost(.event, log: log, name: "didConnect Peripheral")
         
         peripheral.delegate = self
@@ -443,10 +428,6 @@ extension MyCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral,
                         error: Error?) {
         print("centralManager didDisconnect peripheral")
-        let log = OSLog(
-            subsystem: "com.anerd.myTherm",
-            category: "download"
-        )
         os_signpost(.event, log: log, name: "didDisconnectPeripheral Peripheral")
         
         peripheral.delegate = nil
@@ -577,10 +558,6 @@ extension MyCentralManagerDelegate {
         
         if ( MyBluetoothManager.shared.racpMeasurementValueNotifying == true) {
             if ( MyBluetoothManager.shared.racpControlPointNotifying == true) {
-                let log = OSLog(
-                    subsystem: "com.anerd.myTherm",
-                    category: "download"
-                )
                 os_signpost(.event, log: log, name: "didUpdateNotificationStateFor get num")
                 
                 let rawPacket: [UInt8] = [04, 01]   // get num
@@ -620,11 +597,6 @@ extension MyCentralManagerDelegate {
         //            (characteristicData.hexEncodedString(options: .upperCase) as String).group(by: 2, separator: " ")
         //        print("encoded data \(encodedData)")
         
-        
-        let log = OSLog(
-            subsystem: "com.anerd.myTherm",
-            category: "download"
-        )
         
         if characteristic.uuid == BeaconPeripheral.beaconRACPMeasurementValuesCharUUID {
 //            os_signpost(.begin, log: log, name: "didUpdateValueFor")
@@ -690,11 +662,6 @@ extension MyCentralManagerDelegate {
                     print("cleanup called")
                     downloadHistory.status = .downloading_finished
                     self.updateBeaconDownloadStatus(context: viewMoc, with: downloadHistory.uuid, status: .downloading_finished)
-                    
-                    let log = OSLog(
-                        subsystem: "com.anerd.myTherm",
-                        category: "download"
-                    )
                     os_signpost(.end, log: log, name: "getAllHistory", "%{public}s", deviceName)
                     
                     if let connectto = MyBluetoothManager.shared.connectedPeripheral {

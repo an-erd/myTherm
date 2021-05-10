@@ -107,7 +107,7 @@ struct BeaconGroupBoxListUuidEntry: View {
                     nowDate: date)
 //                    .equatable()
                     .listRowInsets(EdgeInsets())
-//                    .swipeCell(cellPosition: .both, leftSlot: slot1, rightSlot: slot2)
+                    .swipeCell(cellPosition: .both, leftSlot: slot1, rightSlot: slot2)
                     .cornerRadius(10)
                     .padding(10)
             }

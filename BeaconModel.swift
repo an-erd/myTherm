@@ -63,12 +63,16 @@ final class BeaconModel: ObservableObject {
     
     @Published var displaySteps: Int = 0
     
+    private var beaconCacheViewContext: [ UUID : Beacon ]  = [ : ]
+    private var beaconCacheWriteContext: [ UUID : Beacon ] = [ : ]
+    
     let log = OSLog(subsystem: "com.anerd.myTherm", category: "preparation")
 
     private init() {
         print("init BeaconModel")
         checkAndInitStructures(context: PersistenceController.shared.writeContext)
         setInitBeaconDownloadStatus(context: PersistenceController.shared.writeContext)
+        initLocalBeaconCache(writeContext: PersistenceController.shared.writeContext, viewContext: PersistenceController.shared.viewContext)
         printDevicesAndBeacons(context: PersistenceController.shared.writeContext)
     }
     
@@ -102,6 +106,27 @@ final class BeaconModel: ObservableObject {
         }
     }
     
+    func initLocalBeaconCache(writeContext: NSManagedObjectContext, viewContext: NSManagedObjectContext) {
+        writeContext.performAndWait {
+            os_signpost(.begin, log: self.log, name: "localCache", "fetch_writeCtx")
+            let beacons = fetchAllBeaconsFromStore(context: writeContext)
+            for beacon in beacons {
+                beaconCacheWriteContext[beacon.uuid!] = beacon
+            }
+            os_signpost(.end, log: self.log, name: "localCache", "fetch_writeCtx")
+        }
+
+        viewContext.performAndWait {
+            os_signpost(.begin, log: self.log, name: "localCache", "fetch_viewCtx")
+            let beacons = fetchAllBeaconsFromStore(context: viewContext)
+            for beacon in beacons {
+                beaconCacheViewContext[beacon.uuid!] = beacon
+            }
+            os_signpost(.end, log: self.log, name: "localCache", "fetch_viewCtx")
+        }
+    }
+//os_signpost(.begin, log: self.log, name: "localCache", "fetch_%{public}s", beacon.wrappedDeviceName)
+
     func setInitBeaconDownloadStatus(context: NSManagedObjectContext) {
         context.perform { [self] in
             let beacons = fetchAllBeaconsFromStore(context: context)
@@ -145,6 +170,15 @@ final class BeaconModel: ObservableObject {
     }
      
     func fetchBeacon(context: NSManagedObjectContext, with identifier: UUID) -> Beacon? {
+        let useViewCtx: Bool = context == PersistenceController.shared.viewContext
+        if useViewCtx {
+            if let beacon = beaconCacheViewContext[identifier] {
+                return beacon
+            }
+        }
+
+        print("fetchBeacon \(useViewCtx ? "view" : "other")")
+        
         let fetchRequest: NSFetchRequest<Beacon> = Beacon.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "%K == %@", "uuid", identifier as CVarArg)
         do {
