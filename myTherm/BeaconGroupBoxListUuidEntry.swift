@@ -104,8 +104,10 @@ struct BeaconGroupBoxListUuidEntry: View {
             // hitches
             withAnimation {
                 BeaconGroupBoxListEntry(beacon: beacon,
-                    nowDate: date)
+                                        beaconAdv: beacon.adv!,
+                                        nowDate: date)
 //                    .equatable()
+//                DebugView4(beacon: beacon)
                     .listRowInsets(EdgeInsets())
                     .swipeCell(cellPosition: .both, leftSlot: slot1, rightSlot: slot2)
                     .cornerRadius(10)

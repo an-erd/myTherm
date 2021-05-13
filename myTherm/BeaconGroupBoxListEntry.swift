@@ -10,12 +10,13 @@ import SwiftUI
 struct BeaconGroupBoxListEntry: View {
     
     @ObservedObject var beacon: Beacon
+    @ObservedObject var beaconAdv: BeaconAdv
     var nowDate: Date
     
     @StateObject var beaconModel = BeaconModel.shared
     @StateObject var localValue: BeaconLocalValueView = BeaconLocalValueView()
     @State private var selection: String? = nil
-
+    
     func getDownload(beacon: Beacon) -> Download? {
         let activeDownloadsFiltered = MyCentralManagerDelegate.shared.downloadManager.downloads.filter() { download in
             return download.uuid == beacon.uuid
@@ -24,68 +25,66 @@ struct BeaconGroupBoxListEntry: View {
     }
     
     var body: some View {
-        GroupBox(
-            label:
-                HStack {
-                    Group {
-                        NavigationLink(destination: BeaconDetail(beacon: beacon)//.environmentObject(lm)
-                                       , tag: "Detail",
-                                       selection: $selection) { EmptyView() }
-                        Label(beacon.wrappedName, systemImage: "thermometer").foregroundColor(Color.blue)
-                            .padding(.vertical, 5)
-                            .padding(.trailing, 5)
-                            //                                .border(Color.red)
-                            .onTapGesture {
-                                selection = "Detail"
-                            }
-                        Spacer()
-                        if beacon.flag {
-                            HStack {
-                                Image(systemName: "flag.fill").foregroundColor(.orange).imageScale(.small)
-                                Spacer().frame(width: 10)
-                            }
-                        }
-                        if beacon.hidden {
-                            HStack {
-                                Image(systemName: "eye.slash").foregroundColor(.gray).imageScale(.small)
+//        GroupBox(
+//            label:
+//                HStack {
+//                    Group {
+//                        // hitches
+//                        //                        NavigationLink(destination: BeaconDetail(beacon: beacon)//.environmentObject(lm)
+//                        //                                       , tag: "Detail",
+//                        //                                       selection: $selection) { EmptyView() }
+//                        Label(beacon.wrappedName, systemImage: "thermometer").foregroundColor(Color.blue)
+//                            .padding(.vertical, 5)
+//                            .padding(.trailing, 5)
+//                            //                                .border(Color.red)
+//                            .onTapGesture {
+//                                selection = "Detail"
+//                            }
+//                        Spacer()
+//                        if beacon.flag {
+//                            HStack {
+//                                Image(systemName: "flag.fill").foregroundColor(.orange).imageScale(.small)
 //                                Spacer().frame(width: 10)
-                            }
-                        }
-                        // hitches
-                        BeaconDownloadImageButton(
-                            uuid: beacon.uuid!,
-                            status: beacon.localDownloadStatus,
-                            progress: beacon.localDownloadProgress,
-                            timestamp: beacon.wrappedLocalTimestamp,
-                            nowDate: nowDate)
-                            
-                    }
-                },
-            content: {
-                VStack {
+//                            }
+//                        }
+//                        if beacon.hidden {
+//                            HStack {
+//                                Image(systemName: "eye.slash").foregroundColor(.gray).imageScale(.small)
+//                                //                                Spacer().frame(width: 10)
+//                            }
+//                        }
+//                        // hitches
+//                        BeaconDownloadImageButton(
+//                            uuid: beacon.uuid!,
+//                            status: beacon.localDownloadStatus,
+//                            progress: beacon.localDownloadProgress,
+//                            timestamp: beacon.wrappedLocalTimestamp,
+//                            nowDate: nowDate)
+//
+//                    }
+//                },
+//            content: {
+//                HStack {
                     VStack {
-                        if beacon.adv != nil {
-                            withAnimation {
-                                HStack {
-                                    // hitches
-                                    BeaconValueView(beacon: beacon, localValue: localValue, nowDate: nowDate)
-                                        .equatable()
-                                        .frame(width: 165)
-                                    Spacer()
-//                                    DebugView5(beacon: beacon, localValue: localValue)
-                                    BeaconLineView(beacon: beacon, localValue: localValue) //, displaySteps: displaySteps)
-                                }.frame(height: 55)
-                            }
+                        if localValue.isDragging {
+                            BeaconValueView(temperature: localValue.temperature,
+                                            humidity: localValue.humidity,
+                                            string: localValue.timestamp != nil ? getDateString(date: localValue.timestamp!, offsetGMT: 0) : "no date")
+                        } else {
+                            BeaconValueView(temperature: beaconAdv.temperature,
+                                            humidity: beaconAdv.humidity,
+                                            string: beacon.wrappedAdvDateInterpretation(nowDate: nowDate))
                         }
-                    }
+                    }.frame(width: 165)
+                    Spacer()
+                    //                    BeaconLineView(beacon: beacon, localValue: localValue)
+                    ////                                    DebugView5(beacon: beacon, localValue: localValue)
+                    //                                }.frame(height: 55)
+                    //                            }
                 }
-            }
-        )
-    }
-//    static func == (lhs: Self, rhs: Self) -> Bool {
-//        return true
+//            }
+//        )
 //    }
-
 }
 
 //struct BeaconGroupBoxListEntry_Previews_Container : View {

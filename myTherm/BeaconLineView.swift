@@ -9,8 +9,11 @@ import SwiftUI
 
 struct BeaconLineView: View {
     
-    @ObservedObject var beacon: Beacon
+//    @ObservedObject var beacon: Beacon
+    var beacon: Beacon
     @ObservedObject var localValue: BeaconLocalValueView
+//    var beacon: Beacon
+//    var localValue: BeaconLocalValueView
     @StateObject var beaconModel = BeaconModel.shared
 
 //    var displaySteps: Int   // 0 temperature, 1 humidity
