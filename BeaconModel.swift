@@ -63,6 +63,8 @@ final class BeaconModel: ObservableObject {
     
     @Published var displaySteps: Int = 0
     
+    @Published var isScrolling = false
+    
     private var beaconCacheViewContext: [ UUID : Beacon ]  = [ : ]
     private var beaconCacheWriteContext: [ UUID : Beacon ] = [ : ]
     

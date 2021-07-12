@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Combine
 import CoreLocation
 import CoreData
 import OSLog
@@ -48,13 +49,26 @@ struct BeaconList: View, Equatable {
 
     @State var sort: Int = 0
     
+//    @State var isScrolling = false
+    let detector: CurrentValueSubject<CGFloat, Never>
+    let publisher: AnyPublisher<CGFloat, Never>
+
+    init() {
+        let detector = CurrentValueSubject<CGFloat, Never>(0)
+        self.publisher = detector
+            .debounce(for: .seconds(0.2), scheduler: DispatchQueue.main)
+            .dropFirst()
+            .eraseToAnyPublisher()
+        self.detector = detector
+    }
+
     private let log: OSLog = OSLog(subsystem: "com.anerd.myTherm", category: "Useraction")
 
     func startFilterUpdate() {
-//        filterPredicateUpdateTimer =
-//            Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-//                filterWithFilterUpdatePredicate()
-//            }
+        filterPredicateUpdateTimer =
+            Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                filterWithFilterUpdatePredicate()
+            }
     }
 
     func stopFilterUpdate() {
@@ -180,44 +194,73 @@ struct BeaconList: View, Equatable {
     var body: some View {
         
         ScrollView {
-            VStack(spacing: 8) {
-                
-                if !beaconModel.isBluetoothAuthorization {
-                    buildViewBluetoothAutorization()
+            VStack {
+                VStack(spacing: 8) {
+                    
+                    if !beaconModel.isBluetoothAuthorization {
+                        buildViewBluetoothAutorization()
+                    }
+                    
+                    //                if (userSettings.showRequestLocationAlert) {
+                    if (lm.locationAuthorizationStatus == .restricted) || (lm.locationAuthorizationStatus == .denied) {
+                        buildViewLocationServices()
+                    }
+                    //                }
+                    if (!networkManager.isConnected) {
+                        buildViewInternet()
+                    }
+                    #if DEBUG_ADV
+                    buildViewDebugTogglesScanAdv()
+                    #endif
+                    //                    Button(action: {
+                    //                        MyBluetoothManager.shared.downloadManager.addAllBeaconsToDownloadQueue()
+                    //                    }) {
+                    //                        Image(systemName: "icloud.and.arrow.down")
+                    //                    }
                 }
-                
-                //                if (userSettings.showRequestLocationAlert) {
-                if (lm.locationAuthorizationStatus == .restricted) || (lm.locationAuthorizationStatus == .denied) {
-                    buildViewLocationServices()
+                withAnimation {
+                    BeaconGroupBoxList(doFilter: doFilter,
+                                       predicateWithoutFilter: compoundPredicateWithoutFilter,
+                                       predicateWithFilter: compoundPredicateWithFilter)
                 }
-                //                }
-                if (!networkManager.isConnected) {
-                    buildViewInternet()
-                }
-                #if DEBUG_ADV
-                buildViewDebugTogglesScanAdv()
-                #endif
-                //                    Button(action: {
-                //                        MyBluetoothManager.shared.downloadManager.addAllBeaconsToDownloadQueue()
-                //                    }) {
-                //                        Image(systemName: "icloud.and.arrow.down")
-                //                    }
             }
-            withAnimation {
-                BeaconGroupBoxList(doFilter: doFilter,
-                                   predicateWithoutFilter: compoundPredicateWithoutFilter,
-                                   predicateWithFilter: compoundPredicateWithFilter)
+            .background(GeometryReader {
+                Color.clear.preference(key: ViewOffsetKey.self,
+                                       value: -$0.frame(in: .named("scroll")).origin.y)
+            })
+            .onPreferenceChange(ViewOffsetKey.self) {
+//                print("\($0)")
+                if !beaconModel.isScrolling {
+                    beaconModel.isScrolling = true
+//                    beaconModel.taskSemaphore.wait()
+                    print("start scroll")
+                }
+                detector.send($0)
             }
-                        
 //            DebugTestView(beacons: devices.first!.beaconArray, filter: filter)
 //            DebugView1(predicate: compoundPredicate)
         }
-        
+////        .simultaneousGesture(
+//        .gesture(
+//            DragGesture()
+//                .onChanged { gesture in
+//                    print("Started Scrolling")
+//                    isScrolling = true
+//                }
+//        )
+        .coordinateSpace(name: "scroll")
+        .onReceive(publisher) {
+            print("Stopped scroll on: \($0)")
+            beaconModel.isScrolling = false
+//            beaconModel.taskSemaphore.signal()
+        }
         .onAppear(perform: {
             self.onAppear()
             filterWithoutFilterInitPredicate()
             filterWithFilterUpdatePredicate()
             stopFilterUpdate()
+            beaconModel.isScrolling = false
+            print("stopped scroll flag by startup")
         })
         .onDisappear(perform: {
             self.onDisappear()
@@ -251,7 +294,20 @@ struct BeaconList: View, Equatable {
 
                 Spacer()
                 ZStack {
+//                    Text("filterbutton")
                     // hitches
+                    BeaconBottomBarStatusFilterButton(
+                        filterActive: doFilter,
+                        filterByTime: $userSettings.filterByTime,
+                        filterByLocation: $userSettings.filterByLocation,
+                        filterByFlag: $userSettings.filterByFlag,
+                        filterByHidden: $userSettings.filterByHidden,
+                        filterByShown: $userSettings.filterByShown,
+                        compoundPredicateWithFilter: compoundPredicateWithFilter,
+                        compoundPredicateWithoutFilter: compoundPredicateWithoutFilter)
+                        .opacity(!(beaconModel.isDownloadStatusError
+                                    || beaconModel.isDownloading
+                                    || beaconModel.isDownloadStatusSuccess) ? 1 : 0)
 //                    BeaconBottomBarStatusFilterButton(
 //                        filterActive: doFilter,
 //                        filterByTime: $userSettings.filterByTime,
@@ -509,8 +565,17 @@ struct BeaconList: View, Equatable {
     static func == (lhs: Self, rhs: Self) -> Bool {
         return false
     }
-
+    
+    struct ViewOffsetKey: PreferenceKey {
+        typealias Value = CGFloat
+        static var defaultValue = CGFloat.zero
+        static func reduce(value: inout Value, nextValue: () -> Value) {
+            value += nextValue()
+        }
+    }
+    
 }
+
 
 //struct BeaconList_Previews: PreviewProvider {
 //    static var previews: some View {

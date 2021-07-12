@@ -286,107 +286,118 @@ extension MyCentralManagerDelegate {
             return
         }
         
-        DispatchQueue.main.async { [self] in
-            viewMoc.perform { [self] in
-                os_signpost(.begin, log: log, name: "didDiscover")
-                
-                if let alreadyAvailableBeacon = beaconModel.fetchBeacon(context: self.viewMoc, with: peripheral.identifier) {
-                    if alreadyAvailableBeacon.adv != nil { } else {
-                        alreadyAvailableBeacon.adv = BeaconAdv(context: self.viewMoc)
-                    }
-                    alreadyAvailableBeacon.localTimestamp = Date()
+        if beaconModel.isScrolling {
+            print("adv delayed due to scrolling")
+//            return
+        }
+        
+        DispatchQueue.global(qos: .background).async { [self] in
+//            beaconModel.taskSemaphore.wait()
+//            beaconModel.taskSemaphore.signal()
+            
+            DispatchQueue.main.async { [self] in
+                viewMoc.perform { [self] in
+                    os_signpost(.begin, log: log, name: "didDiscover")
                     
-//                    alreadyAvailableBeacon.flag.toggle()
-                    
-                    if let adv = alreadyAvailableBeacon.adv {
-                        adv.rssi = RSSI.int64Value
-                        adv.timestamp = Date()
-                        adv.temperature = extractBeaconAdv.temperature
-                        adv.humidity = extractBeaconAdv.humidity
-                        adv.battery = extractBeaconAdv.battery
-                        adv.accel_x = extractBeaconAdv.accel_x
-                        adv.accel_y = extractBeaconAdv.accel_y
-                        adv.accel_z = extractBeaconAdv.accel_z
-                        adv.rawdata = extractBeaconAdv.rawdata
-                    }
-                    
-                    if let location = self.locationManager.location {
-                        //            print(location)
-                        if alreadyAvailableBeacon.location != nil { } else {
-                            alreadyAvailableBeacon.location = BeaconLocation(context: self.viewMoc)
+                    if let alreadyAvailableBeacon = beaconModel.fetchBeacon(context: self.viewMoc, with: peripheral.identifier) {
+                        if alreadyAvailableBeacon.adv != nil { } else {
+                            alreadyAvailableBeacon.adv = BeaconAdv(context: self.viewMoc)
                         }
-                        if let localLocation = alreadyAvailableBeacon.location {
-                            localLocation.latitude = location.latitude
-                            localLocation.longitude = location.longitude
-                            localLocation.timestamp = Date()
-                            let distance = distanceFromPosition(location: location, beacon: alreadyAvailableBeacon)
-                            alreadyAvailableBeacon.localDistanceFromPosition = distance
-                            localLocation.address = self.locationManager.address
-                            //                        print("update \(alreadyAvailableBeacon.wrappedDeviceName): distanceFromPostion \(distance) address \(localLocation.address)")
+                        alreadyAvailableBeacon.localTimestamp = Date()
+                        
+                        //                    alreadyAvailableBeacon.flag.toggle()
+                        
+                        if let adv = alreadyAvailableBeacon.adv {
+                            adv.rssi = RSSI.int64Value
+                            adv.timestamp = Date()
+                            adv.temperature = extractBeaconAdv.temperature
+                            adv.humidity = extractBeaconAdv.humidity
+                            adv.battery = extractBeaconAdv.battery
+                            adv.accel_x = extractBeaconAdv.accel_x
+                            adv.accel_y = extractBeaconAdv.accel_y
+                            adv.accel_z = extractBeaconAdv.accel_z
+                            adv.rawdata = extractBeaconAdv.rawdata
                         }
                         
-                    }
-                    os_signpost(.event, log: log, name: "didDiscover", "%{public}s", alreadyAvailableBeacon.wrappedDeviceName)
-                } else {
-                    print("beacon not found in PersistenceController.shared.container.viewContext.perform")
-                    localMoc.performAndWait {
-//            print("\(Thread.current)")
-                        var beaconFind: Beacon?
-                        
-                        if self.beaconModel.fetchDevices(context: self.localMoc) == nil {
-                            print("didDiscover devices(localMoc) == nil")
-                            os_signpost(.end, log: log, name: "didDiscover")
-
-                            return
-                        }
-
-                        if let alreadyAvailableBeacon = beaconModel.fetchBeacon(context: localMoc, with: peripheral.identifier) {
-                            beaconFind = alreadyAvailableBeacon
-                            if let beaconFind = beaconFind {
-                                //                    print("  \(beaconFind.wrappedDeviceName), devices \(beaconFind.devices != nil ? "yes" : "no")")
-                                if beaconFind.device_name == "(no device name)" || beaconFind.device_name == nil {
-                                    if peripheral.name != nil {
-                                        beaconFind.device_name = peripheral.name!
-                                    } else {
-                                        beaconFind.device_name = nil
-                                    }
-                                }
-                                if beaconFind.name == nil || beaconFind.name == "(no name)" {
-                                    if beaconFind.device_name != nil {
-                                        beaconFind.name = beaconFind.device_name!
-                                    }
-                                }
-//                    print("  \(beaconFind.wrappedDeviceName) - \(peripheral.name ?? "peripheral no name")")
+                        if let location = self.locationManager.location {
+                            //            print(location)
+                            if alreadyAvailableBeacon.location != nil { } else {
+                                alreadyAvailableBeacon.location = BeaconLocation(context: self.viewMoc)
                             }
-                        } else {
-                            print("add new beacon 1 \(peripheral.identifier)")
-                            beaconFind = Beacon(context: localMoc)
-                            if let beacon = beaconFind {
-                                beacon.uuid = peripheral.identifier
-                                beacon.company_id = extractBeacon.company_id
-                                beacon.id_maj = extractBeacon.id_maj
-                                beacon.id_min = extractBeacon.id_min
-                                beacon.beacon_version = extractBeacon.beacon_version
-                                beacon.name = peripheral.name ?? nil
-                                beacon.device_name = peripheral.name ?? nil
+                            if let localLocation = alreadyAvailableBeacon.location {
+                                localLocation.latitude = location.latitude
+                                localLocation.longitude = location.longitude
+                                localLocation.timestamp = Date()
+                                let distance = distanceFromPosition(location: location, beacon: alreadyAvailableBeacon)
+                                alreadyAvailableBeacon.localDistanceFromPosition = distance
+                                localLocation.address = self.locationManager.address
+                                //                        print("update \(alreadyAvailableBeacon.wrappedDeviceName): distanceFromPostion \(distance) address \(localLocation.address)")
+                            }
+                            
+                        }
+                        os_signpost(.event, log: log, name: "didDiscover", "%{public}s", alreadyAvailableBeacon.wrappedDeviceName)
+                    } else {
+                        print("beacon not found in PersistenceController.shared.container.viewContext.perform")
+                        localMoc.performAndWait {
+                            //            print("\(Thread.current)")
+                            var beaconFind: Beacon?
+                            
+                            if self.beaconModel.fetchDevices(context: self.localMoc) == nil {
+                                print("didDiscover devices(localMoc) == nil")
+                                os_signpost(.end, log: log, name: "didDiscover")
                                 
-                                print(beacon)
-                                print("add new beacon 2 \(peripheral.identifier) objectID \(beacon.objectID)")
-                                beaconModel.addBeaconToDevices(context: localMoc, beacon: beacon)
-                                
-                                guard let newadv = beacon.adv else { return }
-                                print("inverse \(newadv.beacon?.name ?? "inverse beacon not set")")
+                                return
+                            }
+                            
+                            if let alreadyAvailableBeacon = beaconModel.fetchBeacon(context: localMoc, with: peripheral.identifier) {
+                                beaconFind = alreadyAvailableBeacon
+                                if let beaconFind = beaconFind {
+                                    //                    print("  \(beaconFind.wrappedDeviceName), devices \(beaconFind.devices != nil ? "yes" : "no")")
+                                    if beaconFind.device_name == "(no device name)" || beaconFind.device_name == nil {
+                                        if peripheral.name != nil {
+                                            beaconFind.device_name = peripheral.name!
+                                        } else {
+                                            beaconFind.device_name = nil
+                                        }
+                                    }
+                                    if beaconFind.name == nil || beaconFind.name == "(no name)" {
+                                        if beaconFind.device_name != nil {
+                                            beaconFind.name = beaconFind.device_name!
+                                        }
+                                    }
+                                    //                    print("  \(beaconFind.wrappedDeviceName) - \(peripheral.name ?? "peripheral no name")")
+                                }
+                            } else {
+                                print("add new beacon 1 \(peripheral.identifier)")
+                                beaconFind = Beacon(context: localMoc)
+                                if let beacon = beaconFind {
+                                    beacon.uuid = peripheral.identifier
+                                    beacon.company_id = extractBeacon.company_id
+                                    beacon.id_maj = extractBeacon.id_maj
+                                    beacon.id_min = extractBeacon.id_min
+                                    beacon.beacon_version = extractBeacon.beacon_version
+                                    beacon.name = peripheral.name ?? nil
+                                    beacon.device_name = peripheral.name ?? nil
+                                    
+                                    print(beacon)
+                                    print("add new beacon 2 \(peripheral.identifier) objectID \(beacon.objectID)")
+                                    beaconModel.addBeaconToDevices(context: localMoc, beacon: beacon)
+                                    
+                                    guard let newadv = beacon.adv else { return }
+                                    print("inverse \(newadv.beacon?.name ?? "inverse beacon not set")")
+                                }
+                            }
+                            
+                            if localMoc.hasChanges {
+                                PersistenceController.shared.saveContext(context: localMoc)
                             }
                         }
-                        
-                        if localMoc.hasChanges {
-                            PersistenceController.shared.saveContext(context: localMoc)
-                        }
                     }
+                    os_signpost(.end, log: log, name: "didDiscover")
                 }
-                os_signpost(.end, log: log, name: "didDiscover")
+                //        os_signpost(.end, log: log, name: "didDiscover Peripheral")
             }
-            //        os_signpost(.end, log: log, name: "didDiscover Peripheral")
+            
         }
     }
     

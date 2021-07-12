@@ -25,46 +25,46 @@ struct BeaconGroupBoxListEntry: View {
     }
     
     var body: some View {
-//        GroupBox(
-//            label:
-//                HStack {
-//                    Group {
-//                        // hitches
-//                        //                        NavigationLink(destination: BeaconDetail(beacon: beacon)//.environmentObject(lm)
-//                        //                                       , tag: "Detail",
-//                        //                                       selection: $selection) { EmptyView() }
-//                        Label(beacon.wrappedName, systemImage: "thermometer").foregroundColor(Color.blue)
-//                            .padding(.vertical, 5)
-//                            .padding(.trailing, 5)
-//                            //                                .border(Color.red)
-//                            .onTapGesture {
-//                                selection = "Detail"
-//                            }
-//                        Spacer()
-//                        if beacon.flag {
-//                            HStack {
-//                                Image(systemName: "flag.fill").foregroundColor(.orange).imageScale(.small)
-//                                Spacer().frame(width: 10)
-//                            }
-//                        }
-//                        if beacon.hidden {
-//                            HStack {
-//                                Image(systemName: "eye.slash").foregroundColor(.gray).imageScale(.small)
-//                                //                                Spacer().frame(width: 10)
-//                            }
-//                        }
-//                        // hitches
-//                        BeaconDownloadImageButton(
-//                            uuid: beacon.uuid!,
-//                            status: beacon.localDownloadStatus,
-//                            progress: beacon.localDownloadProgress,
-//                            timestamp: beacon.wrappedLocalTimestamp,
-//                            nowDate: nowDate)
-//
-//                    }
-//                },
-//            content: {
-//                HStack {
+        GroupBox(
+            label:
+                HStack {
+                    Group {
+                        // hitches
+                        NavigationLink(destination: BeaconDetail(beacon: beacon)//.environmentObject(lm)
+                                       , tag: "Detail",
+                                       selection: $selection) { EmptyView() }
+                        Label(beacon.wrappedName, systemImage: "thermometer").foregroundColor(Color.blue)
+                            .padding(.vertical, 5)
+                            .padding(.trailing, 5)
+                            //                                .border(Color.red)
+                            .onTapGesture {
+                                selection = "Detail"
+                            }
+                        Spacer()
+                        if beacon.flag {
+                            HStack {
+                                Image(systemName: "flag.fill").foregroundColor(.orange).imageScale(.small)
+                                Spacer().frame(width: 10)
+                            }
+                        }
+                        if beacon.hidden {
+                            HStack {
+                                Image(systemName: "eye.slash").foregroundColor(.gray).imageScale(.small)
+                                //                                Spacer().frame(width: 10)
+                            }
+                        }
+                        // hitches
+                        BeaconDownloadImageButton(
+                            uuid: beacon.uuid!,
+                            status: beacon.localDownloadStatus,
+                            progress: beacon.localDownloadProgress,
+                            timestamp: beacon.wrappedLocalTimestamp,
+                            nowDate: nowDate)
+
+                    }
+                },
+            content: {
+                HStack {
                     VStack {
                         if localValue.isDragging {
                             BeaconValueView(temperature: localValue.temperature,
@@ -77,14 +77,14 @@ struct BeaconGroupBoxListEntry: View {
                         }
                     }.frame(width: 165)
                     Spacer()
-                    //                    BeaconLineView(beacon: beacon, localValue: localValue)
+                                        BeaconLineView(beacon: beacon, localValue: localValue)
                     ////                                    DebugView5(beacon: beacon, localValue: localValue)
                     //                                }.frame(height: 55)
-                    //                            }
+                }
                 }
 //            }
-//        )
-//    }
+        )
+    }
 }
 
 //struct BeaconGroupBoxListEntry_Previews_Container : View {
