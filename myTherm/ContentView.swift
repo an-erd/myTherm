@@ -5,19 +5,30 @@ import OSLog
 struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     let persistenceController = PersistenceController.shared
-    private var beaconModel = BeaconModel.shared
+//    private var beaconModel = BeaconModel.shared
+    @StateObject var beaconModel = BeaconModel.shared
+
 
     private let log = OSLog(subsystem: "com.anerd.myTherm", category: "preparation")
     
     var body: some View {
         NavigationView {
-            VStack {
-                BeaconList()
-                    .equatable()
-                    .listStyle(GroupedListStyle())
+            ZStack {
+                VStack {
+                    if beaconModel.isScrollUpdate {
+                        ProgressView()
+                            .scaleEffect(1.5, anchor: .center)
+                        Spacer()
+                    }
+                }
+                VStack {
+                    BeaconList()
+                        .equatable()
+                        .listStyle(GroupedListStyle())
+                }
+                .navigationTitle("Sensors")
+                .navigationViewStyle(StackNavigationViewStyle())
             }
-            .navigationTitle("Sensors")
-            .navigationViewStyle(StackNavigationViewStyle())
         }
         .onAppear(perform: {
             print("ContentView onAppear")

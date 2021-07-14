@@ -67,7 +67,7 @@ struct BeaconDownloadImageButton: View, Equatable {
     }
     
     static func == (lhs: Self, rhs: Self) -> Bool {
-        return false
+//        return false
         
         if lhs.status != rhs.status {
             return false

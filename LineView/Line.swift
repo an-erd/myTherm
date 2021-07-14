@@ -121,12 +121,12 @@ struct Line: View, Equatable {
 //        return false
         
         if (lhs.frame.height != rhs.frame.height) || (lhs.frame.width != rhs.frame.width)  {
-            print("line == frame size changed -> false")
+//            print("line == frame size changed -> false")
             return false
         }
         
         if (lhs.displaySteps != rhs.displaySteps) {
-            print("line == frame displaySteps -> false")
+//            print("line == frame displaySteps -> false")
 
             return false
         }
@@ -161,7 +161,7 @@ struct Line: View, Equatable {
 //        print("line == (\(lhs.beacon.wrappedDeviceName) \(rhs.beacon.wrappedDeviceName)) -> default -> false")
 //        print("   drag \(lhs.dragMode ? "y" : "-") \(rhs.dragMode ? "Y" : "-") time \(lhs.timestamp.last == rhs.timestamp.last ? "= " : "!=") t/h \(lhs.isShownTemperature ? "t" : "h")\(rhs.isShownTemperature ? "t" : "h") temp \(lhs.dataTemperature.last == rhs.dataTemperature.last ? "= " : "!=") hum \(lhs.dataHumidity.last == rhs.dataHumidity.last ? "= " : "!=")")
 
-        print("line == frame default -> false")
+//        print("line == frame default -> false")
         return false
     }
 }

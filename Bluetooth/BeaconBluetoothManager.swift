@@ -287,7 +287,7 @@ extension MyCentralManagerDelegate {
         }
         
         if beaconModel.isScrolling {
-            print("adv delayed due to scrolling")
+//            print("adv delayed due to scrolling")
 //            return
         }
         
@@ -382,9 +382,20 @@ extension MyCentralManagerDelegate {
                                     print(beacon)
                                     print("add new beacon 2 \(peripheral.identifier) objectID \(beacon.objectID)")
                                     beaconModel.addBeaconToDevices(context: localMoc, beacon: beacon)
+                               
+                                    beacon.adv = BeaconAdv(context: localMoc)
                                     
-                                    guard let newadv = beacon.adv else { return }
-                                    print("inverse \(newadv.beacon?.name ?? "inverse beacon not set")")
+                                    if let adv = beacon.adv {
+                                        adv.rssi = RSSI.int64Value
+                                        adv.timestamp = Date()
+                                        adv.temperature = extractBeaconAdv.temperature
+                                        adv.humidity = extractBeaconAdv.humidity
+                                        adv.battery = extractBeaconAdv.battery
+                                        adv.accel_x = extractBeaconAdv.accel_x
+                                        adv.accel_y = extractBeaconAdv.accel_y
+                                        adv.accel_z = extractBeaconAdv.accel_z
+                                        adv.rawdata = extractBeaconAdv.rawdata
+                                    }
                                 }
                             }
                             

@@ -265,7 +265,7 @@ struct LineView: View, Equatable {
 //        return false
         
         if (lhs.frameSize.height != rhs.frameSize.height) || (lhs.frameSize.width != rhs.frameSize.width)  {
-            print("LineView frame size changed -> false")
+//            print("LineView frame size changed -> false")
             return false
         }
 
@@ -278,7 +278,7 @@ struct LineView: View, Equatable {
         
         // check1
         if test1 || test2 || (test3 && !test4) {
-            print("LineView check1 -> false")
+//            print("LineView check1 -> false")
             return false
         }
         
@@ -286,7 +286,7 @@ struct LineView: View, Equatable {
         if test3 {
            let test = test4 && test5 && test6
             if !test {
-                print("LineView check2 -> false")
+//                print("LineView check2 -> false")
                 return false
             } else {
                 return true

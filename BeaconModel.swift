@@ -64,6 +64,7 @@ final class BeaconModel: ObservableObject {
     @Published var displaySteps: Int = 0
     
     @Published var isScrolling = false
+    @Published var isScrollUpdate = false
     
     private var beaconCacheViewContext: [ UUID : Beacon ]  = [ : ]
     private var beaconCacheWriteContext: [ UUID : Beacon ] = [ : ]
@@ -144,7 +145,8 @@ final class BeaconModel: ObservableObject {
             if let devices = devices {
                 print("printDevicesAndBeacons devices.count beaconArray.count \(devices.beaconArray.count)")
                 for beacon in devices.beaconArray {
-                    print("  \(beacon.wrappedDeviceName)")
+                    let advSet = (beacon.adv != nil ? "y" : "n")
+                    print("  \(beacon.wrappedDeviceName) adv set \(advSet)")
                 }
             }
             
@@ -179,7 +181,7 @@ final class BeaconModel: ObservableObject {
             }
         }
 
-        print("fetchBeacon \(useViewCtx ? "view" : "other")")
+//        print("fetchBeacon \(useViewCtx ? "view" : "other")")
         
         let fetchRequest: NSFetchRequest<Beacon> = Beacon.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "%K == %@", "uuid", identifier as CVarArg)

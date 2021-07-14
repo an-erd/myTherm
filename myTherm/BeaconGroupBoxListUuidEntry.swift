@@ -103,15 +103,19 @@ struct BeaconGroupBoxListUuidEntry: View {
             //                Text("\(beacon.wrappedDeviceName)")
             // hitches
             withAnimation {
-                BeaconGroupBoxListEntry(beacon: beacon,
-                                        beaconAdv: beacon.adv!,
-                                        nowDate: date)
-//                    .equatable()
-//                DebugView4(beacon: beacon)
-                    .listRowInsets(EdgeInsets())
-                    .swipeCell(cellPosition: .both, leftSlot: slot1, rightSlot: slot2)
-                    .cornerRadius(10)
-                    .padding(10)
+//                if beacon.adv != nil {
+                    BeaconGroupBoxListEntry(beacon: beacon,
+                                            beaconAdv: beacon.adv!,
+                                            nowDate: date)
+                        //                    .equatable()
+                        //                DebugView4(beacon: beacon)
+                        .listRowInsets(EdgeInsets())
+                        .swipeCell(cellPosition: .both, leftSlot: slot1, rightSlot: slot2)
+                        .cornerRadius(10)
+                        .padding(10)
+//                } else {
+//                    EmptyView()
+//                }
             }
             
         }

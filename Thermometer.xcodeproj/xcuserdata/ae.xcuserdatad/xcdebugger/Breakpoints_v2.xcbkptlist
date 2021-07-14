@@ -37,8 +37,8 @@
             filePath = "BeaconModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "160"
-            endingLineNumber = "160"
+            startingLineNumber = "164"
+            endingLineNumber = "164"
             landmarkName = "fetchDevices(context:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -213,8 +213,8 @@
             filePath = "BeaconModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "180"
-            endingLineNumber = "180"
+            startingLineNumber = "184"
+            endingLineNumber = "184"
             landmarkName = "fetchBeacon(context:with:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -222,17 +222,17 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "89F2FDA4-C92E-470E-9E59-248405ED041E"
+            uuid = "A053020B-719F-4AF9-8F20-E2AB68CCC47D"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Bluetooth/BeaconBluetoothManager.swift"
+            filePath = "myTherm/BeaconGroupBoxListUuidEntry.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "304"
-            endingLineNumber = "304"
-            landmarkName = "centralManager(_:didDiscover:advertisementData:rssi:)"
-            landmarkType = "7">
+            startingLineNumber = "107"
+            endingLineNumber = "107"
+            landmarkName = "body"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

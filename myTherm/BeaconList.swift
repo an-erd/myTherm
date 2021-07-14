@@ -135,18 +135,24 @@ struct BeaconList: View, Equatable {
     }
 
     fileprivate func buildViewBluetoothAutorization() -> some View {
-        return BeaconListAlertEntry(title: "Bluetooth permission required",
-                                    image: "exclamationmark.triangle.fill",
-                                    text: "Sensors communicate by Bluetooth. On your phone, please go to Settings > Thermometer and turn on Bluetooth.",
-                                    foregroundColor: .white,
-                                    backgroundColor: Color("alertRed"),
-                                    allowDismiss: false,
-                                    dismiss: .constant(false))
-            .equatable()
+        if !beaconModel.isBluetoothAuthorization {
+            return AnyView( BeaconListAlertEntry(title: "Bluetooth permission required",
+                                        image: "exclamationmark.triangle.fill",
+                                        text: "Sensors communicate by Bluetooth. On your phone, please go to Settings > Thermometer and turn on Bluetooth.",
+                                        foregroundColor: .white,
+                                        backgroundColor: Color("alertRed"),
+                                        allowDismiss: false,
+                                        dismiss: .constant(false))
+                .equatable()
+            )
+        } else {
+            return AnyView(EmptyView())
+        }
     }
 
     fileprivate func buildViewLocationServices() -> some View {
-        return BeaconListAlertEntry(title: "Location permission preferable",
+        if (lm.locationAuthorizationStatus == .restricted) || (lm.locationAuthorizationStatus == .denied) {
+            return AnyView( BeaconListAlertEntry(title: "Location permission preferable",
                                     image: "questionmark.circle.fill",
                                     text: "To store sensor location, please allow precise location services. On your phone, please go to Settings > Thermometer and turn on Location services.",
                                     foregroundColor: .white,
@@ -154,17 +160,27 @@ struct BeaconList: View, Equatable {
                                     allowDismiss: true,
                                     dismiss: $userSettings.showRequestLocationAlert)
             .equatable()
+            )
+        } else {
+            return AnyView(EmptyView())
+        }
     }
 
     fileprivate func buildViewInternet() -> some View {
-        return BeaconListAlertEntry(title: "Internet connection preferable",
-                                    image: "questionmark.circle.fill",
-                                    text: "To upload your data to iCloud, please provide internet access.",
-                                    foregroundColor: .white,
-                                    backgroundColor: Color("alertYellow"),
-                                    allowDismiss: true,
-                                    dismiss: $userSettings.showRequestInternetAlert)
-            .equatable()
+        if (!networkManager.isConnected) {
+            return AnyView(BeaconListAlertEntry(title: "Internet connection preferable",
+                                                image: "questionmark.circle.fill",
+                                                text: "To upload your data to iCloud, please provide internet access.",
+                                                foregroundColor: .white,
+                                                backgroundColor: Color("alertYellow"),
+                                                allowDismiss: true,
+                                                dismiss: $userSettings.showRequestInternetAlert)
+                            .equatable()
+            )
+        } else {
+            return AnyView(EmptyView())
+        }
+        
     }
 
 //    fileprivate func buildViewDebugTogglesScanAdv() -> some View {
@@ -193,29 +209,43 @@ struct BeaconList: View, Equatable {
 
     var body: some View {
         
+        //        VStack {
+        //            ZStack {
+        //            }
+//        if beaconModel.isScrollUpdate {
+//            Text("scrollupdate")
+//        } else {
+//            Text("no scrollupate")
+//        }
         ScrollView {
             VStack {
                 VStack(spacing: 8) {
-                    
-                    if !beaconModel.isBluetoothAuthorization {
-                        buildViewBluetoothAutorization()
-                    }
+
+                    //                    if !beaconModel.isBluetoothAuthorization {
+                    buildViewBluetoothAutorization()
+                    //                    }
                     
                     //                if (userSettings.showRequestLocationAlert) {
-                    if (lm.locationAuthorizationStatus == .restricted) || (lm.locationAuthorizationStatus == .denied) {
-                        buildViewLocationServices()
-                    }
+                    //                    if (lm.locationAuthorizationStatus == .restricted) || (lm.locationAuthorizationStatus == .denied) {
+                    buildViewLocationServices()
+                    //                    }
                     //                }
-                    if (!networkManager.isConnected) {
-                        buildViewInternet()
-                    }
-                    #if DEBUG_ADV
-                    buildViewDebugTogglesScanAdv()
-                    #endif
+                    //                    if (!networkManager.isConnected) {
+                    buildViewInternet()
+                    //                    }
+                    
+                    //                    #if DEBUG_ADV
+                    //                    buildViewDebugTogglesScanAdv()
+                    //                    #endif
                     //                    Button(action: {
                     //                        MyBluetoothManager.shared.downloadManager.addAllBeaconsToDownloadQueue()
                     //                    }) {
                     //                        Image(systemName: "icloud.and.arrow.down")
+                    //                    }
+                    //                    if beaconModel.isScrollUpdate {
+                    //                    HStack {
+                    //                        Text("scroll update")
+                    //                    }
                     //                    }
                 }
                 withAnimation {
@@ -223,36 +253,48 @@ struct BeaconList: View, Equatable {
                                        predicateWithoutFilter: compoundPredicateWithoutFilter,
                                        predicateWithFilter: compoundPredicateWithFilter)
                 }
+                //                }
             }
             .background(GeometryReader {
                 Color.clear.preference(key: ViewOffsetKey.self,
                                        value: -$0.frame(in: .named("scroll")).origin.y)
             })
             .onPreferenceChange(ViewOffsetKey.self) {
-//                print("\($0)")
+                //                print("scroll position \($0)")
                 if !beaconModel.isScrolling {
                     beaconModel.isScrolling = true
-//                    beaconModel.taskSemaphore.wait()
-                    print("start scroll")
+                    //                    beaconModel.taskSemaphore.wait()
+                    //                    print("start scroll")
+                }
+                if $0 < -100 {
+                    if !beaconModel.isScrollUpdate {
+                        beaconModel.isScrollUpdate = true
+                        print("scroll -> update start")
+                    }
+                } else {
+                    if beaconModel.isScrollUpdate {
+                        beaconModel.isScrollUpdate = false
+                        print("scroll -> update stop")
+                    }
                 }
                 detector.send($0)
             }
-//            DebugTestView(beacons: devices.first!.beaconArray, filter: filter)
-//            DebugView1(predicate: compoundPredicate)
+            //            DebugTestView(beacons: devices.first!.beaconArray, filter: filter)
+            //            DebugView1(predicate: compoundPredicate)
         }
-////        .simultaneousGesture(
-//        .gesture(
-//            DragGesture()
-//                .onChanged { gesture in
-//                    print("Started Scrolling")
-//                    isScrolling = true
-//                }
-//        )
+        ////        .simultaneousGesture(
+        //        .gesture(
+        //            DragGesture()
+        //                .onChanged { gesture in
+        //                    print("Started Scrolling")
+        //                    isScrolling = true
+        //                }
+        //        )
         .coordinateSpace(name: "scroll")
         .onReceive(publisher) {
             print("Stopped scroll on: \($0)")
             beaconModel.isScrolling = false
-//            beaconModel.taskSemaphore.signal()
+            //            beaconModel.taskSemaphore.signal()
         }
         .onAppear(perform: {
             self.onAppear()
@@ -270,7 +312,7 @@ struct BeaconList: View, Equatable {
                 Button(action: {
                     withAnimation {
                         print("Filter pressed")
-
+                        
                         doFilter.toggle()
                         if doFilter {
                             startFilterUpdate()
@@ -291,10 +333,10 @@ struct BeaconList: View, Equatable {
                     }
                     .padding()
                 }
-
+                
                 Spacer()
                 ZStack {
-//                    Text("filterbutton")
+                    //                    Text("filterbutton")
                     // hitches
                     BeaconBottomBarStatusFilterButton(
                         filterActive: doFilter,
@@ -308,17 +350,17 @@ struct BeaconList: View, Equatable {
                         .opacity(!(beaconModel.isDownloadStatusError
                                     || beaconModel.isDownloading
                                     || beaconModel.isDownloadStatusSuccess) ? 1 : 0)
-//                    BeaconBottomBarStatusFilterButton(
-//                        filterActive: doFilter,
-//                        filterByTime: $userSettings.filterByTime,
-//                        filterByLocation: $userSettings.filterByLocation,
-//                        filterByFlag: $userSettings.filterByFlag,
-//                        filterByHidden: $userSettings.filterByHidden,
-//                        filterByShown: $userSettings.filterByShown,
-//                        predicate: compoundPredicate)
-//                        .opacity(!(beaconModel.isDownloadStatusError
-//                                    || beaconModel.isDownloading
-//                                    || beaconModel.isDownloadStatusSuccess) ? 1 : 0)
+                    //                    BeaconBottomBarStatusFilterButton(
+                    //                        filterActive: doFilter,
+                    //                        filterByTime: $userSettings.filterByTime,
+                    //                        filterByLocation: $userSettings.filterByLocation,
+                    //                        filterByFlag: $userSettings.filterByFlag,
+                    //                        filterByHidden: $userSettings.filterByHidden,
+                    //                        filterByShown: $userSettings.filterByShown,
+                    //                        predicate: compoundPredicate)
+                    //                        .opacity(!(beaconModel.isDownloadStatusError
+                    //                                    || beaconModel.isDownloading
+                    //                                    || beaconModel.isDownloadStatusSuccess) ? 1 : 0)
                     
                     BeaconBottomBarStatusDownloadButton(
                         textLine1: beaconModel.textDownloadStatusErrorLine1, colorLine1: .primary,
