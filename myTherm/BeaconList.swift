@@ -269,12 +269,13 @@ struct BeaconList: View, Equatable {
                 if $0 < -100 {
                     if !beaconModel.isScrollUpdate {
                         beaconModel.isScrollUpdate = true
-                        print("scroll -> update start")
+//                        print("scroll -> update start")
+                        MyCentralManagerDelegate.shared.startScanService()
                     }
                 } else {
                     if beaconModel.isScrollUpdate {
                         beaconModel.isScrollUpdate = false
-                        print("scroll -> update stop")
+//                        print("scroll -> update stop")
                     }
                 }
                 detector.send($0)
@@ -403,28 +404,25 @@ struct BeaconList: View, Equatable {
                 HStack {
                     Spacer()
                     HStack {
-                        if beaconModel.scanUpdateTemporaryStopped {
-                            Text("Paused")
-                                .foregroundColor(.gray)
-                        } else if !beaconModel.isBluetoothAuthorization {
+                        if !beaconModel.isBluetoothAuthorization {
                             Text("not available")
                                 .foregroundColor(.gray)
                         } else {
                             Button(action: {
                                 if beaconModel.doScan {
-                                    beaconModel.doScan = false
                                     MyCentralManagerDelegate.shared.stopScanService()
                                 } else {
-                                    beaconModel.doScan = true
                                     MyCentralManagerDelegate.shared.startScanService()
                                 }
                                 os_signpost(.event, log: self.log, name: "Useraction", "scan_%{public}s", beaconModel.doScan ? "y" : "n")
                             }) {
                                 HStack {
                                     if beaconModel.doScan {
-                                        Text("Stop Update")
+                                        ProgressCircle(rotation: -90,
+                                                       progress: beaconModel.scanTimerCounter / MyCentralManagerDelegate.shared.scanDuration,
+                                                       mode: .timer)
                                     } else {
-                                        Text("Update")
+                                        ProgressCircle(rotation: 0, progress: 0, mode: .idle)
                                     }
                                 }
                             }

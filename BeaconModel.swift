@@ -52,10 +52,9 @@ final class BeaconModel: ObservableObject {
     @Published var textDownloadStatusErrorLine1: String = ""
     @Published var textDownloadStatusErrorLine2: String = ""
 
-    @Published var doScan: Bool = true
+    @Published var doScan: Bool = false
     @Published var doUpdateAdv: Bool = true
-    @Published var scanStatusBeforeDownload: Bool = true
-    @Published var scanUpdateTemporaryStopped: Bool = false
+    @Published var scanTimerCounter: Double = 0    // counts down to 0 and then stop timer
     
     @Published var showAlert = false
     @Published var alert: Alert? = nil

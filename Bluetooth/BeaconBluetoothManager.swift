@@ -46,6 +46,9 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
     private var downloadWatchdogEntries: Int = 0
     let log = OSLog(subsystem: "com.anerd.myTherm", category: "download")
 
+    var scanTimer: Timer?
+    public let scanDuration: Double = 15               // duration of scan progress in seconds
+
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
         case .unknown:
@@ -65,33 +68,69 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
             print("central.state is .poweredOn")
             DispatchQueue.main.async {
                 self.beaconModel.isBluetoothAuthorization = true
+                self.startScanService()
             }
-            if beaconModel.doScan {
-                startScanService()
-            }
-            
+
         @unknown default:
             print("central.state is @unknown default")
         }
     }
     
     func startScanService() {
-        MyBluetoothManager.shared.central.scanForPeripherals(withServices: nil, options: nil)
         print("startScanService")
+        
+        DispatchQueue.main.async { [self] in
+            
+            if scanTimer != nil {
+                print("   already running, reset to scanDuration ")
+                beaconModel.scanTimerCounter = scanDuration
+                
+                return
+            }
+        
+            MyBluetoothManager.shared.central.scanForPeripherals(withServices: nil, options: nil)
+            
+            beaconModel.scanTimerCounter = scanDuration
+            beaconModel.doScan = true
+            scanTimer = Timer.scheduledTimer(timeInterval: 0.1,
+                                             target: self,
+                                             selector: #selector(self.scanTimerFire),
+                                             userInfo: nil, repeats: true)
+        }
     }
     
     func stopScanService() {
-        MyBluetoothManager.shared.central.stopScan()
         print("stopScanService")
+        MyBluetoothManager.shared.central.stopScan()
+        
+        DispatchQueue.main.async { [self] in
+            beaconModel.doScan = false
+            beaconModel.scanTimerCounter = 0
+            
+            if let timer = scanTimer {
+                print("stop scanTimer")
+                timer.invalidate()
+            }
+            scanTimer = nil
+        }
+    }
+     
+    @objc
+    private func scanTimerFire() {
+//        print("scanTimerFire \(beaconModel.scanTimerCounter)")
+        beaconModel.scanTimerCounter -= 0.1
+        if beaconModel.scanTimerCounter <= 0 {
+            stopScanService()
+        }
     }
     
     func startUpdateAdv() {
         beaconModel.doUpdateAdv = true
     }
+
     func stopUpdateAdv() {
         beaconModel.doUpdateAdv = false
     }
-    
 }
 
 extension MyCentralManagerDelegate {
@@ -419,17 +458,7 @@ extension MyCentralManagerDelegate {
         peripheral.delegate = self
         MyBluetoothManager.shared.discoveredPeripheral = peripheral
         if beaconModel.doScan {
-            DispatchQueue.main.async { [self] in
-                beaconModel.scanStatusBeforeDownload = beaconModel.doScan
-                beaconModel.doScan = false
-                beaconModel.scanUpdateTemporaryStopped = true
-            }
             stopScanService()
-        } else {
-            DispatchQueue.main.async { [self] in
-                beaconModel.scanStatusBeforeDownload = beaconModel.doScan
-                beaconModel.scanUpdateTemporaryStopped = true
-            }
         }
         
         if let timer = MyBluetoothManager.shared.connectTimer {
@@ -454,18 +483,6 @@ extension MyCentralManagerDelegate {
         
         peripheral.delegate = nil
         MyBluetoothManager.shared.discoveredPeripheral = nil
-        
-        if beaconModel.scanStatusBeforeDownload {
-            DispatchQueue.main.async { [self] in
-                beaconModel.doScan = true
-                beaconModel.scanUpdateTemporaryStopped = false
-            }
-            startScanService()
-        } else {
-            DispatchQueue.main.async { [self] in
-                beaconModel.scanUpdateTemporaryStopped = false
-            }
-        }
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {

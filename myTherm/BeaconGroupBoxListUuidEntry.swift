@@ -11,7 +11,7 @@ import SwipeCell
 struct BeaconGroupBoxListUuidEntry: View {
     var uuid: UUID
     @StateObject var beaconModel = BeaconModel.shared
-    @State var date: Date
+    var date: Date
     @State var displaySteps: Int
     
     var beacon: Beacon {

@@ -12,6 +12,7 @@ enum ProgressCircleMode: String, CaseIterable, Identifiable {
     case idle       // gray circle
     case busy       // fixed len (= progress) circle section rotating (= rotation)
     case progress   // circle section starting filling to value
+    case timer      // full circle decreasing vom 12am ccw
 
     var id: String { self.rawValue }
 }
@@ -66,6 +67,31 @@ struct ProgressCircle: View {
                 .rotationEffect(.degrees(Double(rotation)))
         }
     }
+    
+    struct ForegroundCircleTimer: View {
+        var progress: CGFloat = 1.0
+        var rotation: CGFloat = -90
+        
+        var body: some View {
+            Circle()
+                .trim(from: 0, to: progress)
+                .stroke(Color.blue, lineWidth: 2)
+                .rotationEffect(.degrees(Double(rotation)))
+        }
+    }
+
+    struct ForegroundCircleHandle: View {
+        var progress: CGFloat = 1.0
+        var rotation: CGFloat = -90
+
+        var body: some View {
+            let deg: Double = -90.0 + 360.0 * progress
+            Rectangle()
+                .frame(width: 5, height: 2, alignment: .leading)
+                .offset(x: 8)
+                .rotationEffect(Angle(degrees: deg))
+        }
+    }
 
     var body: some View {
         VStack {
@@ -83,6 +109,11 @@ struct ProgressCircle: View {
                     BackgroundCircle()
                     BackgroundSquare()
                     ForegroundCircleProgress(progress: progress)
+                case .timer:
+                    BackgroundCircle()
+                    BackgroundSquare()
+                    ForegroundCircleHandle(progress: progress)
+                    ForegroundCircleTimer(progress: progress)
                 }
             }
             .frame(width: 20, height: 20)
@@ -115,6 +146,8 @@ struct ProgressCircleWithControl: View {
                 case .busy:
                     ProgressCircle(mode: .busy)
                 case .progress:
+                    ProgressCircle(rotation: rotationcontrol, progress: progresscontrol, mode: .progress)
+                case .timer:
                     ProgressCircle(rotation: rotationcontrol, progress: progresscontrol, mode: .progress)
                 }
             }

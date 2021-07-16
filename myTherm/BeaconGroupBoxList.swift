@@ -37,12 +37,12 @@ struct BeaconGroupBoxList: View {
     @State private var displaySteps: Int = 0    // 0 temp, 1 hum
     @State var nowDate: Date = Date()
 
-//    var timer: Timer {
-//        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {_ in     // PROFILE
-//            self.nowDate = Date()
-//        }
-//    }
-//
+    var timer: Timer {
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) {_ in     // PROFILE
+            self.nowDate = Date()
+        }
+    }
+
     var body: some View {
     
         VStack {
@@ -58,7 +58,7 @@ struct BeaconGroupBoxList: View {
         .edgesIgnoringSafeArea(.bottom)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear(perform: {
-//            _ = self.timer // hitches
+            _ = self.timer // hitches
         })
     }
 }
