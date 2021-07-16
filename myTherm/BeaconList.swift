@@ -259,26 +259,28 @@ struct BeaconList: View, Equatable {
                 Color.clear.preference(key: ViewOffsetKey.self,
                                        value: -$0.frame(in: .named("scroll")).origin.y)
             })
-            .onPreferenceChange(ViewOffsetKey.self) {
-                //                print("scroll position \($0)")
-                if !beaconModel.isScrolling {
-                    beaconModel.isScrolling = true
-                    //                    beaconModel.taskSemaphore.wait()
-                    //                    print("start scroll")
-                }
-                if $0 < -100 {
-                    if !beaconModel.isScrollUpdate {
-                        beaconModel.isScrollUpdate = true
-//                        print("scroll -> update start")
-                        MyCentralManagerDelegate.shared.startScanService()
+            .onPreferenceChange(ViewOffsetKey.self) {val in
+                DispatchQueue.main.async {
+                    //                print("scroll position \($0)")
+                    if !beaconModel.isScrolling {
+                        beaconModel.isScrolling = true
+                        //                    beaconModel.taskSemaphore.wait()
+                        //                    print("start scroll")
                     }
-                } else {
-                    if beaconModel.isScrollUpdate {
-                        beaconModel.isScrollUpdate = false
-//                        print("scroll -> update stop")
+                    if val < -100 {
+                        if !beaconModel.isScrollUpdate {
+                            beaconModel.isScrollUpdate = true
+                            //                        print("scroll -> update start")
+                            MyCentralManagerDelegate.shared.startScanService()
+                        }
+                    } else {
+                        if beaconModel.isScrollUpdate {
+                            beaconModel.isScrollUpdate = false
+                            //                        print("scroll -> update stop")
+                        }
                     }
+                    detector.send(val)
                 }
-                detector.send($0)
             }
             //            DebugTestView(beacons: devices.first!.beaconArray, filter: filter)
             //            DebugView1(predicate: compoundPredicate)
