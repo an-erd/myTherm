@@ -305,7 +305,6 @@ struct BeaconList: View, Equatable {
             filterWithFilterUpdatePredicate()
             stopFilterUpdate()
             beaconModel.isScrolling = false
-            print("stopped scroll flag by startup")
         })
         .onDisappear(perform: {
             self.onDisappear()

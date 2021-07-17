@@ -184,3 +184,22 @@ func getSHT3humidityValue(msb: UInt8, lsb: UInt8) -> Double {
     return Double((Double(UInt16_decode(msb: msb, lsb: lsb)) * 100.0 ) / Double(0xFFFF))
 }
 
+func batteryLeveInPercent(mvolts: Int) -> Int {
+    var batteryLevel: Int = 0
+
+    if (mvolts >= 3000){
+        batteryLevel = 100
+    } else if (mvolts > 2900) {
+        batteryLevel = 100 - ((3000 - mvolts) * 58) / 100
+    } else if (mvolts > 2740) {
+        batteryLevel = 42 - ((2900 - mvolts) * 24) / 160
+    } else if (mvolts > 2440) {
+        batteryLevel = 18 - ((2740 - mvolts) * 12) / 300
+    } else if (mvolts > 2100) {
+        batteryLevel = 6 - ((2440 - mvolts) * 6) / 340
+    } else {
+        batteryLevel = 0
+    }
+
+    return batteryLevel
+}

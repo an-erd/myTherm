@@ -102,7 +102,7 @@ func buildViewBeacon(beacon: Beacon) -> AnyView {
                                   text: String(format:"%d", beacon.company_id))
             BeaconDetailListEntry(title: "ID Major", text: beacon.id_maj!)
             BeaconDetailListEntry(title: "ID Minor", text: beacon.id_min!)
-            
+        
             NavigationLink(destination: TextShow(fieldName: "Raw", text: beacon.uuid?.uuidString ?? "no value" )
             ) {
                 BeaconDetailListEntry(title: "Raw", text: beacon.uuid?.uuidString ?? "no value" )

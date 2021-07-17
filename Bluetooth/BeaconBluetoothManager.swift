@@ -329,6 +329,11 @@ extension MyCentralManagerDelegate {
             return
         }
         
+        if extractBeaconAdv.temperature == -45.0 {
+            print("   temp/hum false data")
+            return
+        }
+        
         if beaconModel.isScrolling {
 //            print("adv delayed due to scrolling")
 //            return

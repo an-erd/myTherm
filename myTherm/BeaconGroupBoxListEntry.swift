@@ -53,6 +53,24 @@ struct BeaconGroupBoxListEntry: View {
                                 //                                Spacer().frame(width: 10)
                             }
                         }
+                        // BATTERY
+                        if let adv = beacon.adv {
+                            let batteryLevel = batteryLeveInPercent(mvolts: Int(adv.battery))
+                            if batteryLevel < 20 {
+                                HStack {
+                                    Image(systemName: "battery.0").foregroundColor(.red).imageScale(.small)
+                                }
+                            } else if batteryLevel < 40 {
+                                HStack {
+                                    Image(systemName: "battery.25").foregroundColor(.orange).imageScale(.small)
+                                }
+                            } else {
+                                HStack {
+                                    Image(systemName: "battery.100").foregroundColor(.gray).imageScale(.small)
+                                }
+                            }
+                        }
+                            
                         // hitches
                         BeaconDownloadImageButton(
                             uuid: beacon.uuid!,
