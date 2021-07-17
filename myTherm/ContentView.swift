@@ -16,8 +16,14 @@ struct ContentView: View {
             ZStack {
                 VStack {
                     if beaconModel.isScrollUpdate {
-                        ProgressView()
-                            .scaleEffect(1.5, anchor: .center)
+                        VStack {
+                            ProgressView()
+                                .scaleEffect(2, anchor: .center)
+                            Text("Scan for Sensors")
+                                .font(.headline)
+                                .foregroundColor(.secondary)
+                                .padding()
+                        }
                         Spacer()
                     }
                 }

@@ -413,16 +413,19 @@ struct BeaconList: View, Equatable {
                             Button(action: {
                                 if beaconModel.doScan {
                                     MyCentralManagerDelegate.shared.stopScanService()
+                                    print("navigationBarItems stopScanService")
                                 } else {
                                     MyCentralManagerDelegate.shared.startScanService()
+                                    print("navigationBarItems startScanService")
                                 }
                                 os_signpost(.event, log: self.log, name: "Useraction", "scan_%{public}s", beaconModel.doScan ? "y" : "n")
                             }) {
                                 HStack {
                                     if beaconModel.doScan {
-                                        ProgressCircle(rotation: -90,
-                                                       progress: beaconModel.scanTimerCounter / MyCentralManagerDelegate.shared.scanDuration,
-                                                       mode: .timer)
+                                        ProgressCircle(mode: .busy)
+//                                        ProgressCircle(rotation: -90,
+//                                                       progress: beaconModel.scanTimerCounter / MyCentralManagerDelegate.shared.scanDuration,
+//                                                       mode: .timer)
                                     } else {
                                         ProgressCircle(rotation: 0, progress: 0, mode: .idle)
                                     }

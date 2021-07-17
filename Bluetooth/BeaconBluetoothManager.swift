@@ -92,10 +92,14 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
             
             beaconModel.scanTimerCounter = scanDuration
             beaconModel.doScan = true
-            scanTimer = Timer.scheduledTimer(timeInterval: 0.1,
-                                             target: self,
-                                             selector: #selector(self.scanTimerFire),
-                                             userInfo: nil, repeats: true)
+            
+            scanTimer = Timer(timeInterval: 1,
+                              target: self,
+                              selector: #selector(self.scanTimerFire),
+                              userInfo: nil, repeats: true)
+            if let timer = scanTimer {
+                RunLoop.current.add(timer, forMode: .default)    // .common
+            }
         }
     }
     
@@ -118,7 +122,7 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate, CBPeripheral
     @objc
     private func scanTimerFire() {
 //        print("scanTimerFire \(beaconModel.scanTimerCounter)")
-        beaconModel.scanTimerCounter -= 0.1
+        beaconModel.scanTimerCounter -= 1
         if beaconModel.scanTimerCounter <= 0 {
             stopScanService()
         }

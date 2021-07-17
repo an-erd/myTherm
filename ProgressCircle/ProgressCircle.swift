@@ -111,8 +111,8 @@ struct ProgressCircle: View {
                     ForegroundCircleProgress(progress: progress)
                 case .timer:
                     BackgroundCircle()
-                    BackgroundSquare()
-                    ForegroundCircleHandle(progress: progress)
+//                    BackgroundSquare()
+//                    ForegroundCircleHandle(progress: progress)
                     ForegroundCircleTimer(progress: progress)
                 }
             }
