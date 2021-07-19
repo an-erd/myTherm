@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import CoreData
 import OSLog
+import CoreHaptics
 
 protocol BeaconModelDelegate {
     func changeDoScan(_ status: Bool)

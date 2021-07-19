@@ -174,6 +174,8 @@ struct LineView: View, Equatable {
                 localValue.temperature = dataTemperature[dataIndex]
                 localValue.humidity = dataHumidity[dataIndex]
                 localValue.timestamp = timestamp[dataIndex]
+                
+                HapticsManager.shared?.playPull()
             }
         
         let dragGesture = DragGesture(minimumDistance: 0, coordinateSpace: .local)

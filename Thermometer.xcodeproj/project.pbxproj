@@ -13,6 +13,7 @@
 		801DD79A2622FBE4003ECA6D /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 801DD7992622FBE4003ECA6D /* NetworkManager.swift */; };
 		801E46882624797A00C8FDEB /* BeaconFilterCountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 801E46872624797A00C8FDEB /* BeaconFilterCountView.swift */; };
 		801E468A2624A97000C8FDEB /* HelperFunctionsLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 801E46892624A97000C8FDEB /* HelperFunctionsLocation.swift */; };
+		803E15A426A428FB00B987C0 /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803E15A326A428FB00B987C0 /* HapticsManager.swift */; };
 		804DF8672620594900004F2F /* myTherm.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 804DF8652620594900004F2F /* myTherm.xcdatamodeld */; };
 		806313FF260F9685002394FB /* BeaconDownloadImageButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806313FE260F9685002394FB /* BeaconDownloadImageButton.swift */; };
 		806A52BA25FA813300298441 /* BeaconLocationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806A52B725FA813300298441 /* BeaconLocationExtension.swift */; };
@@ -82,6 +83,7 @@
 		801DD7992622FBE4003ECA6D /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		801E46872624797A00C8FDEB /* BeaconFilterCountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconFilterCountView.swift; sourceTree = "<group>"; };
 		801E46892624A97000C8FDEB /* HelperFunctionsLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperFunctionsLocation.swift; sourceTree = "<group>"; };
+		803E15A326A428FB00B987C0 /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		804DF8662620594900004F2F /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		806313FE260F9685002394FB /* BeaconDownloadImageButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDownloadImageButton.swift; sourceTree = "<group>"; };
 		806A52B725FA813300298441 /* BeaconLocationExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BeaconLocationExtension.swift; path = Model/BeaconLocationExtension.swift; sourceTree = "<group>"; };
@@ -177,6 +179,14 @@
 			path = NetworkManager;
 			sourceTree = "<group>";
 		};
+		803E15A226A428D000B987C0 /* Haptics */ = {
+			isa = PBXGroup;
+			children = (
+				803E15A326A428FB00B987C0 /* HapticsManager.swift */,
+			);
+			path = Haptics;
+			sourceTree = "<group>";
+		};
 		806AF07226164F5F00DE0BD6 /* SlideMenu */ = {
 			isa = PBXGroup;
 			children = (
@@ -187,6 +197,7 @@
 		807838DE25DCEB0E009FF0E9 = {
 			isa = PBXGroup;
 			children = (
+				803E15A226A428D000B987C0 /* Haptics */,
 				801DD7982622FBBF003ECA6D /* NetworkManager */,
 				801DD7952622CB8E003ECA6D /* UserSettings */,
 				806E2EAB26175A0000AFA883 /* SwipeCell */,
@@ -511,6 +522,7 @@
 				80ECC8F82609E503006AA4AE /* Subview.swift in Sources */,
 				8080270B25DD954E000C377D /* BeaconDetail.swift in Sources */,
 				8080270025DD6E86000C377D /* BeaconAdv+CoreDataClass.swift in Sources */,
+				803E15A426A428FB00B987C0 /* HapticsManager.swift in Sources */,
 				806E50A725E6A2FB001218D5 /* DownloadManager.swift in Sources */,
 				807565152631BE50005FA400 /* BeaconDataMaintenance.swift in Sources */,
 				800F07E925FE481200D9F515 /* BeaconGroupBoxList.swift in Sources */,

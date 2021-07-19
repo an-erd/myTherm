@@ -18,6 +18,7 @@ struct BeaconList: View, Equatable {
     @EnvironmentObject var userSettings: UserSettings
     @EnvironmentObject var networkManager: NetworkManager
     @StateObject var beaconModel = BeaconModel.shared
+    let hapticsManager = HapticsManager.shared
     @StateObject var downloadManager = DownloadManager.shared
     @StateObject var lm = LocationManager.shared
     var authMode = LocationManager.shared.locationAuthorizationStatus
@@ -272,6 +273,7 @@ struct BeaconList: View, Equatable {
                             beaconModel.isScrollUpdate = true
                             //                        print("scroll -> update start")
                             MyCentralManagerDelegate.shared.startScanService()
+                            HapticsManager.shared?.playPull()
                         }
                     } else {
                         if beaconModel.isScrollUpdate {
