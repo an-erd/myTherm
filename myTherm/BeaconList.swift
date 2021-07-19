@@ -416,8 +416,8 @@ struct BeaconList: View, Equatable {
                                     MyCentralManagerDelegate.shared.stopScanService()
                                     print("navigationBarItems stopScanService")
                                 } else {
-                                    MyCentralManagerDelegate.shared.startScanService()
-                                    print("navigationBarItems startScanService")
+//                                    MyCentralManagerDelegate.shared.startScanService()
+//                                    print("navigationBarItems startScanService")
                                 }
                                 os_signpost(.event, log: self.log, name: "Useraction", "scan_%{public}s", beaconModel.doScan ? "y" : "n")
                             }) {

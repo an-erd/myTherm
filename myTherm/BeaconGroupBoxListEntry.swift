@@ -62,11 +62,11 @@ struct BeaconGroupBoxListEntry: View {
                                 }
                             } else if batteryLevel < 40 {
                                 HStack {
-                                    Image(systemName: "battery.25").foregroundColor(.orange).imageScale(.small)
+                                    Image(systemName: "battery.25").foregroundColor(.yellow).imageScale(.small)
                                 }
                             } else {
                                 HStack {
-                                    Image(systemName: "battery.100").foregroundColor(.gray).imageScale(.small)
+//                                    Image(systemName: "battery.100").foregroundColor(.gray).imageScale(.small)
                                 }
                             }
                         }
