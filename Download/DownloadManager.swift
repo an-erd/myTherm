@@ -63,7 +63,7 @@ class DownloadManager: NSObject, ObservableObject {
             }
             
             if let beacon = beaconModel.fetchBeacon(context: localMoc, with: uuid) {
-                let newDownload = Download(uuid: beacon.uuid!) // , delegate: beacon)
+                let newDownload = Download(uuid: beacon.uuid!)
                 downloads.append(newDownload)
                 MyCentralManagerDelegate.shared.updateBeaconDownloadStatus(context: viewMoc, with: uuid, status: .waiting)
 
@@ -86,9 +86,14 @@ class DownloadManager: NSObject, ObservableObject {
     private func cleanupDownloadQueue() {
         print("cleanupDownloadQueue")
         localMoc.perform {
+            for download in self.downloads {
+                let cnt = CFGetRetainCount(download)
+                print("retain count \(cnt)")
+            }
+            
+//            let firstDownload = self.downloads[0]
             self.downloads.removeAll()
         }
-//        }
     }
     
     private func buildDownloadErrorStatus() -> (String, String, Int) {
@@ -110,7 +115,6 @@ class DownloadManager: NSObject, ObservableObject {
         let text2: String = ""
         return (text1, text2)
     }
-    
 
     func buildDownloadErrorDeviceList() -> String {
         var text: String = ""
@@ -349,7 +353,7 @@ class DownloadManager: NSObject, ObservableObject {
             } else {
                     print("MyCentralManagerDelegate.shared.copyHistoryArrayToLocalArray uuid nil")
             }
-            
+            activeDownload = nil
             os_signpost(.end, log: log, name: "mergeHistoryToStore")
             
 //            print("history count after \(String(describing: beacon.historyArray.count))")

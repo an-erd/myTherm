@@ -22,45 +22,13 @@ public enum DownloadStatus: Int32 {
 
 class Download : ObservableObject {
     var uuid: UUID
-//    var beacon: Beacon?
     var viewContext: NSManagedObjectContext
     var status: DownloadStatus = .waiting
-//    {
-//        get {
-////            var newStatus: DownloadStatus = .none
-////            viewContext.performAndWait {
-//                return DownloadStatus(rawValue: beacon!.localDownloadStatus.rawValue)!
-////            }
-////            return newStatus
-//        }
-//        set {
-////            var newStatusRaw = newValue.rawValue
-////            viewContext.performAndWait {
-//            beacon!.localDownloadStatusValue = newValue.rawValue
-////            }
-//        }
-//    }
 
     var progress: Float = 0.0
-//    {
-//        get {
-//            var newProgress: Float = 0.0
-//            viewContext.performAndWait {
-//                newProgress = beacon!.localDownloadProgress
-//            }
-//            return newProgress
-//        }
-//        set {
-//            viewContext.performAndWait {
-//                beacon!.localDownloadProgress = newValue
-//            }
-//        }
-//    }
-
     var numEntriesAll: Int = 0
     var numEntriesReceived: Int = 0
     var history: [BeaconHistoryDataPointLocal] = []
-        
 
     init(uuid: UUID) {
         self.uuid = uuid
