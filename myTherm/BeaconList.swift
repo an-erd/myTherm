@@ -262,7 +262,7 @@ struct BeaconList: View, Equatable {
             })
             .onPreferenceChange(ViewOffsetKey.self) {val in
                 DispatchQueue.main.async {
-                    //                print("scroll position \($0)")
+//                    print("scroll position \(val)")
                     if !beaconModel.isScrolling {
                         beaconModel.isScrolling = true
                         //                    beaconModel.taskSemaphore.wait()
@@ -277,7 +277,7 @@ struct BeaconList: View, Equatable {
                         }
                     } else {
                         if beaconModel.isScrollUpdate {
-                            beaconModel.isScrollUpdate = false
+//                            beaconModel.isScrollUpdate = false        // EXPERIMENT
                             //                        print("scroll -> update stop")
                         }
                     }
@@ -389,55 +389,55 @@ struct BeaconList: View, Equatable {
                 }
                 Spacer()
                 
-                Button(action: {
-                    activeSheet = .settings
-                }) {
-                    HStack {
-                        Image(systemName: "ellipsis.circle")
-                    }
-                    .padding()
-                }
+//                Button(action: {
+//                    activeSheet = .settings
+//                }) {
+//                    HStack {
+//                        Image(systemName: "ellipsis.circle")
+//                    }
+//                    .padding()
+//                }
             }
         }
-        .navigationBarItems(
-            leading:
-                HStack {
-                },
-            trailing:
-                HStack {
-                    Spacer()
-                    HStack {
-                        if !beaconModel.isBluetoothAuthorization {
-                            Text("not available")
-                                .foregroundColor(.gray)
-                        } else {
-                            Button(action: {
-                                if beaconModel.doScan {
-                                    MyCentralManagerDelegate.shared.stopScanService()
-                                    print("navigationBarItems stopScanService")
-                                } else {
-//                                    MyCentralManagerDelegate.shared.startScanService()
-//                                    print("navigationBarItems startScanService")
-                                }
-                                os_signpost(.event, log: self.log, name: "Useraction", "scan_%{public}s", beaconModel.doScan ? "y" : "n")
-                            }) {
-                                HStack {
-                                    if beaconModel.doScan {
-                                        ProgressCircle(mode: .busy)
-//                                        ProgressCircle(rotation: -90,
-//                                                       progress: beaconModel.scanTimerCounter / MyCentralManagerDelegate.shared.scanDuration,
-//                                                       mode: .timer)
-                                    } else {
-                                        ProgressCircle(rotation: 0, progress: 0, mode: .idle)
-                                    }
-                                }
-                            }
-                            
-                        }
-                    }
-                    .frame(width: 100, alignment: .trailing)
-                }
-        )
+//        .navigationBarItems(
+//            leading:
+//                HStack {
+//                },
+//            trailing:
+//                HStack {
+//                    Spacer()
+//                    HStack {
+//                        if !beaconModel.isBluetoothAuthorization {
+//                            Text("not available")
+//                                .foregroundColor(.gray)
+//                        } else {
+//                            Button(action: {
+//                                if beaconModel.doScan {
+//                                    MyCentralManagerDelegate.shared.stopScanService()
+//                                    print("navigationBarItems stopScanService")
+//                                } else {
+////                                    MyCentralManagerDelegate.shared.startScanService()
+////                                    print("navigationBarItems startScanService")
+//                                }
+//                                os_signpost(.event, log: self.log, name: "Useraction", "scan_%{public}s", beaconModel.doScan ? "y" : "n")
+//                            }) {
+//                                HStack {
+//                                    if beaconModel.doScan {
+//                                        ProgressCircle(mode: .busy)
+////                                        ProgressCircle(rotation: -90,
+////                                                       progress: beaconModel.scanTimerCounter / MyCentralManagerDelegate.shared.scanDuration,
+////                                                       mode: .timer)
+//                                    } else {
+//                                        ProgressCircle(rotation: 0, progress: 0, mode: .idle)
+//                                    }
+//                                }
+//                            }
+//                            
+//                        }
+//                    }
+//                    .frame(width: 100, alignment: .trailing)
+//                }
+//        )
         .sheet(item: $activeSheet) { item in
             switch item {
             case .filter:

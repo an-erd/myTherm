@@ -53,10 +53,10 @@ struct BeaconDownloadImageButton: View, Equatable {
                         .foregroundColor(.red)
                 case .none:
                     if seenRecently(date: timestamp, nowDate: nowDate, timeInterval: 180) {
-                        Image(systemName: "icloud.and.arrow.down")
+                        Image(systemName: "arrow.down")
                             .foregroundColor(.primary)
                     } else {
-                        Image(systemName: "icloud.and.arrow.down")
+                        Image(systemName: "arrow.down")
                             .foregroundColor(.gray)
                     }
                 }

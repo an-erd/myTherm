@@ -12,30 +12,119 @@ struct ContentView: View {
     private let log = OSLog(subsystem: "com.anerd.myTherm", category: "preparation")
     
     var body: some View {
+//            VStack {
+//                HStack {
+//                    Spacer()
+//                    HStack {
+//                        if !beaconModel.isBluetoothAuthorization {
+//                            Text("not available")
+//                                .foregroundColor(.gray)
+//                        } else {
+//                            Button(action: {
+//                                if beaconModel.doScan {
+//                                    MyCentralManagerDelegate.shared.stopScanService()
+//                                    print("navigationBarItems stopScanService")
+//                                } else {
+//                                }
+//                                os_signpost(.event, log: self.log, name: "Useraction", "scan_%{public}s", beaconModel.doScan ? "y" : "n")
+//                            }) {
+//                                HStack {
+//                                    if beaconModel.doScan {
+//                                        ProgressCircle(mode: .busy)
+//                                    } else {
+//                                        ProgressCircle(rotation: 0, progress: 0, mode: .idle)
+//                                    }
+//                                }
+//                            }
+//
+//                        }
+//                    }
+//                    .frame(width: 100, alignment: .trailing)
+//                }
+//
+////                Spacer()
+//            }
+            
+
         NavigationView {
             ZStack {
                 VStack {
-                    if beaconModel.isScrollUpdate {
-                        VStack {
-                            ProgressView()
-                                .scaleEffect(2, anchor: .center)
-                            Text("Scan for Sensors")
-                                .font(.headline)
-                                .foregroundColor(.secondary)
-                                .padding()
-                        }
+//                    if beaconModel.isScrollUpdate {
+//                        VStack {
+//                            ProgressView()
+//                                .scaleEffect(1.5, anchor: .center)
+//                            VStack {
+//                                Text("Pull and release to scan for sensors")
+//                            }
+//                            .font(.headline)
+//                            .foregroundColor(.secondary)
+//                            .padding()
+//                        }
                         Spacer()
+//                    }
+                }
+                .frame(height: 12)
+//                .offset(y:30)
+                .border(Color.green)
+                
+                withAnimation {
+                    VStack {
+                        BeaconList()
+                            .equatable()
+                            .listStyle(GroupedListStyle())
                     }
+//                    .offset(y: beaconModel.isScrollUpdate ? 120 : 0)   // EXPERIMENT
                 }
-                VStack {
-                    BeaconList()
-                        .equatable()
-                        .listStyle(GroupedListStyle())
-                }
+                //                .navigationBarTitle("", displayMode: .inline)
+                //                .navigationBarHidden(true)
                 .navigationTitle("Sensors")
                 .navigationViewStyle(StackNavigationViewStyle())
             }
+//                .navigationBarItems(
+//                    leading:
+//                        HStack {
+//                        },
+//                    trailing:
+//                        HStack {
+//                            Spacer()
+//                            HStack {
+//                                if !beaconModel.isBluetoothAuthorization {
+//                                    Text("not available")
+//                                        .foregroundColor(.gray)
+//                                } else {
+//                                    Button(action: {
+//                                        if beaconModel.doScan {
+//                                            MyCentralManagerDelegate.shared.stopScanService()
+//                                            print("navigationBarItems stopScanService")
+//                                        } else {
+//        //                                    MyCentralManagerDelegate.shared.startScanService()
+//        //                                    print("navigationBarItems startScanService")
+//                                        }
+//                                        os_signpost(.event, log: self.log, name: "Useraction", "scan_%{public}s", beaconModel.doScan ? "y" : "n")
+//                                    }) {
+//                                        HStack {
+//                                            if beaconModel.doScan {
+//                                                ProgressCircle(mode: .busy)
+//        //                                        ProgressCircle(rotation: -90,
+//        //                                                       progress: beaconModel.scanTimerCounter / MyCentralManagerDelegate.shared.scanDuration,
+//        //                                                       mode: .timer)
+//                                            } else {
+//                                                ProgressCircle(rotation: 0, progress: 0, mode: .idle)
+//                                            }
+//                                        }
+//                                    }
+//
+//                                }
+//                            }
+//                            .frame(width: 100, alignment: .trailing)
+//                        }
+//                )
+
+//            }
+
         }
+            
+
         .onAppear(perform: {
             print("ContentView onAppear")
             PersistenceController.shared.writeContext.perform {
