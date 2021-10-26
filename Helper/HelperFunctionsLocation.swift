@@ -10,9 +10,10 @@ import CoreLocation
 
 func distanceFromPosition(location: CLLocation?, beacon: Beacon ) -> Double {
     guard let location = location else { return -1 }
-    guard let beaconLocation = beacon.location else { return -1 }
     
-    let distance = location.distance(from: beaconLocation.clLocation)
-    
-    return distance
+    if beacon.location.locationAvailable == true {
+        return -1
+    }
+
+    return location.distance(from: beacon.location.clLocation)
 }

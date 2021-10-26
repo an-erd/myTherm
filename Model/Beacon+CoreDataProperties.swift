@@ -26,10 +26,9 @@ extension Beacon {
     @NSManaged public var uuid: UUID?
     @NSManaged public var flag: Bool
     @NSManaged public var hidden: Bool
-    @NSManaged public var adv: BeaconAdv?
+    @NSManaged public var adv: BeaconAdv
     @NSManaged public var history: NSSet?
-    @NSManaged public var location: BeaconLocation?
-    @NSManaged public var devices: Devices?
+    @NSManaged public var location: BeaconLocation
     @NSManaged public var localTimestamp: Date?
     @NSManaged public var localDistanceFromPosition: Double
     @NSManaged public var localHistoryTemperature: [Double]?
@@ -127,8 +126,10 @@ extension Beacon {
     }
 
     public func wrappedAdvDateInterpretation(nowDate: Date) -> String {
-        guard let beaconadv = self.adv else { return "never" }
-        guard let date = beaconadv.timestamp else { return "not available" }
+        if self.adv.temperature == -45 {
+            return "never"
+        }
+        guard let date = self.adv.timestamp else { return "not available" }
         return getDateInterpretationString(date: date, nowDate: nowDate)
     }
     

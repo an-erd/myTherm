@@ -105,7 +105,7 @@ struct BeaconGroupBoxListUuidEntry: View {
             withAnimation {
 //                if beacon.adv != nil {
                     BeaconGroupBoxListEntry(beacon: beacon,
-                                            beaconAdv: beacon.adv!,
+                                            beaconAdv: beacon.adv,
                                             nowDate: date)
                         //                    .equatable()
                         //                DebugView4(beacon: beacon)

@@ -16,6 +16,7 @@ extension BeaconLocation {
         return NSFetchRequest<BeaconLocation>(entityName: "BeaconLocation")
     }
 
+    @NSManaged public var locationAvailable: Bool
     @NSManaged public var latitude: Double
     @NSManaged public var longitude: Double
     @NSManaged public var timestamp: Date?

@@ -73,40 +73,8 @@ final class BeaconModel: ObservableObject {
 
     private init() {
         print("init BeaconModel")
-        checkAndInitStructures(context: PersistenceController.shared.writeContext)
         setInitBeaconDownloadStatus(context: PersistenceController.shared.writeContext)
         initLocalBeaconCache(writeContext: PersistenceController.shared.writeContext, viewContext: PersistenceController.shared.viewContext)
-        printDevicesAndBeacons(context: PersistenceController.shared.writeContext)
-    }
-    
-    func addBeaconToDevices(context: NSManagedObjectContext, beacon: Beacon) {
-        if let devices = fetchDevices(context: context) {
-            if beacon.devices != nil {
-                print("beacon \(beacon.wrappedDeviceName) devices not nil!")
-                return
-            }
-            devices.addToBeacons(beacon)
-            print("addBeaconToDevices beacon \(beacon.wrappedDeviceName) beaconArray.count \(devices.beaconArray.count) beacon objID \(beacon.objectID) device objID objectID \(devices.objectID)")
-        }
-    }
-
-    func checkAndInitStructures(context: NSManagedObjectContext) {
-        context.performAndWait { [self] in
-            let devices = fetchDevices(context: context)
-            if devices == nil {
-                print("checkAndInitStructures no Devices found, creating new one")
-                let newDevices = Devices(context: context)
-                newDevices.name = "devices"
-                let beacons = fetchAllBeaconsFromStore(context: context)
-                for beacon in beacons {
-                    if beacon.devices == nil {
-                        print("checkAndInitStructures assigning beacon \(beacon.wrappedDeviceName) to new Devices")
-                        beacon.devices = newDevices
-                    }
-                }
-                PersistenceController.shared.saveContext(context: context)
-            }
-        }
     }
     
     func initLocalBeaconCache(writeContext: NSManagedObjectContext, viewContext: NSManagedObjectContext) {
@@ -139,40 +107,6 @@ final class BeaconModel: ObservableObject {
         }
     }
 
-    func printDevicesAndBeacons(context: NSManagedObjectContext) {
-        context.perform { [self] in
-            let devices = fetchDevices(context: context)
-            if let devices = devices {
-                print("printDevicesAndBeacons devices.count beaconArray.count \(devices.beaconArray.count)")
-                for beacon in devices.beaconArray {
-                    let advSet = (beacon.adv != nil ? "y" : "n")
-                    print("  \(beacon.wrappedDeviceName) adv set \(advSet)")
-                }
-            }
-            
-            print("beacons w/o devices")
-            let beacons = fetchAllBeaconsFromStore(context: context)
-            for beacon in beacons {
-                if beacon.devices == nil {
-                    print("  \(beacon.wrappedDeviceName)")
-                }
-            }
-        }
-    }
-        
-    func fetchDevices(context: NSManagedObjectContext) -> Devices? {
-        let fetchRequest: NSFetchRequest<Devices> = Devices.fetchRequest()
-        var devices: [Devices] = []
-        do {
-            devices = try context.fetch(fetchRequest)
-        } catch {
-            let fetchError = error as NSError
-            debugPrint(fetchError)
-            return nil
-        }
-        return devices.first ?? nil
-    }
-     
     func fetchBeacon(context: NSManagedObjectContext, with identifier: UUID) -> Beacon? {
         let useViewCtx: Bool = context == PersistenceController.shared.viewContext
         if useViewCtx {
@@ -321,16 +255,12 @@ final class BeaconModel: ObservableObject {
                         localChanges.changesBeacon = fromBeacon.copyContent()
                     }
                     
-                    if let fromAdv = fromBeacon.adv {
-                        if fromAdv.changedValues().count > 0 {
-                            localChanges.changesAdv = fromAdv.copyContent()
-                        }
+                    if fromBeacon.adv.changedValues().count > 0 {
+                        localChanges.changesAdv = fromBeacon.adv.copyContent()
                     }
                     
-                    if let fromLocation = fromBeacon.location {
-                        if fromLocation.changedValues().count > 0 {
-                            localChanges.changesLoc = fromLocation.copyContent()
-                        }
+                    if fromBeacon.location.changedValues().count > 0 {
+                        localChanges.changesLoc = fromBeacon.location.copyContent()
                     }
                     copyOfAllBeacons.append(localChanges)
                 }
@@ -347,20 +277,15 @@ final class BeaconModel: ObservableObject {
                             toBeacon.copyContent(from: changesBeacon)
                         }
                         if let changesAdv = copy.changesAdv {
-                            if toBeacon.adv != nil { } else {
-                                toBeacon.adv = BeaconAdv(context: moc)
-                            }
-                            if let toAdv = toBeacon.adv {
-                                toAdv.copyContent(from: changesAdv)
-                            }
+//                            if toBeacon.adv != nil { } else {
+//                                toBeacon.adv = BeaconAdv(context: moc)
+//                            }
+                            let toAdv = toBeacon.adv
+                            toAdv.copyContent(from: changesAdv)
                         }
                         if let changesLoc = copy.changesLoc {
-                            if toBeacon.location != nil { } else {
-                                toBeacon.location = BeaconLocation(context: moc)
-                            }
-                            if let toLocation = toBeacon.location {
-                                toLocation.copyContent(from: changesLoc)
-                            }
+                            let toLocation = toBeacon.location
+                            toLocation.copyContent(from: changesLoc)
                         }
                     }
                 }

@@ -340,48 +340,35 @@ extension MyCentralManagerDelegate {
         }
         
         DispatchQueue.global(qos: .background).async { [self] in
-//            beaconModel.taskSemaphore.wait()
-//            beaconModel.taskSemaphore.signal()
             
             DispatchQueue.main.async { [self] in
                 viewMoc.perform { [self] in
                     os_signpost(.begin, log: log, name: "didDiscover")
                     
                     if let alreadyAvailableBeacon = beaconModel.fetchBeacon(context: self.viewMoc, with: peripheral.identifier) {
-                        if alreadyAvailableBeacon.adv != nil { } else {
-                            alreadyAvailableBeacon.adv = BeaconAdv(context: self.viewMoc)
-                        }
                         alreadyAvailableBeacon.localTimestamp = Date()
                         
-                        //                    alreadyAvailableBeacon.flag.toggle()
-                        
-                        if let adv = alreadyAvailableBeacon.adv {
-                            adv.rssi = RSSI.int64Value
-                            adv.timestamp = Date()
-                            adv.temperature = extractBeaconAdv.temperature
-                            adv.humidity = extractBeaconAdv.humidity
-                            adv.battery = extractBeaconAdv.battery
-                            adv.accel_x = extractBeaconAdv.accel_x
-                            adv.accel_y = extractBeaconAdv.accel_y
-                            adv.accel_z = extractBeaconAdv.accel_z
-                            adv.rawdata = extractBeaconAdv.rawdata
-                        }
+                        let adv = alreadyAvailableBeacon.adv
+                        adv.rssi = RSSI.int64Value
+                        adv.timestamp = Date()
+                        adv.temperature = extractBeaconAdv.temperature
+                        adv.humidity = extractBeaconAdv.humidity
+                        adv.battery = extractBeaconAdv.battery
+                        adv.accel_x = extractBeaconAdv.accel_x
+                        adv.accel_y = extractBeaconAdv.accel_y
+                        adv.accel_z = extractBeaconAdv.accel_z
+                        adv.rawdata = extractBeaconAdv.rawdata
                         
                         if let location = self.locationManager.location {
                             //            print(location)
-                            if alreadyAvailableBeacon.location != nil { } else {
-                                alreadyAvailableBeacon.location = BeaconLocation(context: self.viewMoc)
-                            }
-                            if let localLocation = alreadyAvailableBeacon.location {
-                                localLocation.latitude = location.latitude
-                                localLocation.longitude = location.longitude
-                                localLocation.timestamp = Date()
-                                let distance = distanceFromPosition(location: location, beacon: alreadyAvailableBeacon)
-                                alreadyAvailableBeacon.localDistanceFromPosition = distance
-                                localLocation.address = self.locationManager.address
-                                //                        print("update \(alreadyAvailableBeacon.wrappedDeviceName): distanceFromPostion \(distance) address \(localLocation.address)")
-                            }
-                            
+                             let localLocation = alreadyAvailableBeacon.location
+                            localLocation.latitude = location.latitude
+                            localLocation.longitude = location.longitude
+                            localLocation.timestamp = Date()
+                            localLocation.locationAvailable = true
+                            let distance = distanceFromPosition(location: location, beacon: alreadyAvailableBeacon)
+                            alreadyAvailableBeacon.localDistanceFromPosition = distance
+                            localLocation.address = self.locationManager.address
                         }
                         os_signpost(.event, log: log, name: "didDiscover", "%{public}s", alreadyAvailableBeacon.wrappedDeviceName)
                     } else {
@@ -389,13 +376,6 @@ extension MyCentralManagerDelegate {
                         localMoc.performAndWait {
                             //            print("\(Thread.current)")
                             var beaconFind: Beacon?
-                            
-                            if self.beaconModel.fetchDevices(context: self.localMoc) == nil {
-                                print("didDiscover devices(localMoc) == nil")
-                                os_signpost(.end, log: log, name: "didDiscover")
-                                
-                                return
-                            }
                             
                             if let alreadyAvailableBeacon = beaconModel.fetchBeacon(context: localMoc, with: peripheral.identifier) {
                                 beaconFind = alreadyAvailableBeacon
@@ -416,7 +396,7 @@ extension MyCentralManagerDelegate {
                                     //                    print("  \(beaconFind.wrappedDeviceName) - \(peripheral.name ?? "peripheral no name")")
                                 }
                             } else {
-                                print("add new beacon 1 \(peripheral.identifier)")
+                                print("add new beacon \(peripheral.identifier)")
                                 beaconFind = Beacon(context: localMoc)
                                 if let beacon = beaconFind {
                                     beacon.uuid = peripheral.identifier
@@ -427,23 +407,33 @@ extension MyCentralManagerDelegate {
                                     beacon.name = peripheral.name ?? nil
                                     beacon.device_name = peripheral.name ?? nil
                                     
-                                    print(beacon)
-                                    print("add new beacon 2 \(peripheral.identifier) objectID \(beacon.objectID)")
-                                    beaconModel.addBeaconToDevices(context: localMoc, beacon: beacon)
-                               
                                     beacon.adv = BeaconAdv(context: localMoc)
+                                    let adv = beacon.adv
+                                    adv.rssi = RSSI.int64Value
+                                    adv.timestamp = Date()
+                                    adv.temperature = extractBeaconAdv.temperature
+                                    adv.humidity = extractBeaconAdv.humidity
+                                    adv.battery = extractBeaconAdv.battery
+                                    adv.accel_x = extractBeaconAdv.accel_x
+                                    adv.accel_y = extractBeaconAdv.accel_y
+                                    adv.accel_z = extractBeaconAdv.accel_z
+                                    adv.rawdata = extractBeaconAdv.rawdata
                                     
-                                    if let adv = beacon.adv {
-                                        adv.rssi = RSSI.int64Value
-                                        adv.timestamp = Date()
-                                        adv.temperature = extractBeaconAdv.temperature
-                                        adv.humidity = extractBeaconAdv.humidity
-                                        adv.battery = extractBeaconAdv.battery
-                                        adv.accel_x = extractBeaconAdv.accel_x
-                                        adv.accel_y = extractBeaconAdv.accel_y
-                                        adv.accel_z = extractBeaconAdv.accel_z
-                                        adv.rawdata = extractBeaconAdv.rawdata
+                                    beacon.location = BeaconLocation(context: localMoc)
+                                    beacon.location.locationAvailable = false
+                                    if let location = self.locationManager.location {
+                                        //            print(location)
+                                         let localLocation = beacon.location
+                                        localLocation.latitude = location.latitude
+                                        localLocation.longitude = location.longitude
+                                        localLocation.timestamp = Date()
+                                        localLocation.locationAvailable = true
+                                        let distance = distanceFromPosition(location: location, beacon: beacon)
+                                        beacon.localDistanceFromPosition = distance
+                                        localLocation.address = self.locationManager.address
                                     }
+
+                                    print(beacon)
                                 }
                             }
                             

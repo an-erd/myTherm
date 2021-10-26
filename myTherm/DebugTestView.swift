@@ -86,7 +86,7 @@ struct DebugView4: View, Equatable {
     @ObservedObject var beacon: Beacon
     
     var body: some View {
-        Text("\(beacon.wrappedDeviceName) \(beacon.hidden ? "H" : "-") \(beacon.flag ? "F" : "-") \(beacon.adv!.temperature, specifier: "%.2f")")
+        Text("\(beacon.wrappedDeviceName) \(beacon.hidden ? "H" : "-") \(beacon.flag ? "F" : "-") \(beacon.adv.temperature, specifier: "%.2f")")
     }
     
     static func == (lhs: Self, rhs: Self) -> Bool {

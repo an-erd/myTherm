@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19206" systemVersion="20G165" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Beacon" representedClassName="Beacon" syncable="YES">
+        <attribute name="beacon_version" optional="YES" attributeType="Integer 16" usesScalarValueType="YES"/>
+        <attribute name="company_id" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="descr" optional="YES" attributeType="String"/>
+        <attribute name="device_name" optional="YES" attributeType="String"/>
+        <attribute name="flag" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="hidden" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="id_maj" optional="YES" attributeType="String"/>
+        <attribute name="id_min" optional="YES" attributeType="String"/>
+        <attribute name="localDistanceFromPosition" optional="YES" transient="YES" attributeType="Double" defaultValueString="-1" usesScalarValueType="YES"/>
+        <attribute name="localDownloadProgress" optional="YES" transient="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="localDownloadStatusValue" optional="YES" transient="YES" attributeType="Integer 32" valueTransformerName="NSSecureUnarchiveFromDataTransformer" defaultValueString="0" usesScalarValueType="YES" customClassName="DownloadStatus"/>
+        <attribute name="localHistoryHumidity" optional="YES" transient="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[Double]"/>
+        <attribute name="localHistoryTemperature" optional="YES" transient="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[Double]"/>
+        <attribute name="localHistoryTimestamp" optional="YES" transient="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[Date]"/>
+        <attribute name="localTimestamp" optional="YES" transient="YES" attributeType="Date" defaultDateTimeInterval="-978307200" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="uuid" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="adv" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="BeaconAdv" inverseName="beacon" inverseEntity="BeaconAdv"/>
+        <relationship name="history" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="BeaconHistoryDataPoint" inverseName="beacon" inverseEntity="BeaconHistoryDataPoint"/>
+        <relationship name="location" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="BeaconLocation" inverseName="beacon" inverseEntity="BeaconLocation"/>
+    </entity>
+    <entity name="BeaconAdv" representedClassName="BeaconAdv" syncable="YES">
+        <attribute name="accel_x" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="accel_y" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="accel_z" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="battery" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="humidity" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="rawdata" optional="YES" transient="YES" attributeType="String"/>
+        <attribute name="rssi" optional="YES" attributeType="Integer 64" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="temperature" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="beacon" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Beacon" inverseName="adv" inverseEntity="Beacon"/>
+    </entity>
+    <entity name="BeaconHistoryDataPoint" representedClassName="BeaconHistoryDataPoint" syncable="YES">
+        <attribute name="humidity" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="temperature" optional="YES" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="beacon" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Beacon" inverseName="history" inverseEntity="Beacon"/>
+    </entity>
+    <entity name="BeaconLocation" representedClassName="BeaconLocation" syncable="YES">
+        <attribute name="address" optional="YES" attributeType="String"/>
+        <attribute name="latitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="locationAvailable" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="longitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="beacon" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Beacon" inverseName="location" inverseEntity="Beacon"/>
+    </entity>
+    <elements>
+        <element name="Beacon" positionX="-223.1812133789062" positionY="-285.9000091552734" width="128" height="329"/>
+        <element name="BeaconAdv" positionX="68.5216064453125" positionY="-408.4564971923828" width="128" height="179"/>
+        <element name="BeaconHistoryDataPoint" positionX="79.50518798828125" positionY="-213.89697265625" width="128" height="103"/>
+        <element name="BeaconLocation" positionX="84.72802734375" positionY="-71.25010681152344" width="128" height="119"/>
+    </elements>
+</model>

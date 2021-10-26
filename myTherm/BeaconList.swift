@@ -23,11 +23,6 @@ struct BeaconList: View, Equatable {
     @StateObject var lm = LocationManager.shared
     var authMode = LocationManager.shared.locationAuthorizationStatus
 
-    @FetchRequest(
-        sortDescriptors: [],
-        animation: .default)
-    private var devices: FetchedResults<Devices>
-
     @State private var editMode: EditMode = .inactive
     @State private var doFilter: Bool = false
     @State var activeSheet: ActiveSheet?
