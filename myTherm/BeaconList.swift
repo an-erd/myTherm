@@ -242,8 +242,8 @@ struct BeaconList: View, Equatable {
                         } else if val < -50 {
                             beaconModel.pullingDownThreshold = false
                         }  else {
-                            beaconModel.isPulledDown = false
                             if beaconModel.isPulledDown {
+                                beaconModel.isPulledDown = false
                             }
                         }
                         detector.send(val)

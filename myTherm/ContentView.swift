@@ -123,7 +123,7 @@ struct ContentView: View {
 //            }
 
         }
-            
+        .navigationViewStyle(StackNavigationViewStyle())
 
         .onAppear(perform: {
             print("ContentView onAppear")
