@@ -184,7 +184,7 @@ class DownloadManager: NSObject, ObservableObject {
                         model.numDownloadStatusError = 0
                     } else {
                         // show ready message with 5 sec timer
-                        let (text1, text2) = buildDownloadSuccessStatus()
+                        let (text1, text2) = self.buildDownloadSuccessStatus()
                         model.textDownloadingStatusLine1 = text1
                         model.textDownloadingStatusLine2 = text2
                         model.isDownloadStatusSuccess = true

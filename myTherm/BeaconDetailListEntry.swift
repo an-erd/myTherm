@@ -23,10 +23,8 @@ struct BeaconDetailListEntry : View {
     }
 }
 
-#if DEBUG
 struct BeaconDetailListEntry_Previews : PreviewProvider {
     static var previews: some View {
         BeaconDetailListEntry(title: "Title", text: "Text")
     }
 }
-#endif

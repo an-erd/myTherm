@@ -51,8 +51,14 @@ struct ProgressCircle: View {
                 .stroke(Color.blue, lineWidth: 2)
                 .rotationEffect(.degrees(Double(rotation)))
                 .rotationEffect(Angle(degrees: isLoading ? 360 : 0))
-                .animation(Animation.linear(duration: 1).repeatForever(autoreverses: false))
-                .onAppear() { self.isLoading = true}
+                .animation(
+                    .linear(duration: 1)
+                    .repeatForever(autoreverses: false),
+                    value: isLoading ? 1.5 : 1
+                    )
+                .onAppear() {
+                    self.isLoading = true
+                }
         }
     }
     

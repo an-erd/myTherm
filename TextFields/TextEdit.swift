@@ -49,12 +49,20 @@ struct TextEdit : View {
         }
     }
 }
-/*
- #if DEBUG
- struct TextEdit_Previews : PreviewProvider {
- static var previews: some View {
- TextEdit(fieldName: "Name", name: "Beac1")
- }
- }
- #endif
- */
+
+struct TextEdit_wrapper : View {
+    
+    @State var beaconName: String? = "Beac1"
+    
+    var body: some View {
+        TextEdit(fieldName: "Name", name: Binding($beaconName)!,
+                 allowEmpty: false)
+    }
+}
+
+struct TextEdit_Previews: PreviewProvider {
+
+    static var previews: some View {
+        TextEdit_wrapper()
+    }
+}

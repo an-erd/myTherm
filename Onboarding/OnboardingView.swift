@@ -19,11 +19,11 @@ var cards: [OnboardingCard] = [
     OnboardingCard(
         image: "key1",
         title: "On the way",
-        description: "If you use them your sensors on the way, you can activate location services when asked. This enables the app to store the sensors last-seen position."),
+        description: "If you use your sensors on the way, you can activate location services when asked. This enables the app to store the sensors last-seen position."),
     OnboardingCard(
         image: "startusing1",
         title: "Enjoy",
-        description: "Place a sensor in operating distance (start with < 5 Meters) to your mobile and start using it.",
+        description: "Place a sensor in operating distance (start with < 5 meters) to your smartphone and start using it.",
         button: "Start")
 ]
 
@@ -34,7 +34,7 @@ struct OnboardingView: View {
     
     var body: some View {
         TabView(selection: $selectedPage) {
-            ForEach(0..<cards.count) { index in
+            ForEach(0..<4) { index in
                 VStack {
                     Subview(card: cards[index]).tag(index)
                     HStack {

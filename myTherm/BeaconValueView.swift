@@ -32,20 +32,10 @@ struct BeaconValueView: View {
     }
 }
 
-//struct BeaconValueView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        NavigationView {
-//            ScrollView {
-//                VStack(spacing: 8) {
-//                    GroupBox(label: Label("Bx0706", systemImage: "thermometer")) {
-//                        BeaconValueView(description: "descr",
-//                                        temperature: "22,3",
-//                                        humidity: "69")
-//                    }
-//                    .groupBoxStyle(BeaconGroupBoxStyle(color: .blue, destination: Text("Bx070dd6"), dateString: "recently"))
-//                }.padding()
-//            }.background(Color(.systemGroupedBackground)).edgesIgnoringSafeArea(.bottom)
-//            .navigationTitle("Beacons")
-//        }
-//    }
-//}
+struct BeaconValueView_Previews: PreviewProvider {
+    static var previews: some View {
+        BeaconValueView(temperature: 22.3,
+                        humidity: 69,
+                        string: "descr")
+    }
+}

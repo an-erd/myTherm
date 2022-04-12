@@ -37,6 +37,8 @@ struct Subview: View {
 
 struct Subview_Previews: PreviewProvider {
     static var previews: some View {
+        Subview(card: cards[0])
+        Subview(card: cards[1])
         Subview(card: cards[2])
         Subview(card: cards[3])
     }

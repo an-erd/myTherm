@@ -22,12 +22,13 @@ struct TextShow : View {
         }
     }
 }
-/*
-#if DEBUG
+
 struct TextShow_Previews : PreviewProvider {
     static var previews: some View {
-        TextEdit(fieldName: "Name", name: "Beac1")
+        NavigationView {
+            VStack {
+                TextShow(fieldName: "Name", text: "Beac1")
+            }            
+        }
     }
 }
-#endif
-*/

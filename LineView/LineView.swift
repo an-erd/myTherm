@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 import os
 
 // see here: https://stackoverflow.com/questions/64573755/swiftui-scrollview-with-tap-and-drag-gesture
@@ -300,23 +301,37 @@ struct LineView: View, Equatable {
     }
 }
 
-//struct LineView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        Group {
-//            LineView(timestamp: [ Date(),
-//                                  Date().addingTimeInterval(1),
-//                                  Date().addingTimeInterval(2),
-//                                  Date().addingTimeInterval(3),
-//                                  Date().addingTimeInterval(4),
-//                                  Date().addingTimeInterval(5),
-//                                  Date().addingTimeInterval(6),
-//                                  Date().addingTimeInterval(7),
-//                                  Date().addingTimeInterval(8),
-//                                  Date().addingTimeInterval(9)],
-//                data: [ 1, 0.623,0.696,0.798,0.798,0.623,0.501,0.571,0.713,0.851], title: "title")
-////            LineView(data: [0.6239593970127428,0.6965895913740223,0.7989321379739961,0.7989321379739961,0.6239593970127428,0.5018086155869746,0.5711374374772689,0.7130964537288593,0.8517540975094645], title: "title")
-////            LineView(data: [0,9,8,8,11,7,12],title: "Title")
-//        }
-//        .previewLayout(.fixed(width: 300, height: 70))
-//    }
-//}
+struct LineView_wrapper: View {
+    @State private var localValue2 = BeaconLocalValueView()
+
+    var body: some View {
+        Group {
+            LineView(timestamp: [ Date(),
+                                  Date().addingTimeInterval(1),
+                                  Date().addingTimeInterval(2),
+                                  Date().addingTimeInterval(3),
+                                  Date().addingTimeInterval(4),
+                                  Date().addingTimeInterval(5),
+                                  Date().addingTimeInterval(6),
+                                  Date().addingTimeInterval(7),
+                                  Date().addingTimeInterval(8),
+                                  Date().addingTimeInterval(9)],
+                     dataTemperature: [ 1, 0.623,0.696,0.798,0.798,0.623,0.501,0.571,0.713,0.851],
+                     dataHumidity: [ 1, 0.623,0.696,0.798,0.798,0.623,0.501,0.571,0.713,0.851],
+                     localValue: localValue2,
+                     showTemperature: .constant(false),
+                     isDragging: .constant(false),
+                     titleStrings: [ "C", "H"],
+            frameSize: CGRect(x: 20, y: 20, width: 20, height: 20))
+//            LineView(data: [0.6239593970127428,0.6965895913740223,0.7989321379739961,0.7989321379739961,0.6239593970127428,0.5018086155869746,0.5711374374772689,0.7130964537288593,0.8517540975094645], title: "title")
+//            LineView(data: [0,9,8,8,11,7,12],title: "Title")
+        }
+        .previewLayout(.fixed(width: 300, height: 70))
+    }
+}
+
+struct LineView_Previews: PreviewProvider {
+    static var previews: some View {
+        LineView_wrapper()
+    }
+}
