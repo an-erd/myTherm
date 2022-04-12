@@ -176,7 +176,7 @@ final class BeaconModel: ObservableObject {
             if let beacon = fetchBeacon(context: context, with: uuid) {
                 print("BeaconModel copyHistoryArrayToLocalArray \(beacon.wrappedDeviceName) ")
                 beacon.copyHistoryArrayToLocalArray()
-
+                beacon.lowBattery = batteryLeveInPercent(mvolts: Int(beacon.adv.battery)) < 40 ? true : false
             } else {
                 print("copyHistoryArrayToLocalArray beacon not found")
             }
@@ -185,31 +185,51 @@ final class BeaconModel: ObservableObject {
     
     public func copyLocalHistoryArrayBetweenContext(
         contextFrom: NSManagedObjectContext, contextTo: NSManagedObjectContext, uuid: UUID) {
-        print("copyLocalHistoryArrayBetweenContext 1 \(Thread.current)")
-        var tempHistoryTemperature: [Double]!
-        var tempHistoryHumidity: [Double]!
-        var tempHistoryTimestamp: [Date]!
-        
-        contextFrom.performAndWait {
-            print("copyLocalHistoryArrayBetweenContext 2 \(Thread.current)")
-            if let beacon = fetchBeacon(context: contextFrom, with: uuid) {
-                tempHistoryTemperature = beacon.localHistoryTemperature
-                tempHistoryHumidity = beacon.localHistoryHumidity
-                tempHistoryTimestamp = beacon.localHistoryTimestamp
+            print("copyLocalHistoryArrayBetweenContext 1 \(Thread.current)")
+            var tempHistoryTemperature: [Double]!
+            var tempHistoryHumidity: [Double]!
+            var tempHistoryTimestamp: [Date]!
+            
+            contextFrom.performAndWait {
+                print("copyLocalHistoryArrayBetweenContext 2 \(Thread.current)")
+                if let beacon = fetchBeacon(context: contextFrom, with: uuid) {
+                    tempHistoryTemperature = beacon.localHistoryTemperature
+                    tempHistoryHumidity = beacon.localHistoryHumidity
+                    tempHistoryTimestamp = beacon.localHistoryTimestamp
+                }
             }
-        }
-        
-        DispatchQueue.main.async {
-            contextTo.performAndWait {
-                print("copyLocalHistoryArrayBetweenContext 3 \(Thread.current)")
-                if let beacon = self.fetchBeacon(context: contextTo, with: uuid) {
-                    beacon.localHistoryTemperature = tempHistoryTemperature
-                    beacon.localHistoryHumidity = tempHistoryHumidity
-                    beacon.localHistoryTimestamp = tempHistoryTimestamp
+            
+            DispatchQueue.main.async {
+                contextTo.performAndWait {
+                    print("copyLocalHistoryArrayBetweenContext 3 \(Thread.current)")
+                    if let beacon = self.fetchBeacon(context: contextTo, with: uuid) {
+                        beacon.localHistoryTemperature = tempHistoryTemperature
+                        beacon.localHistoryHumidity = tempHistoryHumidity
+                        beacon.localHistoryTimestamp = tempHistoryTimestamp
+                    }
                 }
             }
         }
-    }
+    
+    public func copyFlagLowBatteryBetweenContext(
+        contextFrom: NSManagedObjectContext, contextTo: NSManagedObjectContext, uuid: UUID) {
+            var tempLowBattery: Bool!
+
+            contextFrom.performAndWait {
+                if let beacon = fetchBeacon(context: contextFrom, with: uuid) {
+                    tempLowBattery = beacon.lowBattery
+                }
+            }
+            
+            DispatchQueue.main.async {
+                contextTo.performAndWait {
+                    if let beacon = self.fetchBeacon(context: contextTo, with: uuid) {
+                        beacon.lowBattery = tempLowBattery
+                    }
+                }
+            }
+        }
+
     
     public func copyBeaconHistoryOnce(contextFrom: NSManagedObjectContext, contextTo: NSManagedObjectContext) {
         print("copyBeaconHistoryOnce")
@@ -230,6 +250,7 @@ final class BeaconModel: ObservableObject {
         
         copyHistoryArrayToLocalArray(context: contextFrom, uuid: uuid)
         copyLocalHistoryArrayBetweenContext(contextFrom: contextFrom, contextTo: contextTo, uuid: uuid)
+        copyFlagLowBatteryBetweenContext(contextFrom: contextFrom, contextTo: contextTo, uuid: uuid)
     }
     
     public func copyLocalBeaconsToWriteContext() {

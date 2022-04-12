@@ -55,6 +55,7 @@ public struct CopyBeacon {
     var uuid: UUID?
     var flag: Bool
     var hidden: Bool
+    var lowBattery: Bool
 }
 
 public struct CopyBeaconAdv {

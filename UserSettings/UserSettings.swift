@@ -48,7 +48,13 @@ class UserSettings: ObservableObject {
     }
     @Published var filterByShown: Bool {
         didSet {
-            UserDefaults.standard.set(filterByHidden, forKey: "filterByShown")
+            UserDefaults.standard.set(filterByShown, forKey: "filterByShown")
+        }
+    }
+
+    @Published var filterByLowBattery: Bool {
+        didSet {
+            UserDefaults.standard.set(filterByLowBattery, forKey: "filterByLowBattery")
         }
     }
 
@@ -76,5 +82,7 @@ class UserSettings: ObservableObject {
                                             UserDefaults.standard.object(forKey: "filterByHidden") as! Bool)
         self.filterByShown = (UserDefaults.standard.object(forKey: "filterByShown") == nil ? false :
                                             UserDefaults.standard.object(forKey: "filterByShown") as! Bool)
+        self.filterByLowBattery = (UserDefaults.standard.object(forKey: "filterByLowBattery") == nil ? false :
+                                            UserDefaults.standard.object(forKey: "filterByLowBattery") as! Bool)
     }
 }

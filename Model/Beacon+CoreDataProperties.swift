@@ -29,6 +29,7 @@ extension Beacon {
     @NSManaged public var adv: BeaconAdv
     @NSManaged public var history: NSSet?
     @NSManaged public var location: BeaconLocation
+    @NSManaged public var lowBattery: Bool
     @NSManaged public var localTimestamp: Date?
     @NSManaged public var localDistanceFromPosition: Double
     @NSManaged public var localHistoryTemperature: [Double]?
@@ -155,6 +156,7 @@ extension Beacon {
         self.uuid = from.uuid
         self.flag = from.flag
         self.hidden = from.hidden
+        self.lowBattery = from.lowBattery
     }
     
     public func copyContent() -> CopyBeacon {
@@ -162,7 +164,8 @@ extension Beacon {
             beacon_version: self.beacon_version, company_id: self.company_id,
             descr: self.descr, device_name: self.device_name,
             id_maj: self.id_maj, id_min: self.id_min,
-            name: self.name,uuid: self.uuid, flag: self.flag, hidden: self.hidden)
+            name: self.name,uuid: self.uuid, flag: self.flag, hidden: self.hidden,
+            lowBattery: self.lowBattery)
     }
     
     public func copyContent(from: CopyBeacon) {
@@ -176,6 +179,7 @@ extension Beacon {
         self.uuid = from.uuid
         self.flag = from.flag
         self.hidden = from.hidden
+        self.lowBattery = from.lowBattery
     }
 }
 

@@ -15,6 +15,7 @@ struct BeaconBottomBarStatusFilterButton: View, Equatable {
     @Binding var filterByFlag: Bool
     @Binding var filterByHidden: Bool
     @Binding var filterByShown: Bool
+    @Binding var filterByLowBattery: Bool
     var compoundPredicateWithFilter: NSCompoundPredicate?
     var compoundPredicateWithoutFilter: NSCompoundPredicate?
 
@@ -53,6 +54,13 @@ struct BeaconBottomBarStatusFilterButton: View, Equatable {
                 firstEntry = false
             }
             filterString.append("Shown")
+        }
+        if filterByLowBattery {
+            if !firstEntry {
+                filterString.append(", ")
+                firstEntry = false
+            }
+            filterString.append("Low Battery")
         }
 
         return filterString

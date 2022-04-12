@@ -15,6 +15,7 @@ struct BeaconFilterSettingsSheet: View {
     @Binding var filterByFlag: Bool
     @Binding var filterByHidden: Bool
     @Binding var filterByShown: Bool
+    @Binding var filterByLowBattery: Bool
 
     var body: some View {
         NavigationView {
@@ -26,6 +27,7 @@ struct BeaconFilterSettingsSheet: View {
                     BeaconFilterSheetEntry(imageName: "flag.fill", color: .orange, title: "Flagged", option: $filterByFlag)
                     BeaconFilterSheetEntry(imageName: "eye.slash", color: .secondary, title: "Hidden", option: $filterByHidden)
                     BeaconFilterSheetEntry(imageName: "eye", title: "Shown", option: $filterByShown)
+                    BeaconFilterSheetEntry(imageName: "battery.25", color: .yellow, title: "Low Battery", option: $filterByLowBattery)
                 }
             }
             .navigationBarTitle(Text("Filter"), displayMode: .inline)
@@ -38,7 +40,7 @@ struct BeaconFilterSettingsSheet: View {
             })
         }
         .onDisappear {
-            if !( filterByTime || filterByFlag || filterByLocation || filterByHidden || filterByShown ) {
+            if !( filterByTime || filterByFlag || filterByLocation || filterByHidden || filterByShown || filterByLowBattery ) {
                 filterByTime = true
             }
         }
@@ -48,11 +50,13 @@ struct BeaconFilterSettingsSheet: View {
 struct BeaconFilterSheet_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            BeaconFilterSettingsSheet(filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true),
-                              filterByHidden: .constant(false), filterByShown: .constant(false))
-            BeaconFilterSettingsSheet(filterByTime: .constant(true), filterByLocation: .constant(false), filterByFlag: .constant(true),
-                              filterByHidden: .constant(false), filterByShown: .constant(false))
+            BeaconFilterSettingsSheet(
+                filterByTime: .constant(true),
+                filterByLocation: .constant(false),
+                filterByFlag: .constant(true),
+                filterByHidden: .constant(false),
+                filterByShown: .constant(false),
+                filterByLowBattery: .constant(true))
         }
-        .previewLayout(.fixed(width: 300, height: 70))
     }
 }

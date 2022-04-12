@@ -358,7 +358,12 @@ extension MyCentralManagerDelegate {
                         adv.accel_y = extractBeaconAdv.accel_y
                         adv.accel_z = extractBeaconAdv.accel_z
                         adv.rawdata = extractBeaconAdv.rawdata
-                        
+
+                        let batteryLevel = batteryLeveInPercent(mvolts: Int(adv.battery))
+                        if batteryLevel < 40 {
+                            alreadyAvailableBeacon.lowBattery = batteryLevel < 40 ? true : false
+                        }
+
                         if let location = self.locationManager.location {
                             //            print(location)
                              let localLocation = alreadyAvailableBeacon.location
@@ -418,6 +423,9 @@ extension MyCentralManagerDelegate {
                                     adv.accel_y = extractBeaconAdv.accel_y
                                     adv.accel_z = extractBeaconAdv.accel_z
                                     adv.rawdata = extractBeaconAdv.rawdata
+                                    
+                                    let batteryLevel = batteryLeveInPercent(mvolts: Int(adv.battery))
+                                    beacon.lowBattery = batteryLevel < 40 ? true : false
                                     
                                     beacon.location = BeaconLocation(context: localMoc)
                                     beacon.location.locationAvailable = false

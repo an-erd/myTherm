@@ -82,6 +82,7 @@
 		801DD7992622FBE4003ECA6D /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		801E46872624797A00C8FDEB /* BeaconFilterCountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconFilterCountView.swift; sourceTree = "<group>"; };
 		801E46892624A97000C8FDEB /* HelperFunctionsLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperFunctionsLocation.swift; sourceTree = "<group>"; };
+		8028629A28059F8F00295FA9 /* myTherm Model v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "myTherm Model v4.xcdatamodel"; sourceTree = "<group>"; };
 		803E15A326A428FB00B987C0 /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		804DF8662620594900004F2F /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		806313FE260F9685002394FB /* BeaconDownloadImageButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDownloadImageButton.swift; sourceTree = "<group>"; };
@@ -753,11 +754,12 @@
 		804DF8652620594900004F2F /* myTherm.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				8028629A28059F8F00295FA9 /* myTherm Model v4.xcdatamodel */,
 				8017D3D32727C9C700790926 /* myTherm Model v3.xcdatamodel */,
 				807444F7263EAE6600A6FE8D /* myTherm Model v2.xcdatamodel */,
 				804DF8662620594900004F2F /* Model.xcdatamodel */,
 			);
-			currentVersion = 8017D3D32727C9C700790926 /* myTherm Model v3.xcdatamodel */;
+			currentVersion = 8028629A28059F8F00295FA9 /* myTherm Model v4.xcdatamodel */;
 			path = myTherm.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

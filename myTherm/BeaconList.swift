@@ -32,6 +32,7 @@ struct BeaconList: View, Equatable {
     @State var predicateFlaggedFilter: NSPredicate?
     @State var predicateHiddenFilter: NSPredicate?
     @State var predicateShownFilter: NSPredicate?
+    @State var predicateLowBatteryFilter: NSPredicate?
     @State var compoundPredicateWithFilter: NSCompoundPredicate?
     @State var compoundPredicateWithoutFilter: NSCompoundPredicate?
     @State var filterPredicateUpdateTimer: Timer?
@@ -114,6 +115,13 @@ struct BeaconList: View, Equatable {
             predicateLocationFilter = NSPredicate(format: "localDistanceFromPosition <= %@", filterPredicateDistanceMeter as NSNumber)
             if let predicateLocationFilter = predicateLocationFilter {
                 compound.append(predicateLocationFilter)
+            }
+        }
+        
+        if userSettings.filterByLowBattery {
+            predicateLowBatteryFilter = NSPredicate(format: "lowBattery == true")
+            if let predicateLowBatteryFilter = predicateLowBatteryFilter {
+                compound.append(predicateLowBatteryFilter)
             }
         }
         
@@ -304,6 +312,7 @@ struct BeaconList: View, Equatable {
                             filterByFlag: $userSettings.filterByFlag,
                             filterByHidden: $userSettings.filterByHidden,
                             filterByShown: $userSettings.filterByShown,
+                            filterByLowBattery: $userSettings.filterByLowBattery,
                             compoundPredicateWithFilter: compoundPredicateWithFilter,
                             compoundPredicateWithoutFilter: compoundPredicateWithoutFilter)
                             .opacity(!(beaconModel.isDownloadStatusError
@@ -391,7 +400,8 @@ struct BeaconList: View, Equatable {
                                           filterByLocation: $userSettings.filterByLocation,
                                           filterByFlag: $userSettings.filterByFlag,
                                           filterByHidden: $userSettings.filterByHidden,
-                                          filterByShown: $userSettings.filterByShown)
+                                          filterByShown: $userSettings.filterByShown,
+                                          filterByLowBattery: $userSettings.filterByLowBattery)
                     .environmentObject(beaconModel)
             case .settings:
                 BeaconConfigSettingsSheet()
