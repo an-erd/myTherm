@@ -46,13 +46,8 @@ struct BeaconGroupBoxList: View {
     var body: some View {
     
         VStack {
-//            Text(doFilter ? "Filter on" : "Filter off")
-//            Text("count w/ \(filteredWithFilterSortedMapBeaconList.count), w/o \(filteredWithoutFilterSortedMapBeaconList.count)")
-//            Divider()
             ForEach(doFilter ? filteredWithFilterSortedMapBeaconList : filteredWithoutFilterSortedMapBeaconList, id: \.self) { uuid in
                 BeaconGroupBoxListUuidEntry(uuid: uuid, date: nowDate, displaySteps: displaySteps)
-//                Text("uuid \(uuid)")
-//                DebugView3(uuid: uuid)
             }
         }
         .edgesIgnoringSafeArea(.bottom)

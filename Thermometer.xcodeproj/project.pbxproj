@@ -15,6 +15,7 @@
 		801E468A2624A97000C8FDEB /* HelperFunctionsLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 801E46892624A97000C8FDEB /* HelperFunctionsLocation.swift */; };
 		803E15A426A428FB00B987C0 /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803E15A326A428FB00B987C0 /* HapticsManager.swift */; };
 		804DF8672620594900004F2F /* myTherm.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 804DF8652620594900004F2F /* myTherm.xcdatamodeld */; };
+		8062A6182808219A0081AA0E /* DefaultIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8062A6172808219A0081AA0E /* DefaultIndicatorView.swift */; };
 		806313FF260F9685002394FB /* BeaconDownloadImageButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806313FE260F9685002394FB /* BeaconDownloadImageButton.swift */; };
 		806A52BA25FA813300298441 /* BeaconLocationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806A52B725FA813300298441 /* BeaconLocationExtension.swift */; };
 		806A52BB25FA813300298441 /* BeaconExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806A52B825FA813300298441 /* BeaconExtension.swift */; };
@@ -85,6 +86,7 @@
 		8028629A28059F8F00295FA9 /* myTherm Model v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "myTherm Model v4.xcdatamodel"; sourceTree = "<group>"; };
 		803E15A326A428FB00B987C0 /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		804DF8662620594900004F2F /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		8062A6172808219A0081AA0E /* DefaultIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultIndicatorView.swift; sourceTree = "<group>"; };
 		806313FE260F9685002394FB /* BeaconDownloadImageButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDownloadImageButton.swift; sourceTree = "<group>"; };
 		806A52B725FA813300298441 /* BeaconLocationExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BeaconLocationExtension.swift; path = Model/BeaconLocationExtension.swift; sourceTree = "<group>"; };
 		806A52B825FA813300298441 /* BeaconExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BeaconExtension.swift; path = Model/BeaconExtension.swift; sourceTree = "<group>"; };
@@ -185,6 +187,14 @@
 			path = Haptics;
 			sourceTree = "<group>";
 		};
+		8062A6162808216E0081AA0E /* ActivityIndicatorView */ = {
+			isa = PBXGroup;
+			children = (
+				8062A6172808219A0081AA0E /* DefaultIndicatorView.swift */,
+			);
+			path = ActivityIndicatorView;
+			sourceTree = "<group>";
+		};
 		806AF07226164F5F00DE0BD6 /* SlideMenu */ = {
 			isa = PBXGroup;
 			children = (
@@ -195,6 +205,8 @@
 		807838DE25DCEB0E009FF0E9 = {
 			isa = PBXGroup;
 			children = (
+				8062A6162808216E0081AA0E /* ActivityIndicatorView */,
+				80FDA99328081702004EFF64 /* Packages */,
 				803E15A226A428D000B987C0 /* Haptics */,
 				801DD7982622FBBF003ECA6D /* NetworkManager */,
 				801DD7952622CB8E003ECA6D /* UserSettings */,
@@ -386,6 +398,13 @@
 			path = ViewRouter;
 			sourceTree = "<group>";
 		};
+		80FDA99328081702004EFF64 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -514,6 +533,7 @@
 				80757163263D74A9005BED88 /* DebugTestView.swift in Sources */,
 				808026E325DD5431000C377D /* HelperFunctions.swift in Sources */,
 				80ECC8F82609E503006AA4AE /* Subview.swift in Sources */,
+				8062A6182808219A0081AA0E /* DefaultIndicatorView.swift in Sources */,
 				8080270B25DD954E000C377D /* BeaconDetail.swift in Sources */,
 				8080270025DD6E86000C377D /* BeaconAdv+CoreDataClass.swift in Sources */,
 				803E15A426A428FB00B987C0 /* HapticsManager.swift in Sources */,
@@ -666,7 +686,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.anerd.myTherm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -691,7 +711,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.anerd.myTherm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

@@ -189,7 +189,10 @@ struct BeaconList: View, Equatable {
     
     fileprivate func buildViewPullingDown() -> some View {
         return AnyView(
-            Text("Pull down to scan for sensors")
+            VStack {
+                Text("Pull down to scan for sensors")
+//                DefaultIndicatorView()
+            }
         )
     }
     
@@ -239,15 +242,15 @@ struct BeaconList: View, Equatable {
                         if !beaconModel.isScrolling {
                             beaconModel.isScrolling = true
                         }
-                        if val < -130 {
+                        if val < -100 {
                             if beaconModel.isPulledDown == false {
                                 beaconModel.isPulledDown = true
                                 MyCentralManagerDelegate.shared.startScanService()
                                 HapticsManager.shared?.playPull()
                             }
-                        } else if val < -100 {
+                        } else if val < -80 {
                             beaconModel.pullingDownThreshold = true
-                        } else if val < -50 {
+                        } else if val < -30 {
                             beaconModel.pullingDownThreshold = false
                         }  else {
                             if beaconModel.isPulledDown {
