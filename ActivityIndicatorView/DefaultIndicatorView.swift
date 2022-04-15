@@ -77,9 +77,9 @@ struct DefaultIndicatorItemView: View {
 //                    .opacity(index == 0 ? 1 : Double(index)/8.0)
                     .opacity(opacity)
                     .onAppear {
-                        self.opacity = 1
+                        self.opacity = 0.0
                         withAnimation(animation) {
-                            self.opacity = 0.0
+                            self.opacity = 1.0
                         }
                     }
             )

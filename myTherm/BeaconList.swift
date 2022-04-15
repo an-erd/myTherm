@@ -190,15 +190,20 @@ struct BeaconList: View, Equatable {
     fileprivate func buildViewPullingDown() -> some View {
         return AnyView(
             VStack {
-                Text("Pull down to scan for sensors")
-//                DefaultIndicatorView()
+                DefaultIndicatorView(step: beaconModel.pullLevel, rotate: false)
+                    .frame(width: 25, height: 25, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                    .padding(.top)
             }
         )
     }
     
     fileprivate func buildViewPulledDown() -> some View {
         return AnyView(
-            Text("Scanning for sensors now...")
+            VStack {
+                DefaultIndicatorView(step: 0, rotate: true)
+                    .frame(width: 25, height: 25, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                    .padding(.top)
+            }
         )
     }
     
@@ -238,23 +243,30 @@ struct BeaconList: View, Equatable {
                                            value: -$0.frame(in: .named("scroll")).origin.y)
                 })
                 .onPreferenceChange(ViewOffsetKey.self) {val in
+                    // < -120 pulled down
+                    // <  -25 pullingDownThreshold -> true
+                    // <  -20 pullingDownThreshold -> false
+                    // -120 ... -25 -> 95 / 8 steps
                     DispatchQueue.main.async {
+//                        print("pulling \(beaconModel.pullingDownThreshold ? "y" : "n") pulled \(beaconModel.isPulledDown ? "y" : "n") level \(beaconModel.pullLevel) val = \(val) ")
                         if !beaconModel.isScrolling {
                             beaconModel.isScrolling = true
                         }
-                        if val < -100 {
+                        if val < -125 {
                             if beaconModel.isPulledDown == false {
                                 beaconModel.isPulledDown = true
                                 MyCentralManagerDelegate.shared.startScanService()
                                 HapticsManager.shared?.playPull()
                             }
-                        } else if val < -80 {
+                        } else if val < -45 {
                             beaconModel.pullingDownThreshold = true
-                        } else if val < -30 {
+                            beaconModel.pullLevel = min(Int ( -val - 45 ) / 10, 7)
+                        } else if val < -25 {
                             beaconModel.pullingDownThreshold = false
                         }  else {
                             if beaconModel.isPulledDown {
                                 beaconModel.isPulledDown = false
+                                beaconModel.pullingDownThreshold = false
                             }
                         }
                         detector.send(val)

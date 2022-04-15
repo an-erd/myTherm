@@ -66,6 +66,7 @@ final class BeaconModel: ObservableObject {
     @Published var isScrolling = false
     @Published var isPulledDown = false
     @Published var pullingDownThreshold = false
+    @Published var pullLevel: Int = 0
     
     private var beaconCacheViewContext: [ UUID : Beacon ]  = [ : ]
     private var beaconCacheWriteContext: [ UUID : Beacon ] = [ : ]
