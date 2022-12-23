@@ -356,14 +356,16 @@ struct BeaconList: View, Equatable {
                     }
                     Spacer()
                     
-                    //                Button(action: {
-                    //                    activeSheet = .settings
-                    //                }) {
-                    //                    HStack {
-                    //                        Image(systemName: "ellipsis.circle")
-                    //                    }
-                    //                    .padding()
-                    //                }
+                                    Button(action: {
+//                                        activeSheet = .settings
+                                        print("\(viewContext.persistentStoreCoordinator?.persistentStores.count)")
+                                        printBeaconListHistoryCount()
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "ellipsis.circle")
+                                        }
+                                        .padding()
+                                    }
                 }
             }
         }

@@ -77,11 +77,17 @@ struct PersistenceController {
         description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
         description.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
 
-        container.loadPersistentStores(completionHandler: { (_, error) in
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            print("\(storeDescription)")
+            
             guard let error = error as NSError? else { return }
             fatalError("###\(#function): Failed to load persistent stores:\(error)")
         })
         
+//        container.loadPersistentStores(completionHandler: { (_, error) in
+//            guard let error = error as NSError? else { return }
+//            fatalError("###\(#function): Failed to load persistent stores:\(error)")
+//        })
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         container.viewContext.undoManager = nil
         container.viewContext.transactionAuthor = appTransactionAuthorName

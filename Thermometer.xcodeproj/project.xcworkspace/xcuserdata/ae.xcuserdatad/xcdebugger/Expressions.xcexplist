@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "closure #1 in MyCentralManagerDelegate.centralManager(_:didDiscover:advertisementData:rssi:):BeaconBluetoothManager.swift">
+      </ContextState>
+      <ContextState
+         contextName = "MyCentralManagerDelegate.centralManager(_:didDiscover:advertisementData:rssi:):BeaconBluetoothManager.swift">
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

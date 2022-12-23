@@ -40,7 +40,7 @@ struct BeaconLineView: View {
                                               width: reader.frame(in: .local).width,
                                               height: reader.frame(in: .local).height)
                         )
-                        .equatable()
+//                        .equatable()
                     }
                     .isHidden(beacon.wrappedLocalHistoryTemperature.count < 2, remove: false)
                 }
